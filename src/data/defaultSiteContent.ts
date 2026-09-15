@@ -1,0 +1,761 @@
+import { DEFAULT_CLIENT_INSTITUTIONS } from './partnersData';
+import type { SiteContent } from '../types';
+
+export const INITIAL_SITE_CONTENT: SiteContent = {
+  version: 1,
+  lastUpdated: new Date().toISOString(),
+
+  general: {
+    brandName: 'ELEVATE',
+    tagline: 'Digital Solutions & Creative Services',
+    websiteTitle: 'ELEVATE — Digital Solutions & Creative Services',
+    metaDescription: 'ELEVATE provides professional websites, digital services, exam solutions, creative design and document solutions for institutions.',
+    defaultCurrency: '₹',
+    logoText: 'ELEVATE',
+    logoSubtext: 'DIGITAL & CREATIVE',
+    logoImage: '',
+    favicon: '',
+  },
+
+  contact: {
+    whatsappNumber: '+91 94971 22397',
+    whatsappDigits: '919497122397',
+    phoneNumber: '+91 94971 22397',
+    email: 'contact@elevate.preview',
+    emailNote: 'Official business Gmail will be designated soon. For direct communication, please use WhatsApp.',
+    address: 'Kerala, South India',
+    supportHours: 'Mon – Sat, 9:00 AM – 7:00 PM IST',
+    turnaroundTarget: 'Within 24-48 hours for standard deliverables',
+    ctaText: 'Connect with ELEVATE',
+    socialLinks: {
+      whatsapp: 'https://wa.me/919497122397',
+      instagram: '',
+      facebook: '',
+      twitter: '',
+      linkedin: '',
+    },
+  },
+
+  hero: {
+    heading: 'Digital Solutions Crafted to Help You',
+    headingHighlight: 'Elevate.',
+    pillElevateText: 'ELEVATE',
+    pillSubtitle: 'Affordable digital solutions for institutions and businesses',
+    description: 'Professional websites, admission setups, automated exam suites, and monthly creative design — made practical, fast, and transparently priced.',
+    ctaWhatsAppText: 'Continue on WhatsApp',
+    ctaQuoteText: 'Get a Quote',
+    heroImage: '',
+    highlights: {
+      websites: {
+        enabled: true,
+        title: 'Websites',
+        label: 'Websites from',
+        price: '₹999',
+        suffix: '/year',
+        targetSection: 'websites',
+      },
+      admission: {
+        enabled: true,
+        title: 'Admission',
+        label: 'Admission',
+        price: '₹449',
+        suffix: '',
+        targetSection: 'admission',
+      },
+      exam: {
+        enabled: true,
+        title: 'Exams',
+        label: 'Exams',
+        price: '₹499',
+        suffix: '',
+        targetSection: 'exam',
+      },
+      creatives: {
+        enabled: true,
+        title: 'Creatives',
+        label: 'Creatives',
+        price: '₹499',
+        suffix: '/month',
+        targetSection: 'monthly',
+      },
+    },
+  },
+
+  services: [
+    {
+      id: 'websites',
+      title: 'Websites & Portals',
+      description: 'Modern, mobile-first responsive websites for madrasas, schools, academies and businesses.',
+      priceBadge: 'From ₹999/yr',
+      deliverables: ['Custom institutional domain', 'Responsive parent & student UX', 'Direct WhatsApp integration'],
+      ctaLabel: 'View Website Plans',
+      tag: 'Web Platforms',
+      category: 'Web Development',
+      icon: 'Globe',
+      targetSection: 'websites',
+      enabled: true,
+      order: 1,
+    },
+    {
+      id: 'admission',
+      title: 'Admission Solutions',
+      description: 'Complete student intake suite: announcement posters, online forms, and print-ready ID cards.',
+      priceBadge: 'Package ₹449',
+      deliverables: ['Admission launch poster', 'Online digital admission form', 'Printable student ID card design'],
+      ctaLabel: 'View Admission Suite',
+      tag: 'Enrollment',
+      category: 'Institutional Solutions',
+      icon: 'UserCheck',
+      targetSection: 'admission',
+      enabled: true,
+      order: 2,
+    },
+    {
+      id: 'exam',
+      title: 'Exam Solutions',
+      description: 'Zero-error institutional exam materials: typed papers, formatted answer keys, and timetables.',
+      priceBadge: 'Package ₹499',
+      deliverables: ['Handwritten → Typed PDF paper', 'Answer key & scoring guide', 'Exam timetable & hall ticket design'],
+      ctaLabel: 'View Exam Suite',
+      tag: 'Academic Tools',
+      category: 'Institutional Solutions',
+      icon: 'CheckSquare',
+      targetSection: 'exam',
+      enabled: true,
+      order: 3,
+    },
+    {
+      id: 'creative',
+      title: 'Monthly Creative Plans',
+      description: 'Dedicated monthly graphic design retainers for consistent circulars, posters, and social updates.',
+      priceBadge: 'From ₹499/mo',
+      deliverables: ['5 to 15 creatives/month', 'Bespoke branding & rapid revisions', 'High-res print & digital output'],
+      ctaLabel: 'View Monthly Retainers',
+      tag: 'Design Retainer',
+      category: 'Creative Design',
+      icon: 'Palette',
+      targetSection: 'monthly',
+      enabled: true,
+      order: 4,
+    },
+    {
+      id: 'documents',
+      title: 'Bulk ID & Certificates',
+      description: 'Volume production of verified student identity cards and authentic institutional certificates.',
+      priceBadge: 'Volume Rates',
+      deliverables: ['Tiered volume rates from ₹20/card', 'Digital verification & QR ready', 'Batch student data integration'],
+      ctaLabel: 'Calculate Bulk Order',
+      tag: 'Volume Publishing',
+      category: 'Print & Documents',
+      icon: 'FileText',
+      targetSection: 'bulk',
+      enabled: true,
+      order: 5,
+    },
+    {
+      id: 'custom-solutions',
+      title: 'Have a Requirement?',
+      description: 'Tell us what you need. We’ll understand your requirement and provide the right solution.',
+      priceBadge: 'Direct Enquiry',
+      deliverables: ['Direct requirement scoping', 'Transparent project quote', 'Dedicated WhatsApp support'],
+      ctaLabel: 'Send Enquiry on WhatsApp',
+      tag: 'Bespoke Request',
+      category: 'Custom Consultation',
+      icon: 'Sparkles',
+      isCustomAction: true,
+      targetSection: 'enquiry',
+      enabled: true,
+      order: 6,
+    },
+  ],
+
+  websitePlans: [
+    {
+      id: 'basic',
+      name: 'Basic Website',
+      badge: 'STARTER',
+      price: '₹999',
+      priceNumber: 999,
+      currency: '₹',
+      billingCycle: '/year',
+      shortDescription: 'A simple digital presence with all the essential information your visitors need.',
+      features: [
+        'Home',
+        'About',
+        'Classes',
+        'Teachers',
+        'Gallery',
+        'Contact & Location',
+        'WhatsApp',
+        'Admission Information',
+        'Notice',
+      ],
+      ctaLabel: 'Choose Basic',
+      isPopular: false,
+      isAvailable: true,
+      unavailableStatus: '',
+      unavailableDescription: '',
+      order: 1,
+    },
+    {
+      id: 'standard',
+      name: 'Standard Website',
+      badge: 'MOST POPULAR',
+      price: '₹1,999',
+      priceNumber: 1999,
+      currency: '₹',
+      billingCycle: '/year',
+      shortDescription: 'A more complete website with useful online forms and digital interaction.',
+      features: [
+        'Everything in Basic',
+        'Online Admission Form',
+        'Online Enquiry Form',
+        'Programme Registration',
+        'Competition Registration',
+        'Parent Meeting Registration',
+        'Feedback Form',
+        'Email Notification',
+        'Events',
+        'Social Media Links',
+        'Limited Website Updates',
+      ],
+      ctaLabel: 'Choose Standard',
+      isPopular: true,
+      isAvailable: true,
+      unavailableStatus: '',
+      unavailableDescription: '',
+      order: 2,
+    },
+    {
+      id: 'premium',
+      name: 'Premium Website',
+      badge: 'PREMIUM',
+      price: '₹2,999',
+      priceNumber: 2999,
+      currency: '₹',
+      billingCycle: '/year',
+      shortDescription: 'Our premium website option will be available soon.',
+      features: [
+        'Everything in Standard',
+        'Custom Multi-Page Architecture',
+        'Dynamic Event & Program Showcase',
+        'Interactive Institutional Media Galleries',
+        'Priority Design Customization',
+        'Dedicated Digital Cloud Infrastructure',
+      ],
+      ctaLabel: 'Currently Unavailable',
+      isPopular: false,
+      isAvailable: false,
+      unavailableStatus: 'Currently Not Available',
+      unavailableDescription: 'Our premium website option will be available soon.',
+      order: 3,
+    },
+  ],
+
+  admissionServices: {
+    package: {
+      id: 'complete-admission-package',
+      name: 'Complete Admission Package',
+      price: 449,
+      currency: '₹',
+      description: 'Everything you need to present and manage your admission process digitally.',
+      includes: [
+        'Admission Poster / Announcement',
+        'Online Admission Form',
+        'ID Card Design / Template',
+      ],
+      isAvailable: true,
+    },
+    individual: [
+      {
+        id: 'admission-poster',
+        name: 'Admission Poster / Announcement',
+        price: 199,
+        currency: '₹',
+        unit: 'poster',
+        description: 'Bespoke, institution-branded announcements ready for social media & print notices.',
+        isAvailable: true,
+        order: 1,
+      },
+      {
+        id: 'admission-form',
+        name: 'Online Admission Form',
+        price: 99,
+        currency: '₹',
+        unit: 'form',
+        description: 'Clean digital submission form for prospective students & parents with email alerts.',
+        isAvailable: true,
+        order: 2,
+      },
+      {
+        id: 'admission-id-card',
+        name: 'ID Card Design / Template',
+        price: 199,
+        currency: '₹',
+        unit: 'design',
+        description: 'Standardized, print-ready student and staff identity card template design.',
+        isAvailable: true,
+        order: 3,
+      },
+    ],
+  },
+
+  examServices: {
+    package: {
+      id: 'complete-exam-package',
+      name: 'Complete Exam Package',
+      price: 499,
+      currency: '₹',
+      description: 'Zero-error institutional exam materials: typed papers, formatted answer keys, and timetables.',
+      includes: [
+        'Handwritten → Typed Question Paper PDF',
+        'Answer Key PDF',
+        'Exam Timetable',
+        'Hall Ticket Design',
+      ],
+      isAvailable: true,
+    },
+    individual: [
+      {
+        id: 'exam-question-paper',
+        name: 'Handwritten → Typed Question Paper PDF',
+        price: 99,
+        currency: '₹',
+        unit: '/ paper',
+        allowsQuantity: true,
+        description: 'You provide the handwritten question paper; ELEVATE types, formats and prepares the print-ready PDF.',
+        isAvailable: true,
+        order: 1,
+      },
+      {
+        id: 'exam-answer-key',
+        name: 'Answer Key PDF',
+        price: 149,
+        currency: '₹',
+        unit: '/ paper',
+        allowsQuantity: true,
+        description: 'Clean, structured answer key document prepared to match institutional question papers.',
+        isAvailable: true,
+        order: 2,
+      },
+      {
+        id: 'exam-timetable',
+        name: 'Exam Timetable',
+        price: 79,
+        currency: '₹',
+        unit: 'schedule',
+        description: 'Structured examination schedule with date, time, subject, and student instruction formatting.',
+        isAvailable: true,
+        order: 3,
+      },
+      {
+        id: 'exam-hall-ticket',
+        name: 'Hall Ticket Design',
+        price: 199,
+        currency: '₹',
+        unit: 'template',
+        description: 'Print-ready examination admit card template with institutional branding and candidate guidelines.',
+        note: 'Student-wise hall ticket preparation is available with quantity-based/custom pricing.',
+        isAvailable: true,
+        order: 4,
+      },
+    ],
+  },
+
+  monthlyCreativePlans: {
+    plans: [
+      {
+        id: 'monthly-basic',
+        name: 'Basic Monthly Creative Plan',
+        price: 499,
+        currency: '₹',
+        billingCycle: '/month',
+        creativesCount: 5,
+        creativesCountLabel: '5 creatives',
+        description: 'Essential monthly visual updates for regular notices and announcements.',
+        badge: 'ESSENTIAL',
+        isPopular: false,
+        isAvailable: true,
+        ctaLabel: 'Choose Basic',
+        features: [
+          '5 Custom Creative Designs per month',
+          'Notice & Circular Graphics',
+          'Social Media & WhatsApp Status Ready',
+          'High-Resolution Print PDF + Digital Formats',
+          'Standard 24-48h Turnaround',
+        ],
+        order: 1,
+      },
+      {
+        id: 'monthly-standard',
+        name: 'Standard Monthly Creative Plan',
+        price: 899,
+        currency: '₹',
+        billingCycle: '/month',
+        creativesCount: 10,
+        creativesCountLabel: '10 creatives',
+        description: 'Ideal for institutions maintaining an active social media presence and circular cadence.',
+        badge: 'MOST POPULAR',
+        isPopular: true,
+        isAvailable: true,
+        ctaLabel: 'Choose Standard',
+        features: [
+          '10 Custom Creative Designs per month',
+          'Notice, Circular & Event Invitations',
+          'Bespoke Announcement Posters',
+          'Instagram, Facebook & WhatsApp Formats',
+          'Priority Turnaround (24h Target)',
+          '1 Minor Revision Round included',
+        ],
+        order: 2,
+      },
+      {
+        id: 'monthly-premium',
+        name: 'Premium Monthly Creative Plan',
+        price: 1299,
+        currency: '₹',
+        billingCycle: '/month',
+        creativesCount: 15,
+        creativesCountLabel: '15 creatives',
+        description: 'Comprehensive digital creative support for multi-stream communication and campaigns.',
+        badge: 'COMPREHENSIVE',
+        isPopular: false,
+        isAvailable: true,
+        ctaLabel: 'Choose Premium',
+        features: [
+          '15 Custom Creative Designs per month',
+          'Full Multi-Format Campaign Coverage',
+          'Brochures, Programs & Event Banners',
+          'Dedicated Creative Workflow Slot',
+          'Rapid Priority Delivery',
+          'Comprehensive Asset Archive',
+        ],
+        order: 3,
+      },
+    ],
+    creativeTypes: [
+      { id: 'poster', label: 'Poster Design', category: 'Announcement' },
+      { id: 'invitation', label: 'Invitation Design', category: 'Events' },
+      { id: 'notice', label: 'Notice Design', category: 'Administrative' },
+      { id: 'circular', label: 'Circular Design', category: 'Administrative' },
+      { id: 'social-post', label: 'Social Media Post Design', category: 'Digital' },
+      { id: 'whatsapp-status', label: 'WhatsApp Status Design', category: 'Digital' },
+      { id: 'admission-announcement', label: 'Admission Announcement Design', category: 'Academic' },
+      { id: 'exam-announcement', label: 'Exam Announcement Design', category: 'Academic' },
+      { id: 'holiday-notice', label: 'Holiday Notice Design', category: 'Administrative' },
+      { id: 'event-announcement', label: 'Event Announcement Design', category: 'Events' },
+      { id: 'madrasa-content', label: 'Madrasa Social Media Content', category: 'Specialized' },
+      { id: 'custom-digital', label: 'Custom Digital Design', category: 'Bespoke' },
+    ],
+  },
+
+  bulkPricing: {
+    idCards: {
+      id: 'bulk-id-cards',
+      title: 'ID Cards',
+      description: 'Need multiple student or staff identity cards? Take advantage of volume rates.',
+      unitLabel: 'card',
+      defaultQty: 50,
+      minQty: 1,
+      maxQty: 1000,
+      tiers: [
+        {
+          rangeLabel: '1–49',
+          min: 1,
+          max: 49,
+          unitPrice: 30,
+        },
+        {
+          rangeLabel: '50+',
+          min: 50,
+          max: 99,
+          unitPrice: 25,
+        },
+        {
+          rangeLabel: '100+',
+          min: 100,
+          max: null,
+          unitPrice: 20,
+        },
+      ],
+    },
+    certificates: {
+      id: 'bulk-certificates',
+      title: 'Certificates',
+      description: 'Course completion, annual awards, event merit and achievement certificates.',
+      unitLabel: 'certificate',
+      defaultQty: 50,
+      minQty: 1,
+      maxQty: 1000,
+      baseDesignFee: {
+        label: 'Certificate Design',
+        price: 149,
+      },
+      tiers: [
+        {
+          rangeLabel: '1–49',
+          min: 1,
+          max: 49,
+          unitPrice: 20,
+        },
+        {
+          rangeLabel: '50–99',
+          min: 50,
+          max: 99,
+          unitPrice: 15,
+        },
+        {
+          rangeLabel: '100+',
+          min: 100,
+          max: null,
+          unitPrice: 10,
+        },
+      ],
+    },
+  },
+
+  customEnquiry: {
+    heading: 'Have a Requirement?',
+    description: 'Tell us what you need. We’ll understand your requirement and provide the right solution.',
+    buttonText: 'Send Enquiry on WhatsApp',
+    whatsappTemplate: 'Hello ELEVATE,\n\nI would like to enquire about your digital services.\nPlease share the details and pricing.',
+    enabled: true,
+  },
+
+  clientInstitutions: {
+    sectionBadge: 'OUR CLIENTS',
+    sectionTitle: 'Our Client Institutions',
+    sectionSubtitle: 'Educational institutions we work with',
+    list: DEFAULT_CLIENT_INSTITUTIONS,
+  },
+
+  howItWorks: {
+    sectionBadge: 'STREAMLINED WORKFLOW',
+    sectionTitle: 'Simple. Transparent. Reliable.',
+    sectionSubtitle: 'How we deliver digital solutions to your institution with zero operational friction.',
+    steps: [
+      {
+        step: '01',
+        title: 'Choose a Service',
+        description: 'Select the website plan, admission setup, exam paper typing, or monthly design package you need.',
+        icon: 'MousePointerClick',
+        enabled: true,
+      },
+      {
+        step: '02',
+        title: 'Send Your Requirement',
+        description: 'Provide your handwritten paper, institution details, or design instructions directly via WhatsApp.',
+        icon: 'MessageSquare',
+        enabled: true,
+      },
+      {
+        step: '03',
+        title: 'We Prepare the Work',
+        description: 'Our team crafts your digital solution with precise typography, zero errors, and clean formatting.',
+        icon: 'Cpu',
+        enabled: true,
+      },
+      {
+        step: '04',
+        title: 'Review and Approve',
+        description: 'Receive your print-ready PDFs or live website preview for verification before final handover.',
+        icon: 'CheckCircle',
+        enabled: true,
+      },
+      {
+        step: '05',
+        title: 'Receive Final Files',
+        description: 'Get high-resolution, print-ready files, credentials, and ongoing support for your institution.',
+        icon: 'Send',
+        enabled: true,
+      },
+    ],
+  },
+
+  whyElevate: {
+    sectionBadge: 'WHY ELEVATE',
+    sectionTitle: 'Digital Work. Made Simple.',
+    sectionSubtitle: 'We operate with complete transparency, lean workflows, and direct accountability — so your institution gets exactly what it needs without friction.',
+    benefits: [
+      {
+        id: 'transparent',
+        title: 'Clear, Direct Pricing',
+        description: 'No hidden setup fees or surprise quotes. What you see is what you pay.',
+        number: '01',
+        icon: 'ShieldCheck',
+        enabled: true,
+      },
+      {
+        id: 'turnaround',
+        title: 'Fast & Reliable Turnaround',
+        description: 'Exam papers, admission graphics, and urgent circulars delivered within 24-48 hours.',
+        number: '02',
+        icon: 'Zap',
+        enabled: true,
+      },
+      {
+        id: 'madrasa',
+        title: 'Institutional Understanding',
+        description: 'We understand the unique scheduling, formatting, and cultural standards of educational institutions.',
+        number: '03',
+        icon: 'BookOpen',
+        enabled: true,
+      },
+      {
+        id: 'whatsapp',
+        title: 'Zero Friction Workflow',
+        description: 'Direct communication via WhatsApp. Send photos of handwritten papers; get back print-ready PDFs.',
+        number: '04',
+        icon: 'MessageCircle',
+        enabled: true,
+      },
+    ],
+  },
+
+  faq: {
+    sectionBadge: 'FAQ',
+    sectionTitle: 'Frequently Asked Questions',
+    sectionSubtitle: 'Everything you need to know about our approach, pricing philosophy, and institutional support.',
+    items: [
+      {
+        id: 'faq-1',
+        question: 'How do I start a project with ELEVATE?',
+        answer: 'Simply click "Continue on WhatsApp" or select any service on this website. Send us your requirements, photos of handwritten papers, or institutional details. We will confirm the price and timeline immediately before starting work.',
+        enabled: true,
+        order: 1,
+      },
+      {
+        id: 'faq-2',
+        question: 'What is the turnaround time for Question Paper Typing?',
+        answer: 'Standard question papers (1-4 pages) are formatted and returned as print-ready PDFs within 24 to 48 hours. Urgent exam requests can be expedited upon confirmation via WhatsApp.',
+        enabled: true,
+        order: 2,
+      },
+      {
+        id: 'faq-3',
+        question: 'Are there any hidden charges on Website Plans?',
+        answer: 'No. Our Basic (₹999/year) and Standard (₹1,999/year) plans include domain setup, fast hosting, responsive layout, and WhatsApp integration. No surprise renewal rates or hidden setup costs.',
+        enabled: true,
+        order: 3,
+      },
+      {
+        id: 'faq-4',
+        question: 'Can I choose individual services instead of the full package?',
+        answer: 'Yes! Both our Admission and Exam solutions offer complete packages at discounted rates or individual a la carte services (such as only Question Paper Typing at ₹99/paper or an Admission Poster at ₹199).',
+        enabled: true,
+        order: 4,
+      },
+      {
+        id: 'faq-5',
+        question: 'Do Monthly Creative Plans include website updates?',
+        answer: 'No. Monthly Creative Plans are dedicated exclusively to graphic design deliverables (posters, notices, circulars, social media graphics, event invitations). Website updates are managed separately under website plans.',
+        enabled: true,
+        order: 5,
+      },
+      {
+        id: 'faq-6',
+        question: 'How do bulk rates work for Student ID Cards and Certificates?',
+        answer: 'Volume rates apply automatically based on quantity. ID cards are ₹30/card for 1–49, ₹25/card for 50–99, and ₹20/card for 100+. Certificates follow a similar tiered schedule with an optional base design template fee.',
+        enabled: true,
+        order: 6,
+      },
+    ],
+  },
+
+  footer: {
+    brandDescription: 'Affordable digital solutions, web development, exam typing and creative services tailored for educational institutions, madrasas, and modern businesses.',
+    copyrightText: '© {year} ELEVATE. Digital Solutions & Creative Services.',
+    navigationLabels: {
+      websites: 'Website Plans',
+      admission: 'Admission Solutions',
+      exam: 'Exam Solutions',
+      monthly: 'Monthly Creatives',
+      bulk: 'Bulk Pricing',
+      clients: 'Our Clients',
+      faq: 'FAQ',
+      contact: 'Contact Us',
+    },
+  },
+
+  whatsappSettings: {
+    defaultNumber: '+91 94971 22397',
+    templates: {
+      websitePlan: `Hello ELEVATE,
+
+I’m interested in the {plan_name} — {price}.
+
+Please share the details.`,
+
+      admissionPackage: `Hello ELEVATE,
+
+I’m interested in the {package_name} — {price}.
+
+Please share the details.`,
+
+      admissionIndividual: `Hello ELEVATE,
+
+I would like to enquire about these services:
+
+{selected_services}
+
+Estimated Total: {total}
+
+Please share the details.`,
+
+      examPackage: `Hello ELEVATE,
+
+I’m interested in the {package_name} — {price}.
+
+Please share the details.`,
+
+      examIndividual: `Hello ELEVATE,
+
+I would like to enquire about these exam services:
+
+{selected_services}
+
+Estimated Total: {total}
+
+Please share the details.`,
+
+      monthlyPlan: `Hello ELEVATE,
+
+I’m interested in the {plan_name} — {price}.
+
+Includes {quantity} creatives per month.
+
+Please share the details.`,
+
+      bulkIdCards: `Hello ELEVATE,
+
+I’m interested in bulk ID cards.
+
+Quantity: {quantity}
+Applicable rate: {price}/card
+Estimated Total: {total}
+
+Please share the details.`,
+
+      bulkCertificates: `Hello ELEVATE,
+
+I’m interested in bulk certificates.
+
+Quantity: {quantity}
+Applicable rate: {price}/certificate{base_design}
+Estimated Total: {total}
+
+Please share the details.`,
+
+      customEnquiry: `Hello ELEVATE,
+
+I would like to enquire about your digital services.
+Please share the details and pricing.`,
+
+      generalEnquiry: `Hello ELEVATE,
+
+I would like to enquire about your digital services.
+
+Please share the details and pricing.`,
+    },
+  },
+};

@@ -1,0 +1,6 @@
+{
+  "name": "ELEVATE",
+  "description": "ELEVATE provides professional websites, digital services, exam solutions, creative design and document solutions for institutions.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
