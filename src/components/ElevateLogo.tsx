@@ -56,29 +56,29 @@ export const ElevateLogo: React.FC<ElevateLogoProps> = ({
       {/* Structural base foundation */}
       <path
         d="M6 38L18 38L24 32L12 32L6 38Z"
-        fill={isWhite ? '#94A3B8' : '#0B0F17'}
+        fill={isWhite ? '#94A3B8' : '#0F172A'}
       />
       {/* Lower middle shelf & ascent */}
       <path
         d="M12 28L28 28L34 22L18 22L12 28Z"
-        fill="#0062EB"
+        fill="#2563EB"
       />
       {/* Apex chevron cap */}
       <path
         d="M18 18L38 18L44 12L24 12L18 18Z"
-        fill="#0EA5E9"
+        fill="#38BDF8"
       />
       {/* Dynamic vertical spine connector (representing the backbone of the E) */}
       <path
         d="M6 38L18 12H12L6 38Z"
-        fill={isWhite ? '#FFFFFF' : '#0B0F17'}
+        fill={isWhite ? '#FFFFFF' : '#0F172A'}
       />
       {/* Core energetic highlight vertex */}
       <circle
         cx="41"
         cy="15"
         r="2.5"
-        fill="#0EA5E9"
+        fill="#38BDF8"
       />
     </svg>
   );
@@ -86,7 +86,7 @@ export const ElevateLogo: React.FC<ElevateLogoProps> = ({
   if (isSocialAvatar) {
     return (
       <div
-        className={`relative inline-flex flex-col items-center justify-center rounded-2xl bg-[#0B0F17] p-4 text-center shadow-xl border border-slate-800 ${className}`}
+        className={`relative inline-flex flex-col items-center justify-center rounded-2xl bg-[#0F172A] p-4 text-center shadow-xl border border-slate-800 ${className}`}
       >
         <div className="relative mb-2">
           {markSvg}
@@ -110,12 +110,12 @@ export const ElevateLogo: React.FC<ElevateLogoProps> = ({
           <div className="flex items-center gap-1.5">
             <span
               className={`font-['Outfit'] font-extrabold tracking-[0.14em] uppercase transition-colors ${textSize} ${
-                isWhite ? 'text-white' : 'text-[#0B0F17]'
+                isWhite ? 'text-white' : 'text-[#0F172A]'
               }`}
             >
               ELEVATE
             </span>
-            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#0062EB] mb-0.5" />
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#2563EB] mb-0.5" />
           </div>
 
           {showTagline && (

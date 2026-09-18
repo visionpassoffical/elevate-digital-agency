@@ -32,24 +32,31 @@ export const CustomServicesSection: React.FC<CustomServicesSectionProps> = ({
   return (
     <section
       id="custom-services"
-      className="py-16 sm:py-24 bg-white border-b border-slate-100 scroll-mt-20 relative overflow-hidden"
+      className="py-14 sm:py-20 bg-[#F8FAFC] border-b border-slate-200/80 scroll-mt-20 relative overflow-hidden"
     >
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         
+        <div className="inline-flex items-center gap-2 mb-3">
+          <span className="w-1.5 h-1.5 bg-[#2563EB] rounded-full" />
+          <span className="text-[11px] font-bold tracking-widest uppercase text-slate-500">
+            BESPOKE SCOPING
+          </span>
+        </div>
+
         {/* Main Headings */}
-        <h2 className="font-['Outfit'] font-extrabold text-3xl sm:text-4xl md:text-5xl text-[#0B0F17] tracking-tight mb-5">
-          {enquiry?.heading || 'Have a Requirement?'}
+        <h2 className="font-['Outfit'] font-extrabold text-2xl sm:text-3xl md:text-4xl text-[#0F172A] tracking-tight mb-3">
+          {enquiry?.heading || 'Have a Custom Requirement?'}
         </h2>
 
-        <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed max-w-2xl mx-auto mb-10">
+        <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed max-w-xl mx-auto mb-8">
           {enquiry?.description || "Tell us what you need. We'll understand your requirement and provide the right solution."}
         </p>
 
         {/* Key trust bullets */}
-        <div className="flex flex-wrap items-center justify-center gap-y-3 gap-x-8 text-xs sm:text-sm text-slate-700 font-medium mb-10">
+        <div className="flex flex-wrap items-center justify-center gap-y-2.5 gap-x-6 text-xs sm:text-sm text-slate-700 font-medium mb-8">
           {trustBullets.map((bullet, idx) => (
-            <span key={idx} className="inline-flex items-center gap-2.5">
-              <CheckCircle2 className="w-4 h-4 text-[#0062EB]" />
+            <span key={idx} className="inline-flex items-center gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB]" />
               <span>{bullet}</span>
             </span>
           ))}
@@ -61,11 +68,11 @@ export const CustomServicesSection: React.FC<CustomServicesSectionProps> = ({
             id="btn-send-enquiry-whatsapp"
             type="button"
             onClick={handleSendEnquiry}
-            className="w-full sm:w-auto py-4 px-10 rounded-2xl font-bold text-base text-white bg-[#0B0F17] hover:bg-[#0062EB] active:scale-[0.98] transition-all duration-300 shadow-xl flex items-center justify-center gap-3 cursor-pointer group"
+            className="w-full sm:w-auto py-3 px-6 rounded-xl font-bold text-xs sm:text-sm text-white bg-[#2563EB] hover:bg-blue-700 active:scale-[0.98] transition-all shadow-xs flex items-center justify-center gap-2.5 cursor-pointer group"
           >
-            <MessageCircle className="w-5 h-5 opacity-80" />
+            <MessageCircle className="w-4 h-4" />
             <span>{enquiry?.buttonText || 'Send Enquiry on WhatsApp'}</span>
-            <ArrowRight className="w-5 h-5 opacity-80 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
           </button>
         </div>
 

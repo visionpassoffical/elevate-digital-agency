@@ -35,41 +35,44 @@ export const WhyElevate: React.FC = () => {
       ];
 
   return (
-    <section className="py-20 sm:py-32 bg-[#0B0F17] border-b border-slate-900 text-white">
+    <section className="py-16 sm:py-20 lg:py-24 bg-[#F8FAFC] border-b border-slate-200/80 text-[#0F172A]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
           
           {/* Section Header */}
-          <div className="lg:col-span-5 sticky top-32">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 border border-white/10 text-white text-xs font-bold tracking-wider uppercase mb-8">
-              <span>{config?.sectionBadge || 'WHY ELEVATE'}</span>
+          <div className="lg:col-span-5 lg:sticky lg:top-28">
+            <div className="inline-flex items-center gap-2 mb-3">
+              <span className="w-1.5 h-1.5 bg-[#2563EB] rounded-full" />
+              <span className="text-[11px] font-bold tracking-widest uppercase text-slate-500">
+                {config?.sectionBadge || 'WHY ELEVATE'}
+              </span>
             </div>
             
-            <h2 className="font-['Outfit'] font-extrabold text-4xl sm:text-5xl md:text-6xl text-white tracking-tight leading-tight">
+            <h2 className="font-['Outfit'] font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#0F172A] tracking-tight leading-tight mb-3">
               {config?.sectionTitle || 'Digital Work. Made Simple.'}
             </h2>
             
-            <p className="mt-6 text-lg text-slate-400 leading-relaxed font-normal max-w-md">
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal max-w-md">
               {config?.sectionSubtitle || 'We operate with complete transparency, lean workflows, and direct accountability — so your institution gets exactly what it needs without friction.'}
             </p>
           </div>
 
-          {/* Points List */}
+          {/* Points Grid */}
           <div className="lg:col-span-7">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 lg:gap-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
               {points.map((point) => (
                 <div
                   key={point.id || point.number}
-                  className="pt-8 border-t border-white/10"
+                  className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-xs hover:border-slate-300 transition-all duration-200"
                 >
-                  <span className="font-['Outfit'] font-extrabold text-2xl text-[#0062EB] block mb-4">
+                  <span className="font-['Outfit'] font-extrabold text-xl text-[#2563EB] block mb-2">
                     {point.number}
                   </span>
-                  <h3 className="font-['Outfit'] font-bold text-xl text-white mb-3">
+                  <h3 className="font-['Outfit'] font-bold text-base sm:text-lg text-[#0F172A] mb-1.5">
                     {point.title}
                   </h3>
-                  <p className="text-sm text-slate-400 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
                     {point.description}
                   </p>
                 </div>

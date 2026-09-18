@@ -29,32 +29,43 @@ export const HowItWorks: React.FC = () => {
   ];
 
   return (
-    <section id="how-it-works" className="py-20 sm:py-28 bg-white border-b border-slate-100 scroll-mt-20">
+    <section id="how-it-works" className="py-16 sm:py-20 lg:py-24 bg-white border-b border-slate-200/80 scroll-mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="max-w-3xl mb-16">
-          <h2 className="font-['Outfit'] font-extrabold text-4xl sm:text-5xl lg:text-6xl text-[#0B0F17] tracking-tight mb-6 leading-tight">
+        <div className="max-w-3xl mb-12 sm:mb-14">
+          <div className="inline-flex items-center gap-2 mb-3">
+            <span className="w-1.5 h-1.5 bg-[#2563EB] rounded-full" />
+            <span className="text-[11px] font-bold tracking-widest uppercase text-slate-500">
+              STREAMLINED WORKFLOW
+            </span>
+          </div>
+          <h2 className="font-['Outfit'] font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#0F172A] tracking-tight mb-3 leading-tight">
             {config?.sectionTitle || 'How It Works'}
           </h2>
-          <p className="text-lg text-slate-600 font-normal leading-relaxed max-w-lg">
+          <p className="text-sm sm:text-base text-slate-600 font-normal leading-relaxed max-w-lg">
             {config?.sectionSubtitle || 'A transparent, frictionless process from your initial inquiry to final institutional delivery.'}
           </p>
         </div>
 
-        {/* Clean minimal steps */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 pt-8 border-t border-slate-100">
+        {/* Clean step cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
           {steps.map((item, idx) => (
-            <div key={item.step || idx} className="flex flex-col">
-              <span className="font-['Outfit'] font-extrabold text-5xl text-slate-200 mb-6 block">
-                {item.step}
-              </span>
-              <h3 className="font-['Outfit'] font-bold text-xl text-[#0B0F17] mb-3">
-                {item.title}
-              </h3>
-              <p className="text-sm text-slate-500 leading-relaxed font-normal">
-                {item.description}
-              </p>
+            <div
+              key={item.step || idx}
+              className="bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-6 shadow-2xs hover:border-slate-300 transition-all duration-200 flex flex-col justify-between"
+            >
+              <div>
+                <span className="font-['Outfit'] font-extrabold text-2xl text-[#2563EB] mb-3 block">
+                  {item.step}
+                </span>
+                <h3 className="font-['Outfit'] font-bold text-base sm:text-lg text-[#0F172A] mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                  {item.description}
+                </p>
+              </div>
             </div>
           ))}
         </div>

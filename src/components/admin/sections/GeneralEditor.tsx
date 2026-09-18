@@ -5,7 +5,7 @@ import { AdminSectionHeader } from '../AdminSectionHeader';
 import type { GeneralConfig } from '../../../types';
 
 export const GeneralEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }) => {
-  const { content, saveSection, isSaving, uploadFile, resetContent } = useContent();
+  const { content, saveSection, isSaving, uploadFile, resetContent, changePassword } = useContent();
   const [data, setData] = useState<GeneralConfig>(() =>
     JSON.parse(JSON.stringify(content.general))
   );
@@ -49,7 +49,7 @@ export const GeneralEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
     try {
       const res = await uploadFile(file);
       if (res?.url) {
-        setData({ ...data, logoUrl: res.url });
+        setData({ ...data, logoImage: res.url });
       }
     } catch (err: any) {
       alert(err.message || 'Logo upload failed');
@@ -77,18 +77,8 @@ export const GeneralEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
     try {
       setPasswordStatus('loading');
       setPasswordMsg('');
-      const token = localStorage.getItem('elevate_admin_token');
-      const res = await fetch('/api/admin/change-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ oldPassword, newPassword }),
-      });
-
-      const json = await res.json();
-      if (res.ok && json.success) {
+      const res = await changePassword(oldPassword, newPassword);
+      if (res.success) {
         setPasswordStatus('success');
         setPasswordMsg('Admin password successfully updated!');
         setOldPassword('');
@@ -96,7 +86,7 @@ export const GeneralEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
         setConfirmPassword('');
       } else {
         setPasswordStatus('error');
-        setPasswordMsg(json.message || 'Failed to update password.');
+        setPasswordMsg(res.error || 'Failed to update password.');
       }
     } catch (err: any) {
       setPasswordStatus('error');

@@ -18,49 +18,48 @@ export const FaqSection: React.FC = () => {
   };
 
   return (
-    <section id="faq" className="py-20 sm:py-28 bg-white border-b border-slate-100 scroll-mt-20">
+    <section id="faq" className="py-16 sm:py-20 lg:py-24 bg-white border-b border-slate-200/80 scroll-mt-20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        <div className="mb-16">
-          <div className="inline-flex items-center gap-2 mb-6">
-            <span className="w-1.5 h-1.5 bg-[#0B0F17] rounded-full" />
-            <span className="text-xs font-bold tracking-widest uppercase text-[#0B0F17]">
+        <div className="mb-12 sm:mb-14">
+          <div className="inline-flex items-center gap-2 mb-3">
+            <span className="w-1.5 h-1.5 bg-[#2563EB] rounded-full" />
+            <span className="text-[11px] font-bold tracking-widest uppercase text-slate-500">
               {config?.sectionBadge || 'FAQ'}
             </span>
           </div>
-          <h2 className="font-['Outfit'] font-extrabold text-4xl sm:text-5xl text-[#0B0F17] tracking-tight mb-4">
+          <h2 className="font-['Outfit'] font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#0F172A] tracking-tight mb-3">
             {config?.sectionTitle || 'Frequently Asked Questions'}
           </h2>
-          <p className="text-lg text-slate-500 font-normal max-w-2xl">
+          <p className="text-sm sm:text-base text-slate-600 font-normal max-w-2xl">
             {config?.sectionSubtitle || 'Everything you need to know about our approach, pricing philosophy, and institutional support.'}
           </p>
         </div>
 
-        <div className="border-t border-slate-200">
+        <div className="border-t border-slate-200/80">
           {items.filter(faq => faq.enabled !== false).map((faq, index) => {
             const isOpen = openIndex === index;
             return (
               <div
                 key={faq.id || faq.question}
-                className="border-b border-slate-200"
+                className="border-b border-slate-200/80"
               >
                 <button
                   type="button"
                   onClick={() => toggleFaq(index)}
-                  className="w-full text-left py-6 flex items-center justify-between gap-6 cursor-pointer group"
+                  className="w-full text-left py-5 flex items-center justify-between gap-4 cursor-pointer group"
                   aria-expanded={isOpen}
                 >
-                  <h3 className={`font-['Outfit'] font-bold text-xl sm:text-2xl transition-colors ${isOpen ? 'text-[#0062EB]' : 'text-[#0B0F17] group-hover:text-[#0062EB]'}`}>
+                  <h3 className={`font-['Outfit'] font-bold text-base sm:text-lg transition-colors ${isOpen ? 'text-[#2563EB]' : 'text-[#0F172A] group-hover:text-[#2563EB]'}`}>
                     {faq.question}
                   </h3>
-                  <div className={`shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
-                    {isOpen ? <Minus className="w-5 h-5 text-[#0062EB]" /> : <Plus className="w-5 h-5 text-slate-400 group-hover:text-[#0062EB]" />}
+                  <div className={`shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
+                    {isOpen ? <Minus className="w-4 h-4 text-[#2563EB]" /> : <Plus className="w-4 h-4 text-slate-400 group-hover:text-[#2563EB]" />}
                   </div>
                 </button>
                 
-                {/* We use a simple conditional render for the answer. For smooth height transitions, we'd need more complex CSS, but this is clean. */}
                 {isOpen && (
-                  <div className="pb-8 text-base text-slate-500 leading-relaxed pr-8">
+                  <div className="pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed pr-6">
                     {faq.answer}
                   </div>
                 )}
@@ -70,22 +69,22 @@ export const FaqSection: React.FC = () => {
         </div>
 
         {/* Direct question prompt */}
-        <div className="mt-16 pt-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="mt-12 bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-5">
           <div>
-            <h4 className="font-bold text-[#0B0F17] text-lg">
+            <h4 className="font-bold text-[#0F172A] text-sm sm:text-base">
               Have a specific institutional question?
             </h4>
-            <p className="text-sm text-slate-500 mt-1">
-              Chat directly with our design leads on WhatsApp for immediate answers.
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+              Chat directly with our team on WhatsApp for immediate clarity.
             </p>
           </div>
           <button
             type="button"
             onClick={handleAskWhatsApp}
-            className="inline-flex items-center gap-2 px-6 py-3.5 text-sm font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-xl transition-all shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-xs font-bold text-white bg-[#2563EB] hover:bg-blue-700 rounded-xl transition-all shrink-0 cursor-pointer shadow-xs active:scale-[0.98]"
           >
-            <MessageCircle className="w-4 h-4 text-emerald-600" />
-            <span>Ask via WhatsApp</span>
+            <MessageCircle className="w-3.5 h-3.5" />
+            <span>Ask on WhatsApp</span>
           </button>
         </div>
 

@@ -22,6 +22,7 @@ import {
   Menu,
   X,
   ChevronRight,
+  ArrowLeft,
 } from 'lucide-react';
 import { useContent } from '../../context/ContentContext';
 
@@ -90,7 +91,11 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'general', label: 'General Settings', icon: Settings, category: 'System & Settings' },
 ];
 
-export const AdminDashboard: React.FC = () => {
+export interface AdminDashboardProps {
+  onBackToSite?: () => void;
+}
+
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) => {
   const { logout, adminSession } = useContent();
   const user = adminSession?.user;
   const [activeSection, setActiveSection] = useState<AdminSectionKey>('dashboard');
@@ -100,10 +105,28 @@ export const AdminDashboard: React.FC = () => {
     window.open('/', '_blank');
   };
 
+  const handleNavigate = (key: string) => {
+    const map: Record<string, AdminSectionKey> = {
+      websites: 'websitePlans',
+      website: 'websitePlans',
+      admission: 'admissionServices',
+      exam: 'examServices',
+      monthly: 'monthlyPlans',
+      bulk: 'bulkPricing',
+      clients: 'clientInstitutions',
+      'custom-enquiry': 'customEnquiry',
+      'how-it-works': 'howItWorks',
+      'why-elevate': 'whyElevate',
+    };
+    const target = map[key] || (key as AdminSectionKey);
+    setActiveSection(target);
+    setMobileMenuOpen(false);
+  };
+
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'dashboard':
-        return <DashboardOverview onNavigate={(sec) => setActiveSection(sec as AdminSectionKey)} />;
+        return <DashboardOverview onNavigate={handleNavigate} />;
       case 'hero':
         return <HeroEditor onPreview={handlePreview} />;
       case 'services':
@@ -175,10 +198,24 @@ export const AdminDashboard: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          {onBackToSite && (
+            <button
+              type="button"
+              onClick={onBackToSite}
+              className="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-700/80"
+              title="Return to ELEVATE public website"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Exit to Website</span>
+              <span className="sm:hidden">Exit</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={handlePreview}
             className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-700"
+            title="Open website in new tab"
           >
             <span className="hidden sm:inline">View Public Website</span>
             <span className="sm:hidden">Website</span>

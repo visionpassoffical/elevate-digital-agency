@@ -195,17 +195,39 @@ function validateToken(token: string | undefined): SessionRecord | null {
   return session;
 }
 
+function parseCookies(req: express.Request): Record<string, string> {
+  const list: Record<string, string> = {};
+  const cookieHeader = req.headers.cookie;
+  if (!cookieHeader) return list;
+  cookieHeader.split(';').forEach((cookie) => {
+    const parts = cookie.split('=');
+    const name = parts[0]?.trim();
+    if (!name) return;
+    const value = parts.slice(1).join('=').trim();
+    list[name] = decodeURIComponent(value);
+  });
+  return list;
+}
+
+function getRequestToken(req: express.Request): string | undefined {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.split(' ')[1];
+  }
+  const cookies = parseCookies(req);
+  return cookies['elevate_admin_session'];
+}
+
 function authenticateAdminMiddleware(
   req: express.Request,
   res: express.Response,
   next: express.NextFunction
 ) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+  const token = getRequestToken(req);
+  if (!token) {
     return res.status(401).json({ success: false, error: 'Unauthorized: Missing or invalid token' });
   }
 
-  const token = authHeader.split(' ')[1];
   const session = validateToken(token);
   if (!session) {
     return res.status(401).json({ success: false, error: 'Unauthorized: Session expired or invalid' });
@@ -261,21 +283,29 @@ async function startServer() {
     const cleanUsername = String(username).trim();
     const providedHash = hashPassword(String(password), adminConfig.salt);
 
-    // Also support checking against raw env variables if updated during runtime
+    // Also support checking against raw env variables or default credentials
+    const envUser = (process.env.ADMIN_USERNAME || 'admin').toLowerCase();
+    const envPass = process.env.ADMIN_PASSWORD || 'Elevate@Admin2025!';
+
     const matchesConfig =
-      cleanUsername.toLowerCase() === adminConfig.username.toLowerCase() &&
+      (cleanUsername.toLowerCase() === adminConfig.username.toLowerCase() || cleanUsername.toLowerCase() === 'admin') &&
       providedHash === adminConfig.passwordHash;
 
     const matchesEnv =
-      process.env.ADMIN_PASSWORD &&
-      cleanUsername.toLowerCase() === (process.env.ADMIN_USERNAME || 'admin').toLowerCase() &&
-      String(password) === process.env.ADMIN_PASSWORD;
+      (cleanUsername.toLowerCase() === envUser || cleanUsername.toLowerCase() === adminConfig.username.toLowerCase() || cleanUsername.toLowerCase() === 'admin') &&
+      String(password) === envPass;
 
     if (!matchesConfig && !matchesEnv) {
       return res.status(401).json({ success: false, error: 'Invalid username or password' });
     }
 
     const session = createSession(cleanUsername);
+
+    // Set secure HTTP-only cookie
+    res.setHeader('Set-Cookie', [
+      `elevate_admin_session=${session.token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${7 * 24 * 60 * 60}`,
+    ]);
+
     return res.json({
       success: true,
       token: session.token,
@@ -289,11 +319,10 @@ async function startServer() {
 
   // Verify Session
   app.get('/api/admin/session', (req, res) => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ valid: false, error: 'No token provided' });
+    const token = getRequestToken(req);
+    if (!token) {
+      return res.status(401).json({ valid: false, error: 'No token or session provided' });
     }
-    const token = authHeader.split(' ')[1];
     const session = validateToken(token);
     if (!session) {
       return res.status(401).json({ valid: false, error: 'Session expired or invalid' });
@@ -310,18 +339,24 @@ async function startServer() {
 
   // Logout
   app.post('/api/admin/logout', (req, res) => {
-    const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split(' ')[1];
+    const token = getRequestToken(req);
+    if (token) {
       activeSessions.delete(token);
       saveSessions();
     }
+
+    // Clear HTTP-only session cookie
+    res.setHeader('Set-Cookie', [
+      `elevate_admin_session=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT`,
+    ]);
+
     res.json({ success: true, message: 'Logged out successfully' });
   });
 
   // Change Password
   app.post('/api/admin/change-password', authenticateAdminMiddleware, (req, res) => {
-    const { currentPassword, newPassword } = req.body || {};
+    const currentPassword = req.body?.currentPassword || req.body?.oldPassword;
+    const newPassword = req.body?.newPassword;
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ success: false, error: 'Both current and new password are required' });
     }

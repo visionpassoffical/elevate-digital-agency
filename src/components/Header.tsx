@@ -101,8 +101,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenQuote, activeSection = 'se
         id="main-header"
         className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-200 py-2.5 sm:py-3 ${
           isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(11,15,23,0.06)] border-b border-slate-200/80'
-            : 'bg-[#F8FAFC]/95 backdrop-blur-sm border-b border-slate-200/40'
+            ? 'bg-white/95 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(15,23,42,0.06)] border-b border-slate-200/80'
+            : 'bg-[#F8FAFC]/95 backdrop-blur-sm border-b border-slate-200/60'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -114,7 +114,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenQuote, activeSection = 'se
                 e.preventDefault();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0062EB] rounded-lg p-0.5"
+              className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] rounded-lg p-0.5"
               aria-label="ELEVATE Home"
             >
               <ElevateLogo
@@ -125,7 +125,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenQuote, activeSection = 'se
             </a>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+            <nav className="hidden md:flex items-center gap-1 lg:gap-1.5">
               {NAV_ITEMS.map((item) => {
                 const sectionKey = item.href.replace('#', '');
                 const isActive =
@@ -140,15 +140,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenQuote, activeSection = 'se
                       e.preventDefault();
                       handleNavClick(item.href);
                     }}
-                    className={`relative px-3 lg:px-4 py-1.5 lg:py-2 text-xs lg:text-sm font-semibold rounded-lg transition-colors duration-150 ${
+                    className={`relative px-3 lg:px-3.5 py-1.5 text-xs lg:text-sm font-semibold rounded-lg transition-colors duration-150 ${
                       isActive
-                        ? 'text-[#0062EB] bg-blue-50/70 font-bold'
-                        : 'text-slate-600 hover:text-[#0B0F17] hover:bg-slate-100/70'
+                        ? 'text-[#2563EB] bg-blue-50/80 font-bold'
+                        : 'text-slate-600 hover:text-[#0F172A] hover:bg-slate-100/70'
                     }`}
                   >
                     {item.label}
                     {isActive && (
-                      <span className="absolute bottom-1 left-3.5 right-3.5 h-0.5 bg-[#0062EB] rounded-full" />
+                      <span className="absolute bottom-1 left-3.5 right-3.5 h-0.5 bg-[#2563EB] rounded-full" />
                     )}
                   </a>
                 );
@@ -156,13 +156,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenQuote, activeSection = 'se
             </nav>
 
             {/* Desktop CTAs: WhatsApp quick-link + Get a Quote button */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-2.5">
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 id="header-whatsapp-cta"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:border-slate-300 hover:text-[#0B0F17] hover:shadow-xs transition-all duration-200"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:border-slate-300 hover:text-[#0F172A] hover:shadow-xs transition-all duration-200"
                 title={`Direct WhatsApp Consultation: ${displayPhone}`}
               >
                 <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
@@ -173,7 +173,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenQuote, activeSection = 'se
                 id="header-quote-button"
                 onClick={onOpenQuote}
                 type="button"
-                className="inline-flex items-center gap-2 px-4 py-2 text-xs lg:text-sm font-bold tracking-wide text-white bg-[#0B0F17] hover:bg-[#0062EB] active:scale-[0.98] rounded-lg shadow-sm transition-all duration-200 cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 text-xs lg:text-sm font-bold tracking-wide text-white bg-[#0F172A] hover:bg-[#2563EB] active:scale-[0.98] rounded-lg shadow-xs transition-all duration-200 cursor-pointer"
               >
                 <span>Get a Quote</span>
                 <ArrowUpRight className="w-4 h-4 opacity-80" />
@@ -283,7 +283,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenQuote, activeSection = 'se
                       onOpenQuote();
                     }}
                     type="button"
-                    className="py-2.5 px-3 rounded-xl text-xs font-bold text-white bg-[#0B0F17] hover:bg-[#0062EB] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+                    className="py-2.5 px-3 rounded-xl text-xs font-bold text-white bg-[#0F172A] hover:bg-[#2563EB] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
                   >
                     <span>Get a Quote</span>
                     <ArrowUpRight className="w-3.5 h-3.5 opacity-80 shrink-0" />

@@ -27,7 +27,6 @@ interface ContentContextValue {
 }
 
 const STORAGE_KEY_CONTENT = 'elevate_site_content_cache';
-const STORAGE_KEY_AUTH = 'elevate_admin_session';
 
 const ContentContext = createContext<ContentContextValue | null>(null);
 
@@ -36,6 +35,10 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     // Initial hydration from cache if available, else defaults
     if (typeof window !== 'undefined') {
       try {
+        // Clean up any legacy credential tokens from older versions
+        localStorage.removeItem('elevate_admin_session');
+        localStorage.removeItem('elevate_admin_token');
+
         const cached = localStorage.getItem(STORAGE_KEY_CONTENT);
         if (cached) {
           const parsed = JSON.parse(cached);
@@ -53,24 +56,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-
-  const [adminSession, setAdminSession] = useState<AdminSession | null>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY_AUTH);
-        if (raw) {
-          const parsed: AdminSession = JSON.parse(raw);
-          if (parsed && parsed.expiresAt > Date.now()) {
-            return parsed;
-          }
-          localStorage.removeItem(STORAGE_KEY_AUTH);
-        }
-      } catch (e) {
-        // ignore
-      }
-    }
-    return null;
-  });
+  const [adminSession, setAdminSession] = useState<AdminSession | null>(null);
 
   // Fetch fresh content from server API
   const refreshContent = useCallback(async () => {
@@ -92,44 +78,47 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, []);
 
-  // Validate admin session with server
+  // Validate admin session with server using secure HTTP-only cookie
   useEffect(() => {
     refreshContent();
 
-    if (adminSession?.token) {
-      fetch('/api/admin/session', {
-        headers: { Authorization: `Bearer ${adminSession.token}` },
+    fetch('/api/admin/session', {
+      credentials: 'include',
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.valid && data.user) {
+          setAdminSession({
+            token: '',
+            user: data.user,
+            expiresAt: data.expiresAt || Date.now() + 7 * 24 * 60 * 60 * 1000,
+          });
+        } else {
+          setAdminSession(null);
+        }
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data.valid) {
-            setAdminSession(null);
-            localStorage.removeItem(STORAGE_KEY_AUTH);
-          }
-        })
-        .catch(() => {
-          // offline or error
-        });
-    }
-  }, [adminSession?.token, refreshContent]);
+      .catch(() => {
+        setAdminSession(null);
+      });
+  }, [refreshContent]);
 
-  // Login handler
+  // Login handler (authenticates on server, server sets secure HTTP-only cookie)
   const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username, password }),
       });
       const data = await res.json();
-      if (res.ok && data.success && data.token) {
+      if (res.ok && data.success) {
         const session: AdminSession = {
-          token: data.token,
+          token: data.token || '',
           user: data.user,
           expiresAt: data.expiresAt,
         };
         setAdminSession(session);
-        localStorage.setItem(STORAGE_KEY_AUTH, JSON.stringify(session));
         return { success: true };
       }
       return { success: false, error: data.error || 'Authentication failed' };
@@ -140,30 +129,32 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Logout handler
   const logout = async () => {
-    if (adminSession?.token) {
-      try {
-        await fetch('/api/admin/logout', {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${adminSession.token}` },
-        });
-      } catch (e) {
-        // ignore
-      }
+    try {
+      await fetch('/api/admin/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (e) {
+      // ignore
     }
     setAdminSession(null);
-    localStorage.removeItem(STORAGE_KEY_AUTH);
+    if (typeof window !== 'undefined') {
+      window.history.pushState(null, '', '/admin/login');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
   };
 
   // Change Password
   const changePassword = async (currentPassword: string, newPassword: string) => {
-    if (!adminSession?.token) return { success: false, error: 'Unauthorized' };
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (adminSession?.token) {
+        headers['Authorization'] = `Bearer ${adminSession.token}`;
+      }
       const res = await fetch('/api/admin/change-password', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${adminSession.token}`,
-        },
+        headers,
+        credentials: 'include',
         body: JSON.stringify({ currentPassword, newPassword }),
       });
       const data = await res.json();
@@ -177,17 +168,15 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const saveContent = async (updated: SiteContent): Promise<boolean> => {
     setIsSaving(true);
     try {
-      const token = adminSession?.token;
-      if (!token) {
-        throw new Error('You must be logged in as an administrator to save changes');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (adminSession?.token) {
+        headers['Authorization'] = `Bearer ${adminSession.token}`;
       }
 
       const res = await fetch('/api/admin/content', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
+        credentials: 'include',
         body: JSON.stringify(updated),
       });
 
@@ -223,12 +212,16 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Reset to approved defaults
   const resetContent = async (): Promise<boolean> => {
-    if (!adminSession?.token) return false;
     setIsSaving(true);
     try {
+      const headers: Record<string, string> = {};
+      if (adminSession?.token) {
+        headers['Authorization'] = `Bearer ${adminSession.token}`;
+      }
       const res = await fetch('/api/admin/reset-content', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${adminSession.token}` },
+        headers,
+        credentials: 'include',
       });
       if (res.ok) {
         const data = await res.json();
@@ -246,18 +239,19 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Upload image/logo
   const uploadFile = async (file: File): Promise<{ url: string } | null> => {
-    if (!adminSession?.token) return null;
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = async () => {
         try {
           const dataUrl = reader.result as string;
+          const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+          if (adminSession?.token) {
+            headers['Authorization'] = `Bearer ${adminSession.token}`;
+          }
           const res = await fetch('/api/admin/upload', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${adminSession.token}`,
-            },
+            headers,
+            credentials: 'include',
             body: JSON.stringify({
               filename: file.name,
               dataUrl,

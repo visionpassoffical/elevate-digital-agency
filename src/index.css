@@ -83,6 +83,8 @@
 
 .marquee-container:hover .animate-marquee-left,
 .marquee-container:hover .animate-marquee-right,
+.marquee-container:active .animate-marquee-left,
+.marquee-container:active .animate-marquee-right,
 .marquee-container:focus-within .animate-marquee-left,
 .marquee-container:focus-within .animate-marquee-right {
   animation-play-state: paused;

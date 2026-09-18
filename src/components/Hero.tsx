@@ -28,13 +28,13 @@ export const Hero: React.FC<HeroProps> = ({ onOpenQuote }) => {
   };
 
   return (
-    <section className="relative pt-24 pb-20 sm:pt-32 sm:pb-28 lg:pt-40 lg:pb-32 bg-white border-b border-slate-100 overflow-hidden">
+    <section className="relative pt-24 pb-16 sm:pt-32 sm:pb-24 lg:pt-36 lg:pb-28 bg-white border-b border-slate-200/80 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         
         {/* Clear Primary Value Positioning Pill */}
-        <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-slate-50 border border-slate-200 mb-8 mx-auto">
-          <span className="w-2 h-2 rounded-full bg-[#0062EB]" />
-          <span className="font-['Outfit'] font-bold text-xs text-[#0B0F17] tracking-widest uppercase">
+        <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-50 border border-slate-200 mb-8 mx-auto">
+          <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
+          <span className="font-['Outfit'] font-bold text-[11px] text-[#0F172A] tracking-wider uppercase">
             {heroData.pillElevateText || 'ELEVATE'}
           </span>
           <span className="text-slate-300">|</span>
@@ -44,18 +44,18 @@ export const Hero: React.FC<HeroProps> = ({ onOpenQuote }) => {
         </div>
 
         {/* Main Display Heading */}
-        <h1 className="font-['Outfit'] font-extrabold text-5xl sm:text-6xl lg:text-7xl text-[#0B0F17] tracking-tight leading-[1.1] max-w-4xl mx-auto mb-8">
+        <h1 className="font-['Outfit'] font-extrabold text-4xl sm:text-6xl lg:text-7xl text-[#0F172A] tracking-tight leading-[1.08] max-w-4xl mx-auto mb-6 sm:mb-8">
           {heroData.heading ? (
             <>
               {heroData.heading}{' '}
-              <span className="text-[#0062EB]">
+              <span className="text-[#2563EB]">
                 {heroData.headingHighlight || 'Elevate.'}
               </span>
             </>
           ) : (
             <>
               Digital Solutions Crafted to Help You{' '}
-              <span className="text-[#0062EB]">
+              <span className="text-[#2563EB]">
                 Elevate.
               </span>
             </>
@@ -63,89 +63,89 @@ export const Hero: React.FC<HeroProps> = ({ onOpenQuote }) => {
         </h1>
 
         {/* Supporting Text */}
-        <p className="text-lg sm:text-xl text-slate-500 font-normal leading-relaxed max-w-2xl mx-auto mb-10">
+        <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed max-w-2xl mx-auto mb-8 sm:mb-10">
           {heroData.description || 'Professional websites, admission setups, automated exam suites, and monthly creative design — made practical, fast, and transparently priced.'}
         </p>
 
         {/* Primary Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 mb-14 sm:mb-16">
           <a
             id="hero-whatsapp-direct-link"
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-7 py-3.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] rounded-xl transition-all cursor-pointer shadow-xs"
           >
-            <MessageCircle className="w-5 h-5" />
+            <MessageCircle className="w-4 h-4" />
             <span>{heroData.ctaWhatsAppText || 'Continue on WhatsApp'}</span>
           </a>
           <button
             id="hero-get-quote-button"
             onClick={onOpenQuote}
             type="button"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 text-sm font-bold text-[#0B0F17] bg-white border border-slate-300 hover:bg-slate-50 hover:border-slate-400 rounded-xl transition-colors cursor-pointer shadow-sm"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 text-sm font-bold text-[#0F172A] bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 active:scale-[0.98] rounded-xl transition-all cursor-pointer shadow-xs"
           >
             <span>{heroData.ctaQuoteText || 'Get a Quote'}</span>
-            <ArrowUpRight className="w-5 h-5 text-[#0062EB]" />
+            <ArrowUpRight className="w-4 h-4 text-[#2563EB]" />
           </button>
         </div>
 
         {/* INTEGRATED PRICING HIGHLIGHTS BAR */}
-        <div className="max-w-3xl mx-auto border-t border-slate-100 pt-10">
-          <div className="text-xs font-bold tracking-widest text-slate-400 uppercase mb-6 flex items-center justify-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#0062EB]" />
+        <div className="max-w-3xl mx-auto border-t border-slate-100 pt-8 sm:pt-10">
+          <div className="text-[11px] font-bold tracking-widest text-slate-400 uppercase mb-5 flex items-center justify-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-[#2563EB]" />
             <span>Transparent Starting Rates</span>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             <button
               type="button"
               onClick={() => scrollToSection('websites')}
-              className="p-4 rounded-xl hover:bg-slate-50 text-left transition-colors border border-slate-200 cursor-pointer flex flex-col items-center justify-center text-center"
+              className="p-3.5 sm:p-4 rounded-xl bg-white hover:bg-slate-50/80 transition-all border border-slate-200/80 hover:border-[#2563EB]/40 hover:shadow-xs cursor-pointer flex flex-col items-center justify-center text-center group"
             >
-              <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
-                <Globe className="w-4 h-4 text-[#0062EB]" />
-                <span className="font-medium">Websites</span>
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1.5">
+                <Globe className="w-3.5 h-3.5 text-[#2563EB]" />
+                <span className="font-semibold">Websites</span>
               </div>
-              <div className="font-['Outfit'] font-extrabold text-xl text-[#0B0F17]">
+              <div className="font-['Outfit'] font-extrabold text-lg sm:text-xl text-[#0F172A] group-hover:text-[#2563EB] transition-colors">
                 {websiteStartPrice}
               </div>
             </button>
             <button
               type="button"
               onClick={() => scrollToSection('admission')}
-              className="p-4 rounded-xl hover:bg-slate-50 text-left transition-colors border border-slate-200 cursor-pointer flex flex-col items-center justify-center text-center"
+              className="p-3.5 sm:p-4 rounded-xl bg-white hover:bg-slate-50/80 transition-all border border-slate-200/80 hover:border-[#2563EB]/40 hover:shadow-xs cursor-pointer flex flex-col items-center justify-center text-center group"
             >
-              <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
-                <FileText className="w-4 h-4 text-[#0062EB]" />
-                <span className="font-medium">Admission</span>
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1.5">
+                <FileText className="w-3.5 h-3.5 text-[#2563EB]" />
+                <span className="font-semibold">Admission</span>
               </div>
-              <div className="font-['Outfit'] font-extrabold text-xl text-[#0B0F17]">
+              <div className="font-['Outfit'] font-extrabold text-lg sm:text-xl text-[#0F172A] group-hover:text-[#2563EB] transition-colors">
                 {admissionPrice}
               </div>
             </button>
             <button
               type="button"
               onClick={() => scrollToSection('exam')}
-              className="p-4 rounded-xl hover:bg-slate-50 text-left transition-colors border border-slate-200 cursor-pointer flex flex-col items-center justify-center text-center"
+              className="p-3.5 sm:p-4 rounded-xl bg-white hover:bg-slate-50/80 transition-all border border-slate-200/80 hover:border-[#2563EB]/40 hover:shadow-xs cursor-pointer flex flex-col items-center justify-center text-center group"
             >
-              <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
-                <Award className="w-4 h-4 text-[#0062EB]" />
-                <span className="font-medium">Exams</span>
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1.5">
+                <Award className="w-3.5 h-3.5 text-[#2563EB]" />
+                <span className="font-semibold">Exams</span>
               </div>
-              <div className="font-['Outfit'] font-extrabold text-xl text-[#0B0F17]">
+              <div className="font-['Outfit'] font-extrabold text-lg sm:text-xl text-[#0F172A] group-hover:text-[#2563EB] transition-colors">
                 {examPrice}
               </div>
             </button>
             <button
               type="button"
               onClick={() => scrollToSection('monthly')}
-              className="p-4 rounded-xl hover:bg-slate-50 text-left transition-colors border border-slate-200 cursor-pointer flex flex-col items-center justify-center text-center"
+              className="p-3.5 sm:p-4 rounded-xl bg-white hover:bg-slate-50/80 transition-all border border-slate-200/80 hover:border-[#2563EB]/40 hover:shadow-xs cursor-pointer flex flex-col items-center justify-center text-center group"
             >
-              <div className="flex items-center gap-2 text-sm text-slate-500 mb-2">
-                <Palette className="w-4 h-4 text-[#0062EB]" />
-                <span className="font-medium">Creatives</span>
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1.5">
+                <Palette className="w-3.5 h-3.5 text-[#2563EB]" />
+                <span className="font-semibold">Creatives</span>
               </div>
-              <div className="font-['Outfit'] font-extrabold text-xl text-[#0B0F17]">
+              <div className="font-['Outfit'] font-extrabold text-lg sm:text-xl text-[#0F172A] group-hover:text-[#2563EB] transition-colors">
                 {monthlyPrice}
               </div>
             </button>
