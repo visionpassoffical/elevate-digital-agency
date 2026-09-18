@@ -115,6 +115,18 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         credentials: 'include',
         body: JSON.stringify({ username, password }),
       });
+
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await res.text();
+        return {
+          success: false,
+          error: text
+            ? (text.length > 150 ? `Server returned HTTP ${res.status}` : text)
+            : `Server returned empty or non-JSON response (${res.status})`,
+        };
+      }
+
       const data = await res.json();
       if (res.ok && data.success) {
         const session: AdminSession = {
@@ -161,6 +173,13 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         credentials: 'include',
         body: JSON.stringify({ currentPassword, newPassword }),
       });
+
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await res.text();
+        return { success: false, error: text || `Server error (${res.status})` };
+      }
+
       const data = await res.json();
       return { success: res.ok && data.success, error: data.error };
     } catch (err: any) {
@@ -184,12 +203,17 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         body: JSON.stringify(updated),
       });
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to save content to server');
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('application/json')) {
+        const text = await res.text();
+        throw new Error(text || `Server returned non-JSON response (${res.status})`);
       }
 
       const resData = await res.json();
+      if (!res.ok || !resData.success) {
+        throw new Error(resData.error || 'Failed to save content to server');
+      }
+
       const saved = resData.content || updated;
       setContent(saved);
       if (typeof window !== 'undefined') {
@@ -227,7 +251,9 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         headers,
         credentials: 'include',
       });
-      if (res.ok) {
+
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
         const data = await res.json();
         setContent(data.content);
         localStorage.setItem(STORAGE_KEY_CONTENT, JSON.stringify(data.content));
@@ -261,6 +287,13 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
               dataUrl,
             }),
           });
+
+          const contentType = res.headers.get('content-type') || '';
+          if (!contentType.includes('application/json')) {
+            const text = await res.text();
+            throw new Error(text || `Upload error: server returned HTTP ${res.status}`);
+          }
+
           const json = await res.json();
           if (res.ok && json.success && json.url) {
             resolve({ url: json.url });
