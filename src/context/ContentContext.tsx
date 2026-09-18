@@ -62,7 +62,8 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const refreshContent = useCallback(async () => {
     try {
       const res = await fetch('/api/content');
-      if (res.ok) {
+      const ct = res.headers.get('content-type') || '';
+      if (res.ok && ct.includes('application/json')) {
         const data = await res.json();
         if (data.success && data.content) {
           setContent(data.content);
@@ -85,9 +86,12 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     fetch('/api/admin/session', {
       credentials: 'include',
     })
-      .then((res) => res.json())
+      .then((res) => {
+        const ct = res.headers.get('content-type') || '';
+        return ct.includes('application/json') ? res.json() : null;
+      })
       .then((data) => {
-        if (data.valid && data.user) {
+        if (data && data.valid && data.user) {
           setAdminSession({
             token: '',
             user: data.user,

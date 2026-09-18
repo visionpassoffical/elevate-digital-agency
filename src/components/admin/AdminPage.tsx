@@ -15,17 +15,22 @@ export const AdminPage: React.FC = () => {
 
   const handleLoginSuccess = () => {
     if (typeof window !== 'undefined') {
-      window.history.replaceState(null, '', '/admin');
+      window.history.replaceState(null, '', '/admin/dashboard');
       window.dispatchEvent(new PopStateEvent('popstate'));
     }
   };
 
   useEffect(() => {
     if (!isLoading && typeof window !== 'undefined') {
-      if (!isAuthenticated && window.location.pathname === '/admin') {
-        window.history.replaceState(null, '', '/admin/login');
-      } else if (isAuthenticated && window.location.pathname === '/admin/login') {
-        window.history.replaceState(null, '', '/admin');
+      const path = window.location.pathname;
+      if (!isAuthenticated) {
+        if (path === '/admin' || path === '/admin/dashboard') {
+          window.history.replaceState(null, '', '/admin/login');
+        }
+      } else {
+        if (path === '/admin/login' || path === '/admin') {
+          window.history.replaceState(null, '', '/admin/dashboard');
+        }
       }
     }
   }, [isAuthenticated, isLoading]);

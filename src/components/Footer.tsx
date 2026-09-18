@@ -118,6 +118,19 @@ export const Footer: React.FC<FooterProps> = ({ onOpenQuote }) => {
           <div>
             <span>© {new Date().getFullYear()} ELEVATE. Digital Solutions & Creative Services.</span>
           </div>
+          <div className="flex items-center gap-4">
+            <a
+              href="/admin"
+              onClick={(e) => {
+                e.preventDefault();
+                window.history.pushState(null, '', '/admin');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+              }}
+              className="text-slate-600 hover:text-slate-400 transition-colors"
+            >
+              Admin Portal
+            </a>
+          </div>
         </div>
       </div>
     </footer>
