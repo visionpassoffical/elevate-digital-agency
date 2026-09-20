@@ -1,4 +1,4 @@
-import { sendJson } from './_lib';
+import { sendJson } from './_lib.js';
 
 export default async function handler(req: any, res: any) {
   return sendJson(res, 200, {

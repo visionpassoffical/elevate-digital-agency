@@ -1,7 +1,6 @@
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { INITIAL_SITE_CONTENT } from '../src/data/defaultSiteContent';
 import type { SiteContent } from '../src/types';
 
 // Environment variables with secure defaults
@@ -55,47 +54,15 @@ export function loadSiteContent(): SiteContent {
     try {
       if (fs.existsSync(filePath)) {
         const raw = fs.readFileSync(filePath, 'utf-8');
-        const parsed = JSON.parse(raw);
-        cachedSiteContent = {
-          ...INITIAL_SITE_CONTENT,
-          ...parsed,
-          hero: { ...INITIAL_SITE_CONTENT.hero, ...(parsed.hero || {}) },
-          services: parsed.services || INITIAL_SITE_CONTENT.services,
-          websitePlans: parsed.websitePlans || INITIAL_SITE_CONTENT.websitePlans,
-          admissionServices: {
-            package: { ...INITIAL_SITE_CONTENT.admissionServices.package, ...(parsed.admissionServices?.package || {}) },
-            individual: parsed.admissionServices?.individual || INITIAL_SITE_CONTENT.admissionServices.individual,
-          },
-          examServices: {
-            package: { ...INITIAL_SITE_CONTENT.examServices.package, ...(parsed.examServices?.package || {}) },
-            individual: parsed.examServices?.individual || INITIAL_SITE_CONTENT.examServices.individual,
-          },
-          monthlyCreativePlans: {
-            plans: parsed.monthlyCreativePlans?.plans || INITIAL_SITE_CONTENT.monthlyCreativePlans.plans,
-            creativeTypes: parsed.monthlyCreativePlans?.creativeTypes || INITIAL_SITE_CONTENT.monthlyCreativePlans.creativeTypes,
-          },
-          bulkPricing: {
-            idCards: { ...INITIAL_SITE_CONTENT.bulkPricing.idCards, ...(parsed.bulkPricing?.idCards || {}) },
-            certificates: { ...INITIAL_SITE_CONTENT.bulkPricing.certificates, ...(parsed.bulkPricing?.certificates || {}) },
-          },
-          customEnquiry: { ...INITIAL_SITE_CONTENT.customEnquiry, ...(parsed.customEnquiry || {}) },
-          clientInstitutions: { ...INITIAL_SITE_CONTENT.clientInstitutions, ...(parsed.clientInstitutions || {}) },
-          howItWorks: { ...INITIAL_SITE_CONTENT.howItWorks, ...(parsed.howItWorks || {}) },
-          whyElevate: { ...INITIAL_SITE_CONTENT.whyElevate, ...(parsed.whyElevate || {}) },
-          faq: { ...INITIAL_SITE_CONTENT.faq, ...(parsed.faq || {}) },
-          contact: { ...INITIAL_SITE_CONTENT.contact, ...(parsed.contact || {}) },
-          footer: { ...INITIAL_SITE_CONTENT.footer, ...(parsed.footer || {}) },
-          whatsappSettings: { ...INITIAL_SITE_CONTENT.whatsappSettings, ...(parsed.whatsappSettings || {}) },
-          general: { ...INITIAL_SITE_CONTENT.general, ...(parsed.general || {}) },
-        };
-        return cachedSiteContent;
+        cachedSiteContent = JSON.parse(raw);
+        return cachedSiteContent as SiteContent;
       }
     } catch {
       // ignore
     }
   }
 
-  cachedSiteContent = { ...INITIAL_SITE_CONTENT };
+  cachedSiteContent = {} as SiteContent;
   return cachedSiteContent;
 }
 
@@ -118,19 +85,15 @@ export function saveSiteContent(content: SiteContent): SiteContent {
 }
 
 export function resetSiteContent(): SiteContent {
-  cachedSiteContent = {
-    ...INITIAL_SITE_CONTENT,
-    version: (cachedSiteContent?.version || 1) + 1,
-    lastUpdated: new Date().toISOString(),
-  };
-
+  cachedSiteContent = null;
+  const initial = loadSiteContent();
   try {
-    fs.writeFileSync(CONTENT_FILE, JSON.stringify(cachedSiteContent, null, 2), 'utf-8');
+    fs.writeFileSync(CONTENT_FILE, JSON.stringify(initial, null, 2), 'utf-8');
   } catch {
     // ignore
   }
 
-  return cachedSiteContent;
+  return initial;
 }
 
 // Password hashing

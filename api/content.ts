@@ -1,4 +1,4 @@
-import { loadSiteContent, sendJson } from './_lib';
+import { loadSiteContent, sendJson } from './_lib.js';
 
 export default async function handler(req: any, res: any) {
   try {
