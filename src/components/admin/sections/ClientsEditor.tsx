@@ -71,14 +71,21 @@ export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
       setUploadingIdx(idx);
       const res = await uploadFile(file);
       if (res?.url) {
-        const next = [...data.list];
-        next[idx].logo = res.url;
-        setData({ ...data, list: next });
+        const nextList = data.list.map((item, i) =>
+          i === idx ? { ...item, logo: res.url } : item
+        );
+        const nextData = { ...data, list: nextList };
+        setData(nextData);
+        // Persist immediately to backend & local storage so logo remains after page refresh
+        await saveSection('clientInstitutions', nextData);
+        setSaveStatus('success');
+        setTimeout(() => setSaveStatus('idle'), 3500);
       }
     } catch (err: any) {
       alert(err.message || 'Image upload failed');
     } finally {
       setUploadingIdx(null);
+      e.target.value = '';
     }
   };
 
@@ -166,6 +173,9 @@ export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
                       src={item.logo}
                       alt={item.name}
                       className="w-full h-full object-contain p-1"
+                      onLoad={(e) => {
+                        (e.target as HTMLElement).style.display = 'block';
+                      }}
                       onError={(e) => {
                         (e.target as HTMLElement).style.display = 'none';
                       }}
@@ -175,12 +185,14 @@ export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
                   )}
 
                   <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
-                    <Upload className="w-4 h-4 text-white" />
+                    <Upload className="w-4 h-4 text-white pointer-events-none" />
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml,image/*"
                       onChange={(e) => handleFileUpload(idx, e)}
-                      className="hidden"
+                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                      disabled={uploadingIdx === idx}
+                      title="Upload new logo"
                     />
                   </label>
                 </div>
@@ -228,14 +240,16 @@ export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
                     }}
                     className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 text-xs outline-none"
                   />
-                  <label className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white cursor-pointer flex items-center gap-1 shrink-0">
-                    <Upload className="w-3.5 h-3.5" />
-                    <span className="text-[11px]">Upload</span>
+                  <label className="relative px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white cursor-pointer flex items-center gap-1 shrink-0 overflow-hidden">
+                    <Upload className="w-3.5 h-3.5 pointer-events-none" />
+                    <span className="text-[11px] pointer-events-none">{uploadingIdx === idx ? 'Uploading...' : 'Upload'}</span>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml,image/*"
                       onChange={(e) => handleFileUpload(idx, e)}
-                      className="hidden"
+                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                      disabled={uploadingIdx === idx}
+                      title="Upload logo from device"
                     />
                   </label>
                 </div>

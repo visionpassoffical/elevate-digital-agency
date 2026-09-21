@@ -507,25 +507,62 @@ export function createApp(): express.Application {
   // Upload Image/Logo
   api.post('/admin/upload', authenticateAdminMiddleware, (req, res) => {
     try {
-      const { filename, dataUrl } = req.body;
-      if (!filename || !dataUrl) {
-        return res.status(400).json({ success: false, error: 'Filename and dataUrl are required' });
+      const { filename, imageData, dataUrl, image, base64, url, logo } = req.body || {};
+      const rawImage = imageData || dataUrl || image || base64 || url || logo;
+
+      if (!rawImage || typeof rawImage !== 'string' || !rawImage.trim()) {
+        return res.status(400).json({ success: false, error: 'No image data provided' });
       }
 
-      const matches = dataUrl.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
-      if (!matches || matches.length !== 3) {
-        return res.status(400).json({ success: false, error: 'Invalid image data format' });
+      const trimmed = rawImage.trim();
+
+      // If already a web URL or existing upload
+      if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/uploads/')) {
+        return res.json({
+          success: true,
+          url: trimmed,
+          filename: filename || 'image.png',
+          message: 'Image URL processed successfully',
+        });
       }
 
-      const mimeType = matches[1];
-      const base64Data = matches[2];
-      const buffer = Buffer.from(base64Data, 'base64');
+      // Check for valid data URL
+      if (!trimmed.startsWith('data:image/')) {
+        return res.status(400).json({ success: false, error: 'Invalid image data format. Must be an image file or data URL' });
+      }
+
+      // Handle SVG data URIs (can be base64 or utf8/url-encoded) or standard base64
+      let buffer: Buffer;
+      let mimeType = 'image/png';
+
+      if (trimmed.startsWith('data:image/svg+xml')) {
+        mimeType = 'image/svg+xml';
+        if (trimmed.includes(';base64,')) {
+          const base64Part = trimmed.split(';base64,')[1];
+          buffer = Buffer.from(base64Part, 'base64');
+        } else {
+          const svgContent = trimmed.includes(',') ? decodeURIComponent(trimmed.split(',')[1]) : trimmed;
+          buffer = Buffer.from(svgContent, 'utf-8');
+        }
+      } else {
+        const commaIdx = trimmed.indexOf(',');
+        if (commaIdx === -1) {
+          return res.status(400).json({ success: false, error: 'Invalid image data format' });
+        }
+        const meta = trimmed.slice(0, commaIdx);
+        const base64Data = trimmed.slice(commaIdx + 1);
+        const mimeMatch = meta.match(/^data:(image\/[A-Za-z0-9.+_-]+)/);
+        if (mimeMatch) {
+          mimeType = mimeMatch[1];
+        }
+        buffer = Buffer.from(base64Data, 'base64');
+      }
 
       if (buffer.length > 5 * 1024 * 1024) {
         return res.status(400).json({ success: false, error: 'Image file size cannot exceed 5MB' });
       }
 
-      let ext = path.extname(filename).toLowerCase();
+      let ext = filename ? path.extname(filename).toLowerCase() : '';
       if (!ext) {
         if (mimeType.includes('png')) ext = '.png';
         else if (mimeType.includes('jpeg') || mimeType.includes('jpg')) ext = '.jpg';
@@ -537,24 +574,26 @@ export function createApp(): express.Application {
       const safeName = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}${ext}`;
       const filePath = path.join(UPLOADS_DIR, safeName);
       try {
+        if (!fs.existsSync(UPLOADS_DIR)) {
+          fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+        }
         fs.writeFileSync(filePath, buffer);
+        const publicUrl = `/uploads/${safeName}`;
+        return res.json({
+          success: true,
+          url: publicUrl,
+          filename: safeName,
+          message: 'File uploaded successfully',
+        });
       } catch (e) {
         // If cannot write to uploads folder in serverless, return dataUrl directly as fallback
         return res.json({
           success: true,
-          url: dataUrl,
+          url: trimmed,
           filename: safeName,
           message: 'File processed successfully',
         });
       }
-
-      const publicUrl = `/uploads/${safeName}`;
-      res.json({
-        success: true,
-        url: publicUrl,
-        filename: safeName,
-        message: 'File uploaded successfully',
-      });
     } catch (err: any) {
       console.error('Upload error:', err);
       res.status(500).json({ success: false, error: 'Failed to process file upload' });

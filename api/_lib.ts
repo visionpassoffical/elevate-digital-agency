@@ -252,15 +252,58 @@ export function makeSessionCookie(token: string, maxAgeSeconds: number = 7 * 24 
 }
 
 export function parseBody(req: any): any {
-  if (!req.body) return {};
-  if (typeof req.body === 'string') {
-    try {
-      return JSON.parse(req.body);
-    } catch {
-      return {};
+  if (!req) return {};
+  if (req.body) {
+    if (Buffer.isBuffer(req.body)) {
+      try {
+        return JSON.parse(req.body.toString('utf8'));
+      } catch {
+        return {};
+      }
+    }
+    if (typeof req.body === 'string') {
+      try {
+        return JSON.parse(req.body);
+      } catch {
+        return {};
+      }
+    }
+    if (typeof req.body === 'object') {
+      return req.body;
     }
   }
-  return req.body;
+  return {};
+}
+
+export async function parseBodyAsync(req: any): Promise<any> {
+  const syncParsed = parseBody(req);
+  if (syncParsed && typeof syncParsed === 'object' && Object.keys(syncParsed).length > 0) {
+    return syncParsed;
+  }
+
+  // If req is a readable stream or async iterable, buffer chunks
+  if (req && typeof req.on === 'function') {
+    try {
+      const chunks: Buffer[] = [];
+      for await (const chunk of req) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+      }
+      if (chunks.length > 0) {
+        const raw = Buffer.concat(chunks).toString('utf8');
+        if (raw && raw.trim()) {
+          try {
+            return JSON.parse(raw);
+          } catch {
+            return {};
+          }
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  return syncParsed || {};
 }
 
 export function sendJson(res: any, status: number, data: any) {

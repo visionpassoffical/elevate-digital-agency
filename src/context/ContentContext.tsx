@@ -269,44 +269,128 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Upload image/logo
   const uploadFile = async (file: File): Promise<{ url: string } | null> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        try {
-          const dataUrl = reader.result as string;
-          const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-          if (adminSession?.token) {
-            headers['Authorization'] = `Bearer ${adminSession.token}`;
-          }
-          const res = await fetch('/api/admin/upload', {
-            method: 'POST',
-            headers,
-            credentials: 'include',
-            body: JSON.stringify({
-              filename: file.name,
-              dataUrl,
-            }),
-          });
+    if (!file) {
+      throw new Error('No image file selected');
+    }
+    if (file.size === 0) {
+      throw new Error('Selected file is empty (0 bytes)');
+    }
 
-          const contentType = res.headers.get('content-type') || '';
-          if (!contentType.includes('application/json')) {
-            const text = await res.text();
-            throw new Error(text || `Upload error: server returned HTTP ${res.status}`);
-          }
-
-          const json = await res.json();
-          if (res.ok && json.success && json.url) {
-            resolve({ url: json.url });
-          } else {
-            reject(new Error(json.error || 'Upload failed'));
-          }
-        } catch (e) {
-          reject(e);
+    // Convert and optimize image file to ensure mobile photos (< 800px) fit payload limits comfortably
+    const convertFileToOptimizedDataUrl = (): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        // For SVG files, preserve raw vector data URL directly
+        if (file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg')) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const res = reader.result as string;
+            if (res && res.trim()) {
+              resolve(res);
+            } else {
+              reject(new Error('Selected SVG file is empty'));
+            }
+          };
+          reader.onerror = () => reject(new Error('Failed to read SVG file'));
+          reader.readAsDataURL(file);
+          return;
         }
-      };
-      reader.onerror = (e) => reject(e);
-      reader.readAsDataURL(file);
+
+        // For raster images (PNG, JPEG, WebP), scale to max 800x800 to avoid payload bloating
+        const reader = new FileReader();
+        reader.onload = () => {
+          const rawDataUrl = reader.result as string;
+          if (!rawDataUrl || typeof rawDataUrl !== 'string' || !rawDataUrl.trim()) {
+            return reject(new Error('Failed to read image data from file'));
+          }
+
+          // If browser Image & canvas are available, optimize dimensions
+          if (typeof window !== 'undefined' && window.Image) {
+            const img = new window.Image();
+            img.onload = () => {
+              try {
+                const MAX_DIM = 800;
+                let width = img.width || 800;
+                let height = img.height || 800;
+
+                if (width > MAX_DIM || height > MAX_DIM) {
+                  if (width > height) {
+                    height = Math.round((height * MAX_DIM) / width);
+                    width = MAX_DIM;
+                  } else {
+                    width = Math.round((width * MAX_DIM) / height);
+                    height = MAX_DIM;
+                  }
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                  return resolve(rawDataUrl);
+                }
+
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const isPng = file.type.includes('png') || file.name.toLowerCase().endsWith('.png');
+                const isWebp = file.type.includes('webp') || file.name.toLowerCase().endsWith('.webp');
+                const outType = isPng ? 'image/png' : (isWebp ? 'image/webp' : 'image/jpeg');
+                const quality = isPng ? undefined : 0.88;
+
+                const optimizedDataUrl = canvas.toDataURL(outType, quality);
+                resolve(optimizedDataUrl || rawDataUrl);
+              } catch {
+                resolve(rawDataUrl);
+              }
+            };
+            img.onerror = () => resolve(rawDataUrl);
+            img.src = rawDataUrl;
+          } else {
+            resolve(rawDataUrl);
+          }
+        };
+        reader.onerror = () => reject(new Error('Failed to read file from your device'));
+        reader.readAsDataURL(file);
+      });
+    };
+
+    const dataUrl = await convertFileToOptimizedDataUrl();
+    if (!dataUrl || !dataUrl.trim()) {
+      throw new Error('No image data could be read from the selected file');
+    }
+
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (adminSession?.token) {
+      headers['Authorization'] = `Bearer ${adminSession.token}`;
+    }
+
+    // Unified upload contract: send filename, imageData, dataUrl, image
+    const res = await fetch('/api/admin/upload', {
+      method: 'POST',
+      headers,
+      credentials: 'include',
+      body: JSON.stringify({
+        filename: file.name,
+        imageData: dataUrl,
+        dataUrl,
+        image: dataUrl,
+      }),
     });
+
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      const text = await res.text();
+      throw new Error(text || `Upload error: server returned HTTP ${res.status}`);
+    }
+
+    const json = await res.json();
+    if (res.ok && json.success && json.url) {
+      return { url: json.url };
+    }
+
+    throw new Error(json.error || 'Upload failed');
   };
 
   // WhatsApp Helpers

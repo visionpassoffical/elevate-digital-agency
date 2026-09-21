@@ -181,15 +181,53 @@ function makeSessionCookie(token, maxAgeSeconds = 7 * 24 * 60 * 60) {
   return `elevate_admin_session=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${maxAgeSeconds}${secureFlag}`;
 }
 function parseBody(req) {
-  if (!req.body) return {};
-  if (typeof req.body === "string") {
-    try {
-      return JSON.parse(req.body);
-    } catch {
-      return {};
+  if (!req) return {};
+  if (req.body) {
+    if (Buffer.isBuffer(req.body)) {
+      try {
+        return JSON.parse(req.body.toString("utf8"));
+      } catch {
+        return {};
+      }
+    }
+    if (typeof req.body === "string") {
+      try {
+        return JSON.parse(req.body);
+      } catch {
+        return {};
+      }
+    }
+    if (typeof req.body === "object") {
+      return req.body;
     }
   }
-  return req.body;
+  return {};
+}
+async function parseBodyAsync(req) {
+  const syncParsed = parseBody(req);
+  if (syncParsed && typeof syncParsed === "object" && Object.keys(syncParsed).length > 0) {
+    return syncParsed;
+  }
+  if (req && typeof req.on === "function") {
+    try {
+      const chunks = [];
+      for await (const chunk of req) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+      }
+      if (chunks.length > 0) {
+        const raw = Buffer.concat(chunks).toString("utf8");
+        if (raw && raw.trim()) {
+          try {
+            return JSON.parse(raw);
+          } catch {
+            return {};
+          }
+        }
+      }
+    } catch {
+    }
+  }
+  return syncParsed || {};
 }
 function sendJson(res, status, data) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
@@ -215,6 +253,7 @@ export {
   loadSiteContent,
   makeSessionCookie,
   parseBody,
+  parseBodyAsync,
   parseCookies,
   resetSiteContent,
   saveSiteContent,
