@@ -187,14 +187,16 @@ function parseBody(req) {
       try {
         return JSON.parse(req.body.toString("utf8"));
       } catch {
-        return {};
+        const str = req.body.toString("utf8").trim();
+        return str ? { imageData: str } : {};
       }
     }
     if (typeof req.body === "string") {
       try {
         return JSON.parse(req.body);
       } catch {
-        return {};
+        const str = req.body.trim();
+        return str ? { imageData: str } : {};
       }
     }
     if (typeof req.body === "object") {
@@ -220,7 +222,7 @@ async function parseBodyAsync(req) {
           try {
             return JSON.parse(raw);
           } catch {
-            return {};
+            return { imageData: raw.trim() };
           }
         }
       }
@@ -242,6 +244,12 @@ function sendJson(res, status, data) {
     res.end(JSON.stringify(data));
   }
 }
+function verifyAdminSession(req) {
+  const token = getRequestToken(req);
+  return validateToken(token);
+}
+const supabase = null;
+
 export {
   ADMIN_PASSWORD,
   ADMIN_SESSION_SECRET,
@@ -258,6 +266,8 @@ export {
   resetSiteContent,
   saveSiteContent,
   sendJson,
+  supabase,
   validateToken,
-  verifyAdminCredentials
+  verifyAdminCredentials,
+  verifyAdminSession
 };

@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "lastUpdated": "2026-09-20T06:33:08.086Z",
+  "version": 3,
+  "lastUpdated": "2026-09-24T14:09:22.836Z",
   "general": {
     "brandName": "ELEVATE",
     "tagline": "Digital Solutions & Creative Services",
@@ -588,7 +588,7 @@
       {
         "id": "partner-al-huda",
         "name": "Al-Huda Islamic Academy",
-        "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "logo": "/uploads/1790258962817-35cefcd453f9.png",
         "enabled": true,
         "order": 1,
         "location": "Kerala"

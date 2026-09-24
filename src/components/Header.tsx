@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ElevateLogo } from './ElevateLogo';
-import { MessageCircle, Menu, X, ArrowUpRight, ChevronRight } from 'lucide-react';
+import { MessageCircle, Menu, X, ArrowUpRight, ChevronRight, Phone } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useContent } from '../context/ContentContext';
 import type { NavItem } from '../types';
@@ -16,40 +16,39 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Websites', href: '#websites', description: 'Institutional website plans (from ₹999/yr)' },
   { label: 'Admission', href: '#admission', description: 'Admission forms & ID cards' },
   { label: 'Exam', href: '#exam', description: 'Question papers & timetables' },
-  { label: 'Monthly', href: '#monthly', description: 'Monthly creative retainers (from ₹499/mo)' },
+  { label: 'Monthly', href: '#creative', description: 'Monthly creative retainers (from ₹499/mo)' },
   { label: 'How It Works', href: '#how-it-works', description: 'Simple 4-step workflow' },
   { label: 'FAQ', href: '#faq', description: 'Common questions & answers' },
 ];
 
 const MOBILE_NAV_ITEMS: NavItem[] = [
-  { label: 'Services', href: '#services', description: 'Core digital capabilities' },
+  { label: 'Services Overview', href: '#services', description: 'Core digital capabilities' },
   { label: 'Client Institutions', href: '#clients', description: 'Schools, colleges & academies' },
-  { label: 'Websites', href: '#websites', description: 'Institutional website plans' },
+  { label: 'Websites & Portals', href: '#websites', description: 'Institutional plans from ₹999/yr' },
   { label: 'Admission Solutions', href: '#admission', description: 'Admission forms & ID cards' },
   { label: 'Exam Solutions', href: '#exam', description: 'Question papers & timetables' },
-  { label: 'Monthly Creative', href: '#monthly', description: 'Monthly creative retainers' },
-  { label: 'Bulk Services', href: '#bulk', description: 'Volume ID cards & certificates' },
-  { label: 'Have a Requirement?', href: '#enquiry', description: 'Direct WhatsApp requirement enquiry' },
-  { label: 'How It Works', href: '#how-it-works', description: 'Simple 4-step process' },
+  { label: 'Monthly Creative', href: '#creative', description: 'Retainers from ₹499/mo' },
+  { label: 'Bulk ID & Certificates', href: '#bulk', description: 'Volume ID cards & certificates' },
+  { label: 'Custom Institutional Setup', href: '#madrasa-solutions', description: 'Comprehensive madrasa & school setup' },
+  { label: 'How It Works', href: '#how-it-works', description: 'Transparent 4-step process' },
   { label: 'FAQ', href: '#faq', description: 'Common questions & answers' },
-  { label: 'Contact', href: '#contact', description: 'Direct WhatsApp line: +91 94971 22397' },
+  { label: 'Direct WhatsApp Contact', href: '#contact', description: 'Direct WhatsApp line: +91 94971 22397' },
 ];
 
 export const Header: React.FC<HeaderProps> = ({ onOpenQuote, activeSection = 'services' }) => {
   const { content, getWhatsAppUrl } = useContent();
-  const whatsappUrl = getWhatsAppUrl(content.whatsappSettings?.templates?.generalEnquiry || 'Hello ELEVATE, I would like to enquire about your digital services.');
-  const displayPhone = content.contact.whatsappNumber;
+  const whatsappUrl = getWhatsAppUrl(
+    content.whatsappSettings?.templates?.generalEnquiry ||
+      'Hello ELEVATE, I would like to enquire about your digital services.'
+  );
+  const displayPhone = content.contact.whatsappNumber || '+91 94971 22397';
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 20);
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -99,37 +98,38 @@ export const Header: React.FC<HeaderProps> = ({ onOpenQuote, activeSection = 'se
     <>
       <header
         id="main-header"
-        className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-200 py-2.5 sm:py-3 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-3 sm:py-3.5 ${
           isScrolled
-            ? 'bg-white/95 backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(15,23,42,0.06)] border-b border-slate-200/80'
-            : 'bg-[#F8FAFC]/95 backdrop-blur-sm border-b border-slate-200/60'
+            ? 'bg-[#090D16]/90 backdrop-blur-xl border-b border-white/10 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)]'
+            : 'bg-[#090D16]/80 backdrop-blur-md border-b border-white/[0.08]'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            {/* Brand Logo / Wordmark */}
+            {/* Zone 1: Single element brand wordmark */}
             <a
               href="#"
               onClick={(e) => {
                 e.preventDefault();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] rounded-lg p-0.5"
+              className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] rounded-lg p-0.5 transition-transform active:scale-95"
               aria-label="ELEVATE Home"
             >
               <ElevateLogo
-                variant="default"
+                variant="white"
                 size="md"
                 showTagline={false}
               />
             </a>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1 lg:gap-1.5">
+            {/* Zone 2: Clean text navigation links with subtle active indicator */}
+            <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
               {NAV_ITEMS.map((item) => {
                 const sectionKey = item.href.replace('#', '');
                 const isActive =
                   activeSection === sectionKey ||
+                  (sectionKey === 'creative' && activeSection === 'monthly') ||
                   (sectionKey === 'packages' && (activeSection === 'admission' || activeSection === 'exam'));
 
                 return (
@@ -140,56 +140,56 @@ export const Header: React.FC<HeaderProps> = ({ onOpenQuote, activeSection = 'se
                       e.preventDefault();
                       handleNavClick(item.href);
                     }}
-                    className={`relative px-3 lg:px-3.5 py-1.5 text-xs lg:text-sm font-semibold rounded-lg transition-colors duration-150 ${
+                    className={`relative px-3 py-1.5 text-xs xl:text-[13px] font-medium transition-colors duration-150 rounded-md whitespace-nowrap ${
                       isActive
-                        ? 'text-[#2563EB] bg-blue-50/80 font-bold'
-                        : 'text-slate-600 hover:text-[#0F172A] hover:bg-slate-100/70'
+                        ? 'text-white font-semibold'
+                        : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
                     }`}
                   >
                     {item.label}
                     {isActive && (
-                      <span className="absolute bottom-1 left-3.5 right-3.5 h-0.5 bg-[#2563EB] rounded-full" />
+                      <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-[#3B82F6] rounded-full shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
                     )}
                   </a>
                 );
               })}
             </nav>
 
-            {/* Desktop CTAs: WhatsApp quick-link + Get a Quote button */}
-            <div className="hidden md:flex items-center gap-2.5">
+            {/* Zone 3: Primary Actions */}
+            <div className="hidden sm:flex items-center gap-2.5">
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 id="header-whatsapp-cta"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:border-slate-300 hover:text-[#0F172A] hover:shadow-xs transition-all duration-200"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-200 bg-white/[0.05] border border-white/10 rounded-xl hover:bg-white/[0.09] hover:text-white hover:border-white/20 transition-all duration-200 active:scale-98"
                 title={`Direct WhatsApp Consultation: ${displayPhone}`}
               >
-                <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-                <span>WhatsApp</span>
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Talk to ELEVATE</span>
               </a>
 
               <button
                 id="header-quote-button"
                 onClick={onOpenQuote}
                 type="button"
-                className="inline-flex items-center gap-2 px-4 py-2 text-xs lg:text-sm font-bold tracking-wide text-white bg-[#0F172A] hover:bg-[#2563EB] active:scale-[0.98] rounded-lg shadow-xs transition-all duration-200 cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#3B82F6] hover:to-[#2563EB] active:scale-98 rounded-xl shadow-[0_0_20px_-5px_rgba(37,99,235,0.5)] border border-blue-400/20 transition-all duration-200 cursor-pointer whitespace-nowrap"
               >
                 <span>Get a Quote</span>
-                <ArrowUpRight className="w-4 h-4 opacity-80" />
+                <ArrowUpRight className="w-3.5 h-3.5 text-blue-200" />
               </button>
             </div>
 
-            {/* Mobile Actions: WhatsApp quick icon + Hamburger button */}
-            <div className="flex md:hidden items-center gap-2">
+            {/* Mobile Actions: WhatsApp quick icon + Hamburger toggle */}
+            <div className="flex lg:hidden items-center gap-2">
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 text-emerald-600 bg-emerald-50 rounded-lg border border-emerald-200 active:scale-95 transition-transform"
+                className="p-2 text-emerald-400 bg-emerald-500/10 rounded-xl border border-emerald-500/20 active:scale-95 transition-transform"
                 aria-label={`Contact via WhatsApp: ${displayPhone}`}
               >
-                <MessageCircle className="w-5 h-5" />
+                <MessageCircle className="w-4 h-4" />
               </a>
 
               <button
@@ -198,39 +198,39 @@ export const Header: React.FC<HeaderProps> = ({ onOpenQuote, activeSection = 'se
                 type="button"
                 aria-expanded={mobileMenuOpen}
                 aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
-                className="p-2.5 text-slate-800 bg-white rounded-lg border border-slate-200 active:scale-95 transition-transform cursor-pointer"
+                className="p-2 text-slate-200 bg-white/[0.06] rounded-xl border border-white/10 active:scale-95 transition-transform cursor-pointer"
               >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {mobileMenuOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-slate-200" />}
               </button>
             </div>
           </div>
         </div>
 
-        {/* Mobile Dropdown Panel directly under the header */}
+        {/* Mobile Dropdown Panel: High-end dark sheet directly anchored to header */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
               key="mobile-nav-panel"
-              initial={{ opacity: 0, y: -6, scale: 0.99 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -6, scale: 0.99 }}
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.18, ease: 'easeOut' }}
-              className="md:hidden absolute top-full left-0 right-0 px-3 sm:px-6 pt-1.5 pb-3 pointer-events-auto"
+              className="lg:hidden absolute top-full left-0 right-0 px-3 sm:px-6 pt-2 pb-4 pointer-events-auto max-w-lg mx-auto"
             >
               <div
                 id="mobile-dropdown-container"
-                className="bg-white/98 backdrop-blur-xl border border-slate-200/90 rounded-2xl sm:rounded-3xl shadow-[0_20px_45px_-12px_rgba(11,15,23,0.14)] p-3 sm:p-4 overflow-hidden"
+                className="bg-[#0D1322]/98 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.8)] p-3 sm:p-4 overflow-hidden"
               >
-                {/* Navigation Links in a compact, easy-to-scan layout */}
                 <nav
                   id="mobile-nav-list"
-                  className="max-h-[min(410px,calc(100vh-170px))] overflow-y-auto overscroll-contain pr-1 -mr-1"
+                  className="max-h-[min(420px,calc(100vh-160px))] overflow-y-auto overscroll-contain pr-1 space-y-1 divide-y divide-white/5"
                 >
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-0.5 sm:gap-1">
+                  <div className="grid grid-cols-1 gap-1">
                     {MOBILE_NAV_ITEMS.map((item) => {
                       const sectionKey = item.href.replace('#', '');
                       const isActive =
                         activeSection === sectionKey ||
+                        (sectionKey === 'creative' && activeSection === 'monthly') ||
                         (sectionKey === 'packages' &&
                           (activeSection === 'admission' || activeSection === 'exam'));
 
@@ -242,18 +242,25 @@ export const Header: React.FC<HeaderProps> = ({ onOpenQuote, activeSection = 'se
                             e.preventDefault();
                             handleNavClick(item.href);
                           }}
-                          className={`flex items-center justify-between px-3 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors duration-150 group select-none ${
+                          className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs sm:text-sm transition-colors duration-150 group select-none ${
                             isActive
-                              ? 'bg-blue-50/80 text-[#0062EB] font-bold'
-                              : 'text-slate-700 hover:text-[#0062EB] hover:bg-slate-50'
+                              ? 'bg-blue-600/15 text-[#60A5FA] font-semibold border border-blue-500/30'
+                              : 'text-slate-300 hover:text-white hover:bg-white/[0.05]'
                           }`}
                         >
-                          <span className="truncate">{item.label}</span>
+                          <div className="min-w-0 pr-2">
+                            <div className="font-medium truncate">{item.label}</div>
+                            {item.description && (
+                              <div className="text-[10px] text-slate-500 truncate mt-0.5">
+                                {item.description}
+                              </div>
+                            )}
+                          </div>
                           <ChevronRight
-                            className={`w-3.5 h-3.5 shrink-0 transition-transform duration-150 ${
+                            className={`w-4 h-4 shrink-0 transition-transform duration-150 ${
                               isActive
-                                ? 'text-[#0062EB] translate-x-0.5'
-                                : 'text-slate-300 group-hover:text-[#0062EB] group-hover:translate-x-0.5'
+                                ? 'text-[#60A5FA] translate-x-0.5'
+                                : 'text-slate-600 group-hover:text-slate-300 group-hover:translate-x-0.5'
                             }`}
                           />
                         </a>
@@ -262,31 +269,27 @@ export const Header: React.FC<HeaderProps> = ({ onOpenQuote, activeSection = 'se
                   </div>
                 </nav>
 
-                {/* Compact, accessible action bar (side-by-side) */}
-                <div className="pt-2.5 mt-1.5 border-t border-slate-100 grid grid-cols-2 gap-2 shrink-0">
+                {/* Mobile Drawer Quick Action Buttons */}
+                <div className="pt-3 mt-2 border-t border-white/10 grid grid-cols-2 gap-2">
                   <a
-                    id="mobile-nav-whatsapp"
                     href={whatsappUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="py-2.5 px-3 rounded-xl text-xs font-bold text-slate-800 bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 border border-slate-200/90 hover:border-emerald-200 flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                    className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 active:scale-98 transition-all"
                   >
-                    <MessageCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    <MessageCircle className="w-3.5 h-3.5" />
                     <span>WhatsApp</span>
                   </a>
-
                   <button
-                    id="mobile-quote-button"
+                    type="button"
                     onClick={() => {
                       setMobileMenuOpen(false);
                       onOpenQuote();
                     }}
-                    type="button"
-                    className="py-2.5 px-3 rounded-xl text-xs font-bold text-white bg-[#0F172A] hover:bg-[#2563EB] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer"
+                    className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl text-xs font-semibold text-white bg-[#2563EB] hover:bg-[#3B82F6] active:scale-98 transition-all"
                   >
                     <span>Get a Quote</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 opacity-80 shrink-0" />
+                    <ArrowUpRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -294,22 +297,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenQuote, activeSection = 'se
           )}
         </AnimatePresence>
       </header>
-
-      {/* Subtle backdrop overlay outside the header */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            key="mobile-nav-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-40 bg-slate-950/20 backdrop-blur-[1.5px] md:hidden"
-            onClick={() => setMobileMenuOpen(false)}
-            aria-hidden="true"
-          />
-        )}
-      </AnimatePresence>
     </>
   );
 };

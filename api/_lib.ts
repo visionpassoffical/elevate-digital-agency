@@ -242,6 +242,14 @@ export function getRequestToken(req: any): string | undefined {
   return cookies['elevate_admin_session'];
 }
 
+export function verifyAdminSession(req: any): SessionRecord | null {
+  const token = getRequestToken(req);
+  return validateToken(token);
+}
+
+// Supabase client stub / integration export for serverless compatibility
+export const supabase = null;
+
 export function makeSessionCookie(token: string, maxAgeSeconds: number = 7 * 24 * 60 * 60): string {
   const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   const secureFlag = isProd ? '; Secure' : '';
@@ -258,14 +266,16 @@ export function parseBody(req: any): any {
       try {
         return JSON.parse(req.body.toString('utf8'));
       } catch {
-        return {};
+        const str = req.body.toString('utf8').trim();
+        return str ? { imageData: str } : {};
       }
     }
     if (typeof req.body === 'string') {
       try {
         return JSON.parse(req.body);
       } catch {
-        return {};
+        const str = req.body.trim();
+        return str ? { imageData: str } : {};
       }
     }
     if (typeof req.body === 'object') {
@@ -294,7 +304,7 @@ export async function parseBodyAsync(req: any): Promise<any> {
           try {
             return JSON.parse(raw);
           } catch {
-            return {};
+            return { imageData: raw.trim() };
           }
         }
       }

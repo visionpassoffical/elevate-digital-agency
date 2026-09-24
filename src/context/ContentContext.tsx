@@ -13,7 +13,7 @@ interface ContentContextValue {
   saveContent: (updated: SiteContent) => Promise<boolean>;
   saveSection: <K extends keyof SiteContent>(section: K, data: SiteContent[K]) => Promise<boolean>;
   resetContent: () => Promise<boolean>;
-  uploadFile: (file: File) => Promise<{ url: string } | null>;
+  uploadFile: (fileOrDataUrl: File | string, customFilename?: string) => Promise<{ url: string } | null>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
   // WhatsApp & Pricing Helpers
   getWhatsAppDigits: () => string;
@@ -267,18 +267,36 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
-  // Upload image/logo
-  const uploadFile = async (file: File): Promise<{ url: string } | null> => {
-    if (!file) {
-      throw new Error('No image file selected');
-    }
-    if (file.size === 0) {
-      throw new Error('Selected file is empty (0 bytes)');
+  // Upload image/logo (supports both File objects from input and data URL strings)
+  const uploadFile = async (
+    fileOrDataUrl: File | string,
+    customFilename?: string
+  ): Promise<{ url: string } | null> => {
+    if (!fileOrDataUrl) {
+      throw new Error('No image file or data provided');
     }
 
-    // Convert and optimize image file to ensure mobile photos (< 800px) fit payload limits comfortably
-    const convertFileToOptimizedDataUrl = (): Promise<string> => {
-      return new Promise((resolve, reject) => {
+    let dataUrl = '';
+    let filename = customFilename || 'logo.png';
+
+    if (typeof fileOrDataUrl === 'string') {
+      const trimmed = fileOrDataUrl.trim();
+      if (!trimmed) {
+        throw new Error('No image data provided');
+      }
+      dataUrl = trimmed;
+      if (!customFilename) {
+        filename = trimmed.includes('svg') ? 'logo.svg' : 'logo.png';
+      }
+    } else {
+      const file = fileOrDataUrl;
+      if (file.size === 0) {
+        throw new Error('Selected file is empty (0 bytes)');
+      }
+      filename = customFilename || file.name || 'logo.png';
+
+      // Convert and optimize image file to ensure mobile photos fit payload limits safely
+      dataUrl = await new Promise<string>((resolve, reject) => {
         // For SVG files, preserve raw vector data URL directly
         if (file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg')) {
           const reader = new FileReader();
@@ -295,7 +313,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
           return;
         }
 
-        // For raster images (PNG, JPEG, WebP), scale to max 800x800 to avoid payload bloating
+        // For raster images (PNG, JPEG, WebP)
         const reader = new FileReader();
         reader.onload = () => {
           const rawDataUrl = reader.result as string;
@@ -303,14 +321,14 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
             return reject(new Error('Failed to read image data from file'));
           }
 
-          // If browser Image & canvas are available, optimize dimensions
+          // If browser Image & canvas are available, scale down oversized phone photos
           if (typeof window !== 'undefined' && window.Image) {
             const img = new window.Image();
             img.onload = () => {
               try {
-                const MAX_DIM = 800;
-                let width = img.width || 800;
-                let height = img.height || 800;
+                const MAX_DIM = 1000;
+                let width = img.width || 1000;
+                let height = img.height || 1000;
 
                 if (width > MAX_DIM || height > MAX_DIM) {
                   if (width > height) {
@@ -340,7 +358,7 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 const quality = isPng ? undefined : 0.88;
 
                 const optimizedDataUrl = canvas.toDataURL(outType, quality);
-                resolve(optimizedDataUrl || rawDataUrl);
+                resolve(optimizedDataUrl && optimizedDataUrl.startsWith('data:image/') ? optimizedDataUrl : rawDataUrl);
               } catch {
                 resolve(rawDataUrl);
               }
@@ -354,9 +372,8 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         reader.onerror = () => reject(new Error('Failed to read file from your device'));
         reader.readAsDataURL(file);
       });
-    };
+    }
 
-    const dataUrl = await convertFileToOptimizedDataUrl();
     if (!dataUrl || !dataUrl.trim()) {
       throw new Error('No image data could be read from the selected file');
     }
@@ -366,16 +383,14 @@ export const ContentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       headers['Authorization'] = `Bearer ${adminSession.token}`;
     }
 
-    // Unified upload contract: send filename, imageData, dataUrl, image
+    // Unified upload contract: send complete data URL in imageData and filename
     const res = await fetch('/api/admin/upload', {
       method: 'POST',
       headers,
       credentials: 'include',
       body: JSON.stringify({
-        filename: file.name,
+        filename,
         imageData: dataUrl,
-        dataUrl,
-        image: dataUrl,
       }),
     });
 

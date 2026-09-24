@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   X,
   Plus,
@@ -7,22 +7,22 @@ import {
   ChevronUp,
   ChevronDown,
   Upload,
-  Check,
   Eye,
   EyeOff,
   RotateCcw,
   Sparkles,
   Building2,
   Save,
-  Image as ImageIcon,
   AlertCircle,
 } from 'lucide-react';
 import type { ClientInstitution } from '../types';
+import { useContent } from '../context/ContentContext';
 import {
   getClientInstitutions,
   saveClientInstitutions,
   resetClientInstitutions,
 } from '../data/partnersData';
+import { InstitutionLogoBadge } from './InstitutionLogoBadge';
 
 interface AdminInstitutionsModalProps {
   isOpen: boolean;
@@ -35,37 +35,65 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
   onClose,
   onUpdated,
 }) => {
-  const [institutions, setInstitutions] = useState<ClientInstitution[]>(() =>
-    getClientInstitutions()
-  );
+  const { content, saveSection, uploadFile } = useContent();
+
+  const [institutions, setInstitutions] = useState<ClientInstitution[]>(() => {
+    if (content?.clientInstitutions?.list && content.clientInstitutions.list.length > 0) {
+      return content.clientInstitutions.list;
+    }
+    return getClientInstitutions();
+  });
+
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAddingNew, setIsAddingNew] = useState<boolean>(false);
 
-  // Form states
+  // Form states - separated text fields from file/image state
   const [formName, setFormName] = useState('');
   const [formLocation, setFormLocation] = useState('');
-  const [formLogo, setFormLogo] = useState('');
+  const [formLogo, setFormLogo] = useState(''); // Holds existing logo URL or preview
+  const [newFile, setNewFile] = useState<File | null>(null); // Holds newly selected file
   const [formEnabled, setFormEnabled] = useState(true);
   const [formError, setFormError] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   const [isDraggingFile, setIsDraggingFile] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Reload data whenever modal opens
-  React.useEffect(() => {
+  // Sync data whenever modal opens or content updates
+  useEffect(() => {
     if (isOpen) {
-      setInstitutions(getClientInstitutions());
+      if (content?.clientInstitutions?.list && content.clientInstitutions.list.length > 0) {
+        setInstitutions(content.clientInstitutions.list);
+      } else {
+        setInstitutions(getClientInstitutions());
+      }
       setEditingId(null);
       setIsAddingNew(false);
+      setNewFile(null);
       setFormError('');
     }
-  }, [isOpen]);
+  }, [isOpen, content?.clientInstitutions?.list]);
 
   if (!isOpen) return null;
 
-  const persistChanges = (newList: ClientInstitution[]) => {
+  const persistChanges = async (newList: ClientInstitution[]) => {
     setInstitutions(newList);
     saveClientInstitutions(newList);
+
+    try {
+      const updatedSection = {
+        ...(content.clientInstitutions || {
+          sectionBadge: 'OUR CLIENTS & PARTNERS',
+          sectionTitle: 'Trusted by Modern Educational Institutions',
+          sectionSubtitle: 'Schools, colleges, academies, and madrasas that rely on ELEVATE digital systems',
+        }),
+        list: newList,
+      };
+      await saveSection('clientInstitutions', updatedSection);
+    } catch (e) {
+      console.warn('Failed to sync client institutions to server:', e);
+    }
+
     if (onUpdated) onUpdated();
   };
 
@@ -84,7 +112,6 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
     const temp = next[index - 1];
     next[index - 1] = next[index];
     next[index] = temp;
-    // update order property
     next.forEach((item, idx) => {
       item.order = idx + 1;
     });
@@ -115,17 +142,19 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
       if (editingId === id) {
         setEditingId(null);
         setIsAddingNew(false);
+        setNewFile(null);
       }
     }
   };
 
-  // Start edit
+  // Start edit: preserves existing logoUrl without requiring re-selection
   const handleStartEdit = (inst: ClientInstitution) => {
     setEditingId(inst.id);
     setIsAddingNew(false);
     setFormName(inst.name);
     setFormLocation(inst.location || '');
-    setFormLogo(inst.logo);
+    setFormLogo(inst.logo || '');
+    setNewFile(null);
     setFormEnabled(inst.enabled);
     setFormError('');
   };
@@ -137,16 +166,37 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
     setFormName('');
     setFormLocation('');
     setFormLogo('');
+    setNewFile(null);
     setFormEnabled(true);
     setFormError('');
   };
 
-  // Handle Logo File Upload (Drag-and-Drop or File Picker)
+  // Handle Logo File Selection with 3MB & Format Validation
   const processUploadedFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      setFormError('Please upload a valid image file (PNG, JPG, SVG, WebP)');
+    // Max upload validation: 3MB
+    if (file.size > 3 * 1024 * 1024) {
+      setFormError('Image file size cannot exceed 3MB (PNG, JPG, WEBP, SVG)');
       return;
     }
+
+    const validExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.svg'];
+    const lowerName = file.name.toLowerCase();
+    const hasValidExt = validExtensions.some((ext) => lowerName.endsWith(ext));
+    const hasValidMime =
+      file.type.startsWith('image/png') ||
+      file.type.startsWith('image/jpeg') ||
+      file.type.startsWith('image/jpg') ||
+      file.type.startsWith('image/webp') ||
+      file.type.startsWith('image/svg+xml');
+
+    if (!hasValidExt && !hasValidMime) {
+      setFormError('Invalid image format. Allowed: PNG, JPG, WEBP, SVG');
+      return;
+    }
+
+    setNewFile(file);
+
+    // Read for immediate local preview
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result as string;
@@ -174,15 +224,19 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
     }
   };
 
-  // Quick helper to generate a clean stylized SVG logo if no image is uploaded
+  // Generate stylized monogram SVG logo if user desires one
   const handleGenerateFallbackLogo = () => {
     const trimmed = formName.trim();
     if (!trimmed) {
       setFormError('Enter an institution name first to generate a logo');
       return;
     }
-    const words = trimmed.split(/\s+/);
-    const initials = words.length === 1 ? words[0].slice(0, 3).toUpperCase() : words.slice(0, 3).map((w) => w[0]).join('').toUpperCase();
+    const words = trimmed.split(/\s+/).filter(Boolean);
+    const initials =
+      words.length === 1
+        ? words[0].slice(0, 3).toUpperCase()
+        : words.slice(0, 3).map((w) => w[0]).join('').toUpperCase();
+
     const colors = [
       ['#064e3b', '#047857', '#34d399'],
       ['#1e3a8a', '#2563eb', '#60a5fa'],
@@ -204,70 +258,92 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
       <path d="M42 50 V66 C42 72, 78 72, 78 66 V50" fill="none" stroke="${picked[2]}" stroke-width="3" />
       <text x="60" y="98" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="14" fill="#FFFFFF" text-anchor="middle" letter-spacing="1.5">${initials}</text>
     </svg>`;
-    setFormLogo(`data:image/svg+xml;utf8,${encodeURIComponent(svg)}`);
+    const dataUrl = `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+    setFormLogo(dataUrl);
+    setNewFile(null); // No local file needed
     setFormError('');
   };
 
   // Save Form (Create or Update)
-  const handleSaveForm = (e: React.FormEvent) => {
+  const handleSaveForm = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName.trim()) {
       setFormError('Institution name is required');
       return;
     }
-    if (!formLogo.trim()) {
-      setFormError('Please upload an institution logo or generate a monogram logo');
-      return;
-    }
 
-    if (isAddingNew) {
-      const newInst: ClientInstitution = {
-        id: `client-${Date.now()}`,
-        name: formName.trim(),
-        location: formLocation.trim() || undefined,
-        logo: formLogo.trim(),
-        enabled: formEnabled,
-        order: institutions.length + 1,
-      };
-      const next = [...institutions, newInst];
-      persistChanges(next);
-      setIsAddingNew(false);
-      setFormName('');
-      setFormLogo('');
-      setFormLocation('');
-    } else if (editingId) {
-      const next = institutions.map((item) =>
-        item.id === editingId
-          ? {
-              ...item,
-              name: formName.trim(),
-              location: formLocation.trim() || undefined,
-              logo: formLogo.trim(),
-              enabled: formEnabled,
-            }
-          : item
-      );
-      persistChanges(next);
-      setEditingId(null);
-    }
+    setIsUploading(true);
     setFormError('');
+
+    try {
+      let finalLogoUrl = formLogo.trim();
+
+      // If a new file was uploaded, process and upload it
+      if (newFile) {
+        const safePrefix = formName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        const ext = newFile.name ? newFile.name.split('.').pop() || 'png' : 'png';
+        const res = await uploadFile(newFile, `${safePrefix}-logo.${ext}`);
+        if (res?.url) {
+          finalLogoUrl = res.url;
+        }
+      }
+      // If newFile is null, preserve existing finalLogoUrl as is! Never reject if an existing URL is present!
+
+      if (isAddingNew) {
+        const newInst: ClientInstitution = {
+          id: `client-${Date.now()}`,
+          name: formName.trim(),
+          location: formLocation.trim() || undefined,
+          logo: finalLogoUrl,
+          enabled: formEnabled,
+          order: institutions.length + 1,
+        };
+        const next = [...institutions, newInst];
+        await persistChanges(next);
+        setIsAddingNew(false);
+        setFormName('');
+        setFormLogo('');
+        setNewFile(null);
+        setFormLocation('');
+      } else if (editingId) {
+        const next = institutions.map((item) =>
+          item.id === editingId
+            ? {
+                ...item,
+                name: formName.trim(),
+                location: formLocation.trim() || undefined,
+                logo: finalLogoUrl,
+                enabled: formEnabled,
+              }
+            : item
+        );
+        await persistChanges(next);
+        setEditingId(null);
+        setNewFile(null);
+      }
+    } catch (err: any) {
+      setFormError(err.message || 'Failed to save institution');
+    } finally {
+      setIsUploading(false);
+    }
   };
 
-  const handleResetToDefaults = () => {
+  const handleResetToDefaults = async () => {
     if (window.confirm('Reset client institutions to starter list? Any custom entries will be replaced.')) {
       const list = resetClientInstitutions();
-      setInstitutions(list);
+      await persistChanges(list);
       setEditingId(null);
       setIsAddingNew(false);
-      if (onUpdated) onUpdated();
+      setNewFile(null);
     }
   };
 
-  const handleClearAll = () => {
+  const handleClearAll = async () => {
     if (window.confirm('Clear all client institutions? This will test the empty state on the live site.')) {
-      persistChanges([]);
+      await persistChanges([]);
       setEditingId(null);
       setIsAddingNew(false);
+      setNewFile(null);
     }
   };
 
@@ -359,9 +435,10 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
                   onClick={() => {
                     setIsAddingNew(false);
                     setEditingId(null);
+                    setNewFile(null);
                     setFormError('');
                   }}
-                  className="text-xs text-slate-500 hover:text-slate-800"
+                  className="text-xs text-slate-500 hover:text-slate-800 cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -408,25 +485,19 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
               {/* Logo Upload & Preview Area */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
-                  Institution Logo *
+                  Institution Logo (Optional — Badge used if none)
                 </label>
 
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
-                  {/* Logo Preview */}
+                  {/* Logo Preview with Graceful Typographical Fallback */}
                   <div className="sm:col-span-3 flex flex-col items-center justify-center p-3 rounded-2xl bg-white border border-slate-200">
-                    {formLogo ? (
-                      <img
-                        src={formLogo}
-                        alt="Logo preview"
-                        className="w-16 h-16 object-contain rounded-xl shadow-2xs"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
-                        <ImageIcon className="w-7 h-7" />
-                      </div>
-                    )}
+                    <InstitutionLogoBadge
+                      name={formName || 'Preview'}
+                      logo={formLogo}
+                      size="xl"
+                    />
                     <span className="text-[10px] font-semibold text-slate-500 mt-2">
-                      {formLogo ? 'Preview' : 'No Logo'}
+                      {formLogo ? (newFile ? 'New Selected' : 'Current Logo') : 'Initials Badge'}
                     </span>
                   </div>
 
@@ -450,16 +521,16 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
                       <input
                         ref={fileInputRef}
                         type="file"
-                        accept="image/*"
+                        accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
                         onChange={handleFileInputChange}
                         className="hidden"
                       />
                       <Upload className="w-5 h-5 text-[#0062EB] mx-auto mb-1" />
                       <div className="text-xs font-bold text-slate-800">
-                        Click to upload logo or drag and drop
+                        {newFile ? `Selected: ${newFile.name}` : 'Click to upload logo or drag and drop'}
                       </div>
                       <div className="text-[11px] text-slate-500 mt-0.5">
-                        PNG, JPG, SVG, WebP (Square recommended)
+                        PNG, JPG, WEBP, SVG (Max 3MB)
                       </div>
                     </div>
 
@@ -476,10 +547,13 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
                       {formLogo && (
                         <button
                           type="button"
-                          onClick={() => setFormLogo('')}
-                          className="text-xs text-red-600 hover:underline px-2 py-1"
+                          onClick={() => {
+                            setFormLogo('');
+                            setNewFile(null);
+                          }}
+                          className="text-xs text-red-600 hover:underline px-2 py-1 cursor-pointer"
                         >
-                          Remove Logo
+                          Remove Logo (Use Monogram Badge)
                         </button>
                       )}
                     </div>
@@ -487,16 +561,18 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
                 </div>
               </div>
 
-              {/* Status Toggle & Submit */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-3 border-t border-blue-200/60">
-                <label className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
+              {/* Status and Action Buttons */}
+              <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-t border-slate-200/60">
+                <label className="inline-flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formEnabled}
                     onChange={(e) => setFormEnabled(e.target.checked)}
-                    className="w-4 h-4 rounded text-[#0062EB] focus:ring-[#0062EB]"
+                    className="w-4 h-4 rounded text-[#0062EB] focus:ring-[#0062EB] border-slate-300"
                   />
-                  <span>Active & Visible on Public Website</span>
+                  <span className="text-xs font-semibold text-slate-700">
+                    Visible on live website showcase
+                  </span>
                 </label>
 
                 <div className="flex items-center gap-2 self-end sm:self-auto">
@@ -505,17 +581,25 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
                     onClick={() => {
                       setIsAddingNew(false);
                       setEditingId(null);
+                      setNewFile(null);
                     }}
-                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200/60 transition-colors"
+                    className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200/60 transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0062EB] hover:bg-blue-600 shadow-sm transition-all"
+                    disabled={isUploading}
+                    className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#0062EB] hover:bg-blue-600 disabled:opacity-50 shadow-sm transition-all cursor-pointer"
                   >
                     <Save className="w-4 h-4" />
-                    <span>{isAddingNew ? 'Save Institution' : 'Update Institution'}</span>
+                    <span>
+                      {isUploading
+                        ? 'Saving...'
+                        : isAddingNew
+                        ? 'Save Institution'
+                        : 'Update Institution'}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -525,7 +609,7 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
           {/* Institutions List Table / Cards */}
           <div className="space-y-2.5">
             <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-              Institutions Order & Visibility (Drag / Reorder)
+              Institutions Order & Visibility (Reorder & Edit)
             </div>
 
             {institutions.length === 0 ? (
@@ -533,12 +617,12 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
                 <Building2 className="w-8 h-8 mx-auto text-slate-400 opacity-60" />
                 <div className="text-sm font-semibold">No institutions configured.</div>
                 <p className="text-xs max-w-sm mx-auto">
-                  The live website will show: <em>“Your institution could be featured here.”</em>
+                  Click below to add partner schools or academies.
                 </p>
                 <button
                   type="button"
                   onClick={handleStartAdd}
-                  className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-[#0062EB] rounded-xl"
+                  className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-[#0062EB] rounded-xl cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add First Institution</span>
@@ -547,7 +631,7 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
             ) : (
               institutions.map((inst, index) => (
                 <div
-                  key={inst.id}
+                  key={inst.id || index}
                   className={`p-3.5 sm:p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                     inst.enabled
                       ? 'bg-white border-slate-200/90 shadow-2xs'
@@ -578,14 +662,12 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
                       </button>
                     </div>
 
-                    {/* Logo thumbnail */}
-                    <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center p-1 overflow-hidden shrink-0">
-                      <img
-                        src={inst.logo}
-                        alt={inst.name}
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
+                    {/* Logo thumbnail with clean graceful fallback */}
+                    <InstitutionLogoBadge
+                      name={inst.name}
+                      logo={inst.logo}
+                      size="md"
+                    />
 
                     {/* Name and badge */}
                     <div>
@@ -598,60 +680,49 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
                             Active
                           </span>
                         ) : (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-500">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600">
                             Hidden
                           </span>
                         )}
                       </div>
                       {inst.location && (
-                        <span className="text-xs text-slate-500 block">
-                          {inst.location}
-                        </span>
+                        <div className="text-xs text-slate-500 mt-0.5">{inst.location}</div>
                       )}
                     </div>
                   </div>
 
-                  {/* Right: Actions */}
-                  <div className="flex items-center gap-2 self-end sm:self-center">
-                    {/* Toggle Visibility */}
+                  {/* Right Actions */}
+                  <div className="flex items-center gap-1.5 self-end sm:self-auto shrink-0">
                     <button
                       type="button"
                       onClick={() => handleToggleEnabled(inst.id)}
-                      className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                      className={`p-2 rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
                         inst.enabled
                           ? 'text-slate-600 hover:bg-slate-100'
-                          : 'text-emerald-700 bg-emerald-50 hover:bg-emerald-100'
+                          : 'text-amber-700 bg-amber-50 hover:bg-amber-100'
                       }`}
-                      title={inst.enabled ? 'Hide from public site' : 'Show on public site'}
+                      title={inst.enabled ? 'Hide from live site' : 'Show on live site'}
                     >
-                      {inst.enabled ? (
-                        <>
-                          <EyeOff className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">Disable</span>
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">Enable</span>
-                        </>
-                      )}
+                      {inst.enabled ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      <span className="hidden sm:inline">
+                        {inst.enabled ? 'Hide' : 'Show'}
+                      </span>
                     </button>
 
-                    {/* Edit button */}
                     <button
                       type="button"
                       onClick={() => handleStartEdit(inst)}
-                      className="p-2 rounded-lg text-slate-600 hover:text-[#0062EB] hover:bg-blue-50 transition-colors cursor-pointer"
+                      className="p-2 rounded-xl text-slate-600 hover:text-blue-600 hover:bg-blue-50 transition-colors flex items-center gap-1 text-xs font-semibold cursor-pointer"
                       title="Edit institution"
                     >
                       <Edit2 className="w-4 h-4" />
+                      <span className="hidden sm:inline">Edit</span>
                     </button>
 
-                    {/* Delete button */}
                     <button
                       type="button"
                       onClick={() => handleDelete(inst.id, inst.name)}
-                      className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                      className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                       title="Delete institution"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -663,15 +734,13 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
           </div>
         </div>
 
-        {/* Footer info */}
-        <div className="p-4 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0">
-          <span className="text-[11px]">
-            ⚡ Changes save instantly to localStorage and update on the public website.
-          </span>
+        {/* Footer */}
+        <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 shrink-0">
+          <span>Updates sync directly to the live website marquee</span>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 rounded-xl font-bold text-xs text-slate-800 bg-white border border-slate-300 hover:bg-slate-100"
+            className="px-4 py-2 rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 transition-colors cursor-pointer"
           >
             Done
           </button>
@@ -680,3 +749,6 @@ export const AdminInstitutionsModal: React.FC<AdminInstitutionsModalProps> = ({
     </div>
   );
 };
+
+export const InstitutionModal = AdminInstitutionsModal;
+export default AdminInstitutionsModal;

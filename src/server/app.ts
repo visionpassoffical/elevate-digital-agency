@@ -313,6 +313,7 @@ export function createApp(): express.Application {
   // Express middleware for JSON parsing with 15mb limit for uploads/logos
   app.use(express.json({ limit: '15mb' }));
   app.use(express.urlencoded({ extended: true, limit: '15mb' }));
+  app.use(express.text({ limit: '15mb' }));
 
   // Static serving for user uploads
   app.use('/uploads', express.static(UPLOADS_DIR));
@@ -459,16 +460,27 @@ export function createApp(): express.Application {
     res.json({ success: true, message: 'Password updated successfully' });
   });
 
-  // Save / Update Content
-  api.put('/admin/content', authenticateAdminMiddleware, (req, res) => {
+  // Save / Update Content (supports both PUT and POST, with whole content or { section, data })
+  const handleSaveContent = (req: express.Request, res: express.Response) => {
     try {
       const newContent = req.body;
       if (!newContent || typeof newContent !== 'object') {
         return res.status(400).json({ success: false, error: 'Invalid content payload' });
       }
 
+      let targetContent = newContent;
+      if (newContent.section && newContent.data) {
+        targetContent = {
+          ...currentSiteContent,
+          [newContent.section]: newContent.data,
+        };
+      } else if (newContent.content) {
+        targetContent = newContent.content;
+      }
+
       const updated: SiteContent = {
-        ...newContent,
+        ...currentSiteContent,
+        ...targetContent,
         version: (currentSiteContent.version || 1) + 1,
         lastUpdated: new Date().toISOString(),
       };
@@ -484,7 +496,10 @@ export function createApp(): express.Application {
       console.error('Error saving content:', err);
       res.status(500).json({ success: false, error: err.message || 'Failed to save content' });
     }
-  });
+  };
+
+  api.put('/admin/content', authenticateAdminMiddleware, handleSaveContent);
+  api.post('/admin/content', authenticateAdminMiddleware, handleSaveContent);
 
   // Reset Content to Default
   api.post('/admin/reset-content', authenticateAdminMiddleware, (req, res) => {
@@ -507,8 +522,61 @@ export function createApp(): express.Application {
   // Upload Image/Logo
   api.post('/admin/upload', authenticateAdminMiddleware, (req, res) => {
     try {
-      const { filename, imageData, dataUrl, image, base64, url, logo } = req.body || {};
-      const rawImage = imageData || dataUrl || image || base64 || url || logo;
+      const body = req.body || {};
+      let rawImage: string = '';
+      let filename: string = 'image.png';
+      let existingLogoUrl: string = '';
+
+      if (typeof body === 'string') {
+        const trimmedBody = body.trim();
+        if (trimmedBody.startsWith('{')) {
+          try {
+            const parsed = JSON.parse(trimmedBody);
+            rawImage =
+              parsed.imageData ||
+              parsed.dataUrl ||
+              parsed.image ||
+              parsed.data ||
+              parsed.file ||
+              parsed.logo ||
+              parsed.logoUrl ||
+              parsed.url ||
+              parsed.base64 ||
+              '';
+            existingLogoUrl = parsed.existingLogoUrl || parsed.currentLogo || parsed.logoUrl || '';
+            filename = parsed.filename || filename;
+          } catch {
+            // ignore
+          }
+        }
+        if (!rawImage && (trimmedBody.startsWith('data:image/') || trimmedBody.startsWith('http://') || trimmedBody.startsWith('https://') || trimmedBody.startsWith('/uploads/'))) {
+          rawImage = trimmedBody;
+        }
+      } else if (typeof body === 'object' && body !== null) {
+        rawImage =
+          body.imageData ||
+          body.dataUrl ||
+          body.image ||
+          body.data ||
+          body.file ||
+          body.logo ||
+          body.logoUrl ||
+          body.url ||
+          body.base64 ||
+          '';
+        existingLogoUrl = body.existingLogoUrl || body.currentLogo || body.logoUrl || '';
+        filename = body.filename || filename;
+      }
+
+      // If no new image provided but an existing logo URL is present, preserve existing logoUrl
+      if ((!rawImage || !rawImage.trim()) && existingLogoUrl && existingLogoUrl.trim()) {
+        return res.json({
+          success: true,
+          url: existingLogoUrl.trim(),
+          filename: filename || 'preserved-logo.png',
+          message: 'Existing logo URL preserved',
+        });
+      }
 
       if (!rawImage || typeof rawImage !== 'string' || !rawImage.trim()) {
         return res.status(400).json({ success: false, error: 'No image data provided' });
@@ -528,7 +596,22 @@ export function createApp(): express.Application {
 
       // Check for valid data URL
       if (!trimmed.startsWith('data:image/')) {
-        return res.status(400).json({ success: false, error: 'Invalid image data format. Must be an image file or data URL' });
+        return res.status(400).json({ success: false, error: 'Invalid image data format. Must be an image file (PNG, JPG, WEBP, SVG) or data URL' });
+      }
+
+      // Format validation
+      const isAllowedFormat =
+        trimmed.startsWith('data:image/png') ||
+        trimmed.startsWith('data:image/jpeg') ||
+        trimmed.startsWith('data:image/jpg') ||
+        trimmed.startsWith('data:image/webp') ||
+        trimmed.startsWith('data:image/svg+xml');
+
+      if (!isAllowedFormat) {
+        return res.status(400).json({
+          success: false,
+          error: 'Unsupported image format. Allowed formats: PNG, JPG, WEBP, SVG',
+        });
       }
 
       // Handle SVG data URIs (can be base64 or utf8/url-encoded) or standard base64
@@ -541,7 +624,13 @@ export function createApp(): express.Application {
           const base64Part = trimmed.split(';base64,')[1];
           buffer = Buffer.from(base64Part, 'base64');
         } else {
-          const svgContent = trimmed.includes(',') ? decodeURIComponent(trimmed.split(',')[1]) : trimmed;
+          const rawSvg = trimmed.includes(',') ? trimmed.slice(trimmed.indexOf(',') + 1) : trimmed;
+          let svgContent = rawSvg;
+          try {
+            svgContent = decodeURIComponent(rawSvg);
+          } catch {
+            svgContent = rawSvg;
+          }
           buffer = Buffer.from(svgContent, 'utf-8');
         }
       } else {
@@ -558,15 +647,16 @@ export function createApp(): express.Application {
         buffer = Buffer.from(base64Data, 'base64');
       }
 
-      if (buffer.length > 5 * 1024 * 1024) {
-        return res.status(400).json({ success: false, error: 'Image file size cannot exceed 5MB' });
+      if (buffer.length > 3.2 * 1024 * 1024) {
+        return res.status(400).json({ success: false, error: 'Image file size cannot exceed 3MB' });
       }
 
       let ext = filename ? path.extname(filename).toLowerCase() : '';
-      if (!ext) {
+      if (mimeType.includes('svg')) {
+        ext = '.svg';
+      } else if (!ext || ext === '.svg') {
         if (mimeType.includes('png')) ext = '.png';
         else if (mimeType.includes('jpeg') || mimeType.includes('jpg')) ext = '.jpg';
-        else if (mimeType.includes('svg')) ext = '.svg';
         else if (mimeType.includes('webp')) ext = '.webp';
         else ext = '.png';
       }

@@ -33,7 +33,7 @@ export const MobileStickyBar: React.FC<MobileStickyBarProps> = ({
           id="mobile-sticky-whatsapp-btn"
           type="button"
           onClick={handleWhatsAppClick}
-          className="flex-1 min-h-[42px] px-3.5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#2563EB] hover:bg-blue-700 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs select-none"
+          className="flex-1 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#3B82F6] hover:to-[#2563EB] active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-md select-none"
         >
           <MessageCircle className="w-4 h-4 shrink-0" />
           <span className="truncate">WhatsApp ELEVATE</span>
@@ -43,7 +43,7 @@ export const MobileStickyBar: React.FC<MobileStickyBarProps> = ({
           id="mobile-sticky-quote-btn"
           type="button"
           onClick={onOpenQuote}
-          className="flex-1 min-h-[42px] px-3.5 py-2.5 rounded-xl text-xs font-bold text-[#0F172A] bg-[#F8FAFC] hover:bg-slate-100 active:scale-[0.98] border border-slate-200/90 transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs select-none"
+          className="flex-1 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-bold text-[#0F172A] bg-[#F8FAFC] hover:bg-slate-100 active:scale-[0.98] border border-slate-200/90 transition-all flex items-center justify-center gap-1 cursor-pointer shadow-2xs select-none"
         >
           <span className="truncate">Get a Quote</span>
           <ArrowUpRight className="w-3.5 h-3.5 text-[#2563EB] shrink-0" />

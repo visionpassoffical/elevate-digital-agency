@@ -1,36 +1,80 @@
-import React, { useState } from 'react';
-import { Plus, Trash2, ArrowUp, ArrowDown, School, Upload, Image } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import {
+  Plus,
+  Trash2,
+  Upload,
+  ArrowUp,
+  ArrowDown,
+  Eye,
+  EyeOff,
+  AlertCircle,
+} from 'lucide-react';
 import { useContent } from '../../../context/ContentContext';
 import { AdminSectionHeader } from '../AdminSectionHeader';
-import type { ClientInstitutionsConfig, ClientInstitution } from '../../../types';
+import { saveClientInstitutions } from '../../../data/partnersData';
+import { InstitutionLogoBadge } from '../../InstitutionLogoBadge';
+import type { ClientInstitution } from '../../../types';
 
-export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }) => {
-  const { content, saveSection, isSaving, uploadFile } = useContent();
-  const [data, setData] = useState<ClientInstitutionsConfig>(() =>
-    JSON.parse(JSON.stringify(content.clientInstitutions))
-  );
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+export const ClientsEditor: React.FC<{ onPreview?: () => void }> = ({ onPreview }) => {
+  const { content, saveSection, uploadFile, isSaving } = useContent();
+
+  const [data, setData] = useState(() => JSON.parse(JSON.stringify(content.clientInstitutions)));
+  const [selectedFiles, setSelectedFiles] = useState<{ [key: number]: File }>({});
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const fileInputsRef = useRef<{ [key: number]: HTMLInputElement | null }>({});
 
-  const hasChanges = JSON.stringify(data) !== JSON.stringify(content.clientInstitutions);
+  const hasChanges =
+    JSON.stringify(data) !== JSON.stringify(content.clientInstitutions) ||
+    Object.keys(selectedFiles).length > 0;
 
   const handleSave = async () => {
     try {
       setSaveStatus('idle');
-      const ok = await saveSection('clientInstitutions', data);
+      setErrorMessage('');
+
+      // If any items have pending selected files, upload them first
+      const nextList = [...data.list];
+      for (const [key, selectedFile] of Object.entries(selectedFiles)) {
+        const idx = Number(key);
+        const file = selectedFile as File | undefined;
+        if (file && nextList[idx]) {
+          const safePrefix = (nextList[idx].name || 'institution')
+            .toLowerCase()
+            .replace(/[^a-z0-9]/g, '-');
+          const ext = file.name ? file.name.split('.').pop() || 'png' : 'png';
+          const filename = `${safePrefix}-logo.${ext}`;
+          const res = await uploadFile(file, filename);
+          if (res?.url) {
+            nextList[idx] = { ...nextList[idx], logo: res.url };
+          }
+        }
+      }
+
+      const nextData = { ...data, list: nextList };
+      setData(nextData);
+      setSelectedFiles({});
+
+      const ok = await saveSection('clientInstitutions', nextData);
+      saveClientInstitutions(nextList);
+
       if (ok) {
         setSaveStatus('success');
         setTimeout(() => setSaveStatus('idle'), 3500);
       } else {
         setSaveStatus('error');
       }
-    } catch {
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Failed to save client institutions');
       setSaveStatus('error');
     }
   };
 
   const handleCancel = () => {
     setData(JSON.parse(JSON.stringify(content.clientInstitutions)));
+    setSelectedFiles({});
+    setErrorMessage('');
     setSaveStatus('idle');
   };
 
@@ -50,6 +94,11 @@ export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
     if (window.confirm('Delete this client institution?')) {
       const next = data.list.filter((_, i) => i !== idx);
       setData({ ...data, list: next });
+      setSelectedFiles((prev) => {
+        const copy = { ...prev };
+        delete copy[idx];
+        return copy;
+      });
     }
   };
 
@@ -60,32 +109,109 @@ export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
     const temp = next[idx];
     next[idx] = next[target];
     next[target] = temp;
+    next.forEach((item, i) => {
+      item.order = i + 1;
+    });
     setData({ ...data, list: next });
   };
 
-  const handleFileUpload = async (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  // File Selection Handler: Validates max 3MB and allowed image types
+  const handleFileSelect = (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setErrorMessage('');
+
+    // Max upload validation: 3MB
+    if (file.size > 3 * 1024 * 1024) {
+      setErrorMessage(`"${file.name}" exceeds 3MB. Please choose an image under 3MB.`);
+      return;
+    }
+
+    const validExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.svg'];
+    const lowerName = file.name.toLowerCase();
+    const hasValidExt = validExtensions.some((ext) => lowerName.endsWith(ext));
+    const hasValidMime =
+      file.type.startsWith('image/png') ||
+      file.type.startsWith('image/jpeg') ||
+      file.type.startsWith('image/jpg') ||
+      file.type.startsWith('image/webp') ||
+      file.type.startsWith('image/svg+xml');
+
+    if (!hasValidExt && !hasValidMime) {
+      setErrorMessage('Invalid image format. Allowed: PNG, JPG, WEBP, SVG');
+      return;
+    }
+
+    // Store selected File object
+    setSelectedFiles((prev) => ({ ...prev, [idx]: file }));
+
+    // Immediate preview via FileReader
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const result = ev.target?.result as string;
+      if (result) {
+        const nextList = [...data.list];
+        nextList[idx] = { ...nextList[idx], logo: result };
+        setData({ ...data, list: nextList });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Upload Button Handler: Uploads new file or keeps existing logoUrl intact
+  const handleUploadClick = async (idx: number) => {
+    const selectedFile = selectedFiles[idx];
+    const item = data.list[idx];
+
+    // If no new file is selected:
+    if (!selectedFile) {
+      if (!item?.logo || !item.logo.trim()) {
+        // No file and no existing logo -> trigger picker
+        fileInputsRef.current[idx]?.click();
+        return;
+      }
+      // Existing logo already present -> keep it intact without triggering upload
+      setSaveStatus('success');
+      setTimeout(() => setSaveStatus('idle'), 2000);
+      return;
+    }
+
     try {
       setUploadingIdx(idx);
-      const res = await uploadFile(file);
+      setErrorMessage('');
+      const safePrefix = (item.name || 'institution')
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-');
+      const ext = selectedFile.name ? selectedFile.name.split('.').pop() || 'png' : 'png';
+      const filename = `${safePrefix}-logo.${ext}`;
+
+      const res = await uploadFile(selectedFile, filename);
+
       if (res?.url) {
-        const nextList = data.list.map((item, i) =>
-          i === idx ? { ...item, logo: res.url } : item
+        const nextList = data.list.map((it, i) =>
+          i === idx ? { ...it, logo: res.url } : it
         );
         const nextData = { ...data, list: nextList };
         setData(nextData);
-        // Persist immediately to backend & local storage so logo remains after page refresh
+
+        // Clear uploaded file from selection state
+        setSelectedFiles((prev) => {
+          const copy = { ...prev };
+          delete copy[idx];
+          return copy;
+        });
+
+        // Persist immediately to backend & local storage
         await saveSection('clientInstitutions', nextData);
+        saveClientInstitutions(nextList);
         setSaveStatus('success');
         setTimeout(() => setSaveStatus('idle'), 3500);
       }
     } catch (err: any) {
-      alert(err.message || 'Image upload failed');
+      setErrorMessage(err.message || 'Image upload failed');
     } finally {
       setUploadingIdx(null);
-      e.target.value = '';
     }
   };
 
@@ -102,15 +228,24 @@ export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
         onPreview={onPreview}
       />
 
+      {errorMessage && (
+        <div className="p-4 rounded-2xl bg-red-950/40 border border-red-800 text-red-300 text-xs flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+
       {/* Section Headings */}
       <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6">
-        <h3 className="text-base font-bold font-['Outfit'] text-white mb-4">Section Header Content</h3>
+        <h3 className="text-base font-bold font-['Outfit'] text-white mb-4">
+          Section Header Content
+        </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           <div>
             <label className="block text-slate-400 font-semibold mb-1">Section Badge</label>
             <input
               type="text"
-              value={data.sectionBadge}
+              value={data.sectionBadge || ''}
               onChange={(e) => setData({ ...data, sectionBadge: e.target.value })}
               className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white outline-none focus:border-blue-500"
             />
@@ -119,7 +254,7 @@ export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
             <label className="block text-slate-400 font-semibold mb-1">Section Title</label>
             <input
               type="text"
-              value={data.sectionTitle}
+              value={data.sectionTitle || ''}
               onChange={(e) => setData({ ...data, sectionTitle: e.target.value })}
               className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white font-semibold outline-none focus:border-blue-500"
             />
@@ -128,7 +263,7 @@ export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
             <label className="block text-slate-400 font-semibold mb-1">Section Subtitle</label>
             <input
               type="text"
-              value={data.sectionSubtitle}
+              value={data.sectionSubtitle || ''}
               onChange={(e) => setData({ ...data, sectionSubtitle: e.target.value })}
               className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 outline-none focus:border-blue-500"
             />
@@ -144,7 +279,7 @@ export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
               Institutional Partners ({data.list.length})
             </h3>
             <p className="text-xs text-slate-400">
-              Control partner names, emblems, and live visibility
+              Edit institution name, location, and emblem without breaking on file re-selection
             </p>
           </div>
           <button
@@ -166,38 +301,26 @@ export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
               }`}
             >
               {/* Logo preview / upload */}
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center shrink-0 overflow-hidden relative group">
-                  {item.logo ? (
-                    <img
-                      src={item.logo}
-                      alt={item.name}
-                      className="w-full h-full object-contain p-1"
-                      onLoad={(e) => {
-                        (e.target as HTMLElement).style.display = 'block';
-                      }}
-                      onError={(e) => {
-                        (e.target as HTMLElement).style.display = 'none';
-                      }}
-                    />
-                  ) : (
-                    <School className="w-6 h-6 text-slate-500" />
-                  )}
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="relative group shrink-0">
+                  <InstitutionLogoBadge
+                    name={item.name}
+                    logo={item.logo}
+                    size="lg"
+                  />
 
-                  <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
+                  <button
+                    type="button"
+                    onClick={() => fileInputsRef.current[idx]?.click()}
+                    className="absolute inset-0 bg-black/65 rounded-xl opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity"
+                    disabled={uploadingIdx === idx}
+                    title="Choose new logo from device (Max 3MB)"
+                  >
                     <Upload className="w-4 h-4 text-white pointer-events-none" />
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml,image/*"
-                      onChange={(e) => handleFileUpload(idx, e)}
-                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                      disabled={uploadingIdx === idx}
-                      title="Upload new logo"
-                    />
-                  </label>
+                  </button>
                 </div>
 
-                <div className="space-y-1 flex-1">
+                <div className="space-y-1.5 flex-1 min-w-0">
                   <input
                     type="text"
                     value={item.name}
@@ -206,7 +329,7 @@ export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
                       next[idx].name = e.target.value;
                       setData({ ...data, list: next });
                     }}
-                    className="font-bold text-white text-sm bg-transparent border-b border-transparent focus:border-blue-500 outline-none w-full"
+                    className="font-bold text-white text-sm bg-slate-900/60 hover:bg-slate-900 px-2 py-1 rounded-lg border border-transparent focus:border-blue-500 outline-none w-full"
                     placeholder="Institution Name"
                   />
                   <input
@@ -217,89 +340,131 @@ export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
                       next[idx].location = e.target.value;
                       setData({ ...data, list: next });
                     }}
-                    className="text-slate-400 text-xs bg-transparent border-b border-transparent focus:border-blue-500 outline-none w-full"
+                    className="text-slate-400 text-xs bg-slate-900/40 hover:bg-slate-900 px-2 py-0.5 rounded-lg border border-transparent focus:border-blue-500 outline-none w-full"
                     placeholder="Location (e.g. Malappuram, Kerala)"
                   />
                 </div>
               </div>
 
               {/* Logo URL input or upload button */}
-              <div className="flex-1 max-w-xs">
+              <div className="flex-1 max-w-sm">
                 <label className="block text-[10px] text-slate-500 uppercase font-semibold mb-1">
-                  Logo Image URL or Local Upload
+                  Logo Image (URL or Device Upload)
                 </label>
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
-                    value={item.logo}
-                    placeholder="https://... or upload"
+                    value={item.logo || ''}
+                    placeholder="https://... or upload file"
                     onChange={(e) => {
                       const next = [...data.list];
                       next[idx].logo = e.target.value;
                       setData({ ...data, list: next });
                     }}
-                    className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 text-xs outline-none"
+                    className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 text-xs outline-none focus:border-blue-500"
                   />
-                  <label className="relative px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white cursor-pointer flex items-center gap-1 shrink-0 overflow-hidden">
+                  <input
+                    type="file"
+                    ref={(el) => {
+                      fileInputsRef.current[idx] = el;
+                    }}
+                    accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
+                    onChange={(e) => handleFileSelect(idx, e)}
+                    className="hidden"
+                    disabled={uploadingIdx === idx}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleUploadClick(idx)}
+                    disabled={uploadingIdx === idx}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer flex items-center gap-1 shrink-0 transition-colors disabled:opacity-50 ${
+                      selectedFiles[idx]
+                        ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-sm'
+                        : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white'
+                    }`}
+                    title={
+                      selectedFiles[idx]
+                        ? `Upload ${selectedFiles[idx].name}`
+                        : item.logo
+                        ? 'Keep existing logo or choose new'
+                        : 'Choose and upload file'
+                    }
+                  >
                     <Upload className="w-3.5 h-3.5 pointer-events-none" />
-                    <span className="text-[11px] pointer-events-none">{uploadingIdx === idx ? 'Uploading...' : 'Upload'}</span>
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml,image/*"
-                      onChange={(e) => handleFileUpload(idx, e)}
-                      className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                      disabled={uploadingIdx === idx}
-                      title="Upload logo from device"
-                    />
-                  </label>
+                    <span className="text-[11px] pointer-events-none">
+                      {uploadingIdx === idx
+                        ? 'Uploading...'
+                        : selectedFiles[idx]
+                        ? 'Upload'
+                        : 'Browse'}
+                    </span>
+                  </button>
                 </div>
+                {selectedFiles[idx] && (
+                  <div className="text-[10px] text-blue-400 mt-1 flex items-center justify-between">
+                    <span className="truncate max-w-[180px]">
+                      Selected: {selectedFiles[idx].name}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedFiles((prev) => {
+                          const copy = { ...prev };
+                          delete copy[idx];
+                          return copy;
+                        });
+                      }}
+                      className="text-slate-500 hover:text-red-400 ml-1 cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
               </div>
 
-              {/* Actions */}
-              <div className="flex items-center gap-3 shrink-0">
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    disabled={idx === 0}
-                    onClick={() => moveInstitution(idx, 'up')}
-                    className="p-1 rounded bg-slate-800 text-slate-400 hover:text-white disabled:opacity-30 cursor-pointer"
-                  >
-                    <ArrowUp className="w-3 h-3" />
-                  </button>
-                  <button
-                    type="button"
-                    disabled={idx === data.list.length - 1}
-                    onClick={() => moveInstitution(idx, 'down')}
-                    className="p-1 rounded bg-slate-800 text-slate-400 hover:text-white disabled:opacity-30 cursor-pointer"
-                  >
-                    <ArrowDown className="w-3 h-3" />
-                  </button>
-                </div>
-
-                <label className="inline-flex items-center gap-1.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={item.enabled}
-                    onChange={(e) => {
-                      const next = [...data.list];
-                      next[idx].enabled = e.target.checked;
-                      setData({ ...data, list: next });
-                    }}
-                    className="sr-only peer"
-                  />
-                  <div className="w-7 h-3.5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600"></div>
-                  <span className="text-slate-400 text-xs">
-                    {item.enabled ? 'Visible' : 'Hidden'}
-                  </span>
-                </label>
-
+              {/* Actions: Reorder, Visibility, Delete */}
+              <div className="flex items-center gap-1.5 shrink-0 self-end md:self-auto">
+                <button
+                  type="button"
+                  onClick={() => moveInstitution(idx, 'up')}
+                  disabled={idx === 0}
+                  className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white disabled:opacity-30 cursor-pointer"
+                  title="Move Up"
+                >
+                  <ArrowUp className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => moveInstitution(idx, 'down')}
+                  disabled={idx === data.list.length - 1}
+                  className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-white disabled:opacity-30 cursor-pointer"
+                  title="Move Down"
+                >
+                  <ArrowDown className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = [...data.list];
+                    next[idx].enabled = !next[idx].enabled;
+                    setData({ ...data, list: next });
+                  }}
+                  className={`p-1.5 rounded-lg border text-xs font-semibold cursor-pointer ${
+                    item.enabled
+                      ? 'bg-slate-900 border-slate-800 text-slate-300 hover:text-white'
+                      : 'bg-amber-950/40 border-amber-800 text-amber-300'
+                  }`}
+                  title={item.enabled ? 'Hide from live site' : 'Show on live site'}
+                >
+                  {item.enabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                </button>
                 <button
                   type="button"
                   onClick={() => handleDeleteInstitution(idx)}
-                  className="p-1.5 text-slate-500 hover:text-red-400 cursor-pointer"
+                  className="p-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-red-400 hover:border-red-900 cursor-pointer"
                   title="Delete institution"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
@@ -309,3 +474,6 @@ export const ClientsEditor: React.FC<{ onPreview: () => void }> = ({ onPreview }
     </div>
   );
 };
+
+export const ClientsManager = ClientsEditor;
+export default ClientsEditor;
