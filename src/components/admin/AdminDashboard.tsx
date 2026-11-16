@@ -28,6 +28,7 @@ import { useContent } from '../../context/ContentContext';
 
 // Import Section Editors
 import { DashboardOverview } from './sections/DashboardOverview';
+import { PortfolioEditor } from './sections/PortfolioEditor';
 import { HeroEditor } from './sections/HeroEditor';
 import { ServicesEditor } from './sections/ServicesEditor';
 import { WebsitePlansEditor } from './sections/WebsitePlansEditor';
@@ -47,6 +48,7 @@ import { GeneralEditor } from './sections/GeneralEditor';
 
 export type AdminSectionKey =
   | 'dashboard'
+  | 'portfolio'
   | 'hero'
   | 'services'
   | 'websitePlans'
@@ -73,6 +75,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, category: 'Overview' },
+  { id: 'portfolio', label: 'Built Websites (Site Links)', icon: ExternalLink, category: 'Overview' },
   { id: 'hero', label: 'Hero / Homepage', icon: Sparkles, category: 'Commercial Services' },
   { id: 'services', label: 'Services Overview', icon: Layers, category: 'Commercial Services' },
   { id: 'websitePlans', label: 'Website Plans', icon: Globe, category: 'Commercial Services' },
@@ -93,20 +96,38 @@ const NAV_ITEMS: NavItem[] = [
 
 export interface AdminDashboardProps {
   onBackToSite?: () => void;
+  initialSection?: AdminSectionKey;
 }
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({
+  onBackToSite,
+  initialSection = 'dashboard',
+}) => {
   const { logout, adminSession } = useContent();
   const user = adminSession?.user;
-  const [activeSection, setActiveSection] = useState<AdminSectionKey>('dashboard');
+  const [activeSection, setActiveSection] = useState<AdminSectionKey>(initialSection);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  React.useEffect(() => {
+    if (initialSection) {
+      setActiveSection(initialSection);
+    }
+  }, [initialSection]);
+
   const handlePreview = () => {
-    window.open('/', '_blank');
+    if (onBackToSite) {
+      onBackToSite();
+    } else if (typeof window !== 'undefined') {
+      window.location.hash = '';
+      window.history.pushState(null, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
   };
 
   const handleNavigate = (key: string) => {
     const map: Record<string, AdminSectionKey> = {
+      portfolio: 'portfolio',
+      'built-websites': 'portfolio',
       websites: 'websitePlans',
       website: 'websitePlans',
       admission: 'admissionServices',
@@ -126,7 +147,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'dashboard':
-        return <DashboardOverview onNavigate={handleNavigate} />;
+        return <DashboardOverview onNavigate={handleNavigate} onPreview={handlePreview} />;
+      case 'portfolio':
+        return <PortfolioEditor onPreview={handlePreview} />;
       case 'hero':
         return <HeroEditor onPreview={handlePreview} />;
       case 'services':
@@ -160,7 +183,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBackToSite }) 
       case 'general':
         return <GeneralEditor onPreview={handlePreview} />;
       default:
-        return <DashboardOverview onNavigate={(sec) => setActiveSection(sec as AdminSectionKey)} />;
+        return <DashboardOverview onNavigate={handleNavigate} onPreview={handlePreview} />;
     }
   };
 

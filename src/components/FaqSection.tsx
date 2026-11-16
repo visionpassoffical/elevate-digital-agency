@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { ChevronDown, MessageCircle } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 
 export const FaqSection: React.FC = () => {
-  const { content, openWhatsAppMessage } = useContent();
+  const { content } = useContent();
   const config = content.faq;
-  const items = config?.items || [];
+  const items = (config?.items || []).filter((faq) => faq.enabled !== false);
 
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
@@ -13,56 +13,58 @@ export const FaqSection: React.FC = () => {
     setOpenIndex(openIndex === index ? null : index);
   };
 
-  const handleAskWhatsApp = () => {
-    openWhatsAppMessage('Hello ELEVATE, I have a question regarding your services.');
-  };
-
   return (
-    <section id="faq" className="py-20 sm:py-28 bg-[#FFFFFF] text-[#0F172A] border-b border-slate-200/80 scroll-mt-20 relative overflow-hidden">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        {/* Section Header */}
-        <div className="mb-14 sm:mb-16 text-center">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <span className="w-1.5 h-1.5 bg-[#2563EB] rounded-full" />
-            <span className="text-[11px] font-bold tracking-widest uppercase text-slate-500">
-              {config?.sectionBadge || 'FREQUENTLY ASKED QUESTIONS'}
-            </span>
+    <section
+      id="faq"
+      className="py-12 sm:py-16 bg-[#F4F6FB] text-[#0F172A] border-t border-slate-200/70 scroll-mt-16 relative overflow-hidden"
+    >
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Compact Section Header */}
+        <div className="mb-8 sm:mb-10 text-center">
+          <div className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#2563EB] mb-1.5">
+            {config?.sectionBadge || 'COMMON QUESTIONS'}
           </div>
-          <h2 className="font-['Outfit'] font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#0F172A] tracking-tight mb-4">
-            {config?.sectionTitle || 'Everything You Need to Know.'}
+          <h2 className="font-['Outfit'] font-extrabold text-2xl sm:text-3xl text-[#0F172A] tracking-tight mb-1.5">
+            {config?.sectionTitle || 'Frequently Asked Questions'}
           </h2>
-          <p className="text-base text-slate-600 font-normal max-w-xl mx-auto">
+          <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
             {config?.sectionSubtitle ||
-              'Clear answers about our institutional workflows, turnarounds, pricing transparency, and WhatsApp support.'}
+              'Quick answers on pricing, turnaround times, domain setup, and WhatsApp ordering.'}
           </p>
         </div>
 
-        {/* Compact FAQ Accordion */}
-        <div className="divide-y divide-slate-200/80 border-y border-slate-200/80">
-          {items.filter((faq) => faq.enabled !== false).map((faq, index) => {
+        {/* Clean Elevated Accordion Container */}
+        <div className="bg-white rounded-3xl shadow-[0_10px_30px_-10px_rgba(15,23,42,0.08)] divide-y divide-slate-100 overflow-hidden">
+          {items.map((faq, index) => {
             const isOpen = openIndex === index;
             return (
-              <div
-                key={faq.id || faq.question}
-                className="py-1 transition-colors"
-              >
+              <div key={faq.id || faq.question} className="transition-colors">
                 <button
                   type="button"
                   onClick={() => toggleFaq(index)}
-                  className="w-full text-left py-5 sm:py-6 flex items-center justify-between gap-4 cursor-pointer group"
+                  className="w-full text-left px-5 sm:px-6 py-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/70 transition-colors"
                   aria-expanded={isOpen}
                 >
-                  <h3 className={`font-['Outfit'] font-bold text-base sm:text-lg transition-colors ${isOpen ? 'text-[#2563EB]' : 'text-[#0F172A] group-hover:text-[#2563EB]'}`}>
+                  <h3
+                    className={`font-['Outfit'] font-bold text-sm sm:text-base transition-colors leading-snug ${
+                      isOpen ? 'text-[#2563EB]' : 'text-[#0F172A]'
+                    }`}
+                  >
                     {faq.question}
                   </h3>
-                  <div className={`w-8 h-8 rounded-full bg-slate-50 border border-slate-200/80 flex items-center justify-center shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180 bg-blue-50 border-blue-200 text-[#2563EB]' : 'text-slate-400 group-hover:text-[#2563EB]'}`}>
-                    <ChevronDown className="w-4 h-4" />
+                  <div
+                    className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-transform duration-200 ${
+                      isOpen
+                        ? 'rotate-180 bg-blue-50 text-[#2563EB]'
+                        : 'bg-[#F4F6FB] text-slate-500'
+                    }`}
+                  >
+                    <ChevronDown className="w-3.5 h-3.5" />
                   </div>
                 </button>
-                
+
                 {isOpen && (
-                  <div className="pb-6 text-sm text-slate-600 leading-relaxed pr-8 animate-fadeIn">
+                  <div className="px-5 sm:px-6 pb-4 text-xs sm:text-sm text-slate-600 leading-relaxed">
                     {faq.answer}
                   </div>
                 )}
@@ -70,27 +72,6 @@ export const FaqSection: React.FC = () => {
             );
           })}
         </div>
-
-        {/* Direct WhatsApp Query Prompt Card */}
-        <div className="mt-12 bg-[#F8FAFC] border border-slate-200/90 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-5 shadow-2xs">
-          <div>
-            <h4 className="font-['Outfit'] font-bold text-[#0F172A] text-base sm:text-lg">
-              Have an institutional question not covered here?
-            </h4>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
-              Connect directly with our team on WhatsApp for prompt, direct answers.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleAskWhatsApp}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 text-xs sm:text-sm font-bold text-white bg-[#2563EB] hover:bg-blue-700 rounded-xl transition-all shrink-0 cursor-pointer shadow-xs active:scale-[0.98]"
-          >
-            <MessageCircle className="w-4 h-4" />
-            <span>Ask on WhatsApp</span>
-          </button>
-        </div>
-
       </div>
     </section>
   );

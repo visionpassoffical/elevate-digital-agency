@@ -1,111 +1,89 @@
 import React from 'react';
-import { MessageCircle, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
+import { MessageCircle, ArrowRight } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 
 interface ContactSectionProps {
-  onOpenQuote?: () => void;
+  onOpenQuote?: (context?: string) => void;
 }
 
 export const ContactSection: React.FC<ContactSectionProps> = ({ onOpenQuote }) => {
   const { content, openWhatsAppMessage, formatWhatsAppTemplate } = useContent();
   const contact = content.contact;
+  const whatsappNumber = contact?.whatsappNumber || '+91 94971 22397';
 
   const handleChatWithElevate = () => {
     const msg = formatWhatsAppTemplate('generalEnquiry', {});
     openWhatsAppMessage(msg);
   };
 
+  const quickTopics = [
+    { label: 'Madrasa Setup', context: 'Complete Madrasa Digital Setup' },
+    { label: 'School Portal', context: 'School & College Portal' },
+    { label: 'Exam & Admission', context: 'Exam & Admission Suite Bundle' },
+    { label: 'Custom Website', context: 'Custom Institutional Website' },
+  ];
+
   return (
     <section
       id="contact"
-      className="py-20 sm:py-28 bg-[#090D16] text-white scroll-mt-20 relative overflow-hidden border-t border-white/10"
+      className="py-12 sm:py-16 bg-[#FFFFFF] text-[#0F172A] scroll-mt-16 relative overflow-hidden"
     >
-      {/* Background ambient lighting */}
-      <div 
-        aria-hidden="true" 
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-t from-blue-600/10 via-transparent to-transparent blur-[120px] pointer-events-none" 
-      />
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* ONE Flagship Dark-Navy (#0F172A) Rounded Banner */}
+        <div className="relative rounded-3xl bg-[#0F172A] text-white p-6 sm:p-10 lg:p-12 overflow-hidden shadow-[0_24px_50px_-15px_rgba(15,23,42,0.5)]">
+          {/* Subtle Radial Blue Studio Glow */}
+          <div
+            aria-hidden="true"
+            className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-gradient-to-br from-[#2563EB]/35 via-indigo-500/15 to-transparent blur-3xl pointer-events-none"
+          />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        {/* Final CTA Header */}
-        <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <span className="w-1.5 h-1.5 bg-[#3B82F6] rounded-full shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
-            <span className="text-[11px] font-bold tracking-widest uppercase text-slate-400">
-              START YOUR INSTITUTIONAL PROJECT
-            </span>
-          </div>
-
-          <h2 className="font-['Outfit'] font-extrabold text-3xl sm:text-5xl md:text-6xl text-white tracking-tight mb-4 leading-tight">
-            Ready to Elevate Your Digital Presence?
-          </h2>
-
-          <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-xl mx-auto mb-10">
-            Tell us what you need. We&apos;ll help you choose the right institutional solution without confusion or unnecessary sales pitches.
-          </p>
-
-          {/* Primary CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 max-w-md mx-auto">
-            <button
-              id="btn-whatsapp-elevate-final"
-              type="button"
-              onClick={handleChatWithElevate}
-              className="w-full sm:w-auto min-w-[210px] py-4 px-7 rounded-xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] hover:from-[#3B82F6] hover:to-[#2563EB] active:scale-[0.98] transition-all shadow-[0_0_25px_-5px_rgba(37,99,235,0.7)] flex items-center justify-center gap-2.5 cursor-pointer"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>{contact?.ctaText || 'WhatsApp ELEVATE'}</span>
-            </button>
-
-            {onOpenQuote && (
-              <button
-                id="btn-custom-quote-final"
-                type="button"
-                onClick={onOpenQuote}
-                className="w-full sm:w-auto min-w-[210px] py-4 px-7 rounded-xl font-bold text-xs sm:text-sm text-slate-200 bg-white/[0.05] hover:bg-white/[0.09] hover:text-white active:scale-[0.98] transition-all border border-white/15 hover:border-white/25 flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>Get a Custom Quote</span>
-                <ArrowRight className="w-4 h-4 text-slate-400" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Contact Details Card: Direct WhatsApp line */}
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white/[0.03] border border-white/10 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl backdrop-blur-md">
-            <div className="flex items-center gap-4 text-center sm:text-left">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
-                <MessageCircle className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  Verified WhatsApp Business Line
-                </div>
-                <div className="font-['Outfit'] font-extrabold text-xl sm:text-2xl text-white tracking-tight mt-0.5">
-                  {contact?.whatsappNumber || '+91 94971 22397'}
-                </div>
-                <div className="text-xs text-slate-400 mt-0.5">
-                  {contact?.turnaroundTarget || 'Average initial consultation response: < 2 hours'}
-                </div>
-              </div>
+          <div className="relative z-10 max-w-2xl mx-auto text-center">
+            <div className="text-[11px] font-bold tracking-[0.14em] uppercase text-blue-400 mb-2">
+              CUSTOM BUNDLES &amp; DIRECT CONSULTATION
             </div>
 
-            <button
-              type="button"
-              onClick={handleChatWithElevate}
-              className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-white/[0.07] border border-white/15 hover:bg-white/[0.12] hover:border-white/25 transition-all shrink-0 cursor-pointer active:scale-95"
-            >
-              Message Directly
-            </button>
-          </div>
-        </div>
+            <h2 className="font-['Outfit'] font-extrabold text-2xl sm:text-3xl lg:text-4xl text-white tracking-tight leading-tight mb-3 text-balance">
+              Ready to Launch Your Institutional Digital Presence?
+            </h2>
 
-        {/* Reassurance Footer Strip */}
-        <div className="max-w-2xl mx-auto text-center pt-8 mt-10 border-t border-white/10">
-          <p className="text-xs text-slate-400 leading-relaxed">
-            No complicated signups or recurring subscriptions required. All inquiries, scopes, and proposals are finalized directly on WhatsApp for maximum transparency.
-          </p>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">
+              Discuss websites, admission drives, exam packs, or multilingual creatives directly with our team on WhatsApp—no forms or recurring lock-ins.
+            </p>
+
+            {/* Quick Topic Chips */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-7">
+              {quickTopics.map((topic) => (
+                <button
+                  key={topic.label}
+                  type="button"
+                  onClick={() =>
+                    onOpenQuote
+                      ? onOpenQuote(topic.context)
+                      : openWhatsAppMessage(
+                          `Hello ELEVATE, I would like to enquire about: ${topic.context}`
+                        )
+                  }
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/[0.08] hover:bg-white/[0.15] border border-white/15 text-xs font-semibold text-slate-200 hover:text-white transition-all cursor-pointer active:scale-95"
+                >
+                  <span>{topic.label}</span>
+                  <ArrowRight className="w-3 h-3 text-blue-400" />
+                </button>
+              ))}
+            </div>
+
+            {/* Prominent Connect on WhatsApp Button */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                id="btn-whatsapp-elevate-final"
+                type="button"
+                onClick={handleChatWithElevate}
+                className="w-full sm:w-auto py-3.5 px-7 rounded-xl font-bold text-xs sm:text-sm text-white bg-[#2563EB] hover:bg-blue-500 active:scale-[0.98] transition-all shadow-[0_10px_28px_-6px_rgba(37,99,235,0.65)] flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <MessageCircle className="w-4 h-4 shrink-0" />
+                <span>Connect on WhatsApp ({whatsappNumber})</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>

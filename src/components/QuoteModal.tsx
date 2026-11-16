@@ -21,9 +21,10 @@ const ORGANIZATION_TYPES = [
 const SERVICE_OPTIONS = [
   'Standard Website Plan (₹1,999/yr)',
   'Basic Website Plan (₹999/yr)',
+  'Premium Website Plan (₹2,999/yr)',
   'Standard Monthly Creative Plan (₹899/mo)',
   'Basic Monthly Creative Plan (₹499/mo)',
-  'Premium Monthly Creative Plan (₹1,499/mo)',
+  'Premium Monthly Creative Plan (₹1,299/mo)',
   'Complete Admission Package (₹449)',
   'Individual Admission Services',
   'Complete Exam Package (₹499)',
@@ -164,7 +165,7 @@ Submitted via ELEVATE web platform.`;
               </p>
               <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <a
-                  href={`https://wa.me/919497122397?text=${generateWhatsAppMessage()}`}
+                  href={`https://wa.me/919497122397?text=${encodeURIComponent(generateWhatsAppMessage())}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 text-xs font-bold text-white bg-[#2563EB] hover:bg-blue-700 rounded-xl shadow-xs"

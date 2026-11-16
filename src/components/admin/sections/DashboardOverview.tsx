@@ -40,13 +40,23 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
     }
   };
 
+  const portfolioItems = content.portfolio?.items || [];
+
   const statCards = [
+    {
+      title: 'Built Websites (Site Links)',
+      count: portfolioItems.length,
+      detail: `${portfolioItems.filter((p) => p.enabled).length} Live in Showcase`,
+      icon: Globe,
+      color: 'from-blue-500/20 to-indigo-600/10 text-blue-400 border-blue-500/30',
+      sectionId: 'portfolio',
+    },
     {
       title: 'Website Plans',
       count: content.websitePlans.length,
       detail: `${content.websitePlans.filter((p) => p.isAvailable).length} Active`,
       icon: Globe,
-      color: 'from-blue-500/20 to-blue-600/10 text-blue-400 border-blue-500/30',
+      color: 'from-sky-500/20 to-sky-600/10 text-sky-400 border-sky-500/30',
       sectionId: 'websites',
     },
     {
@@ -74,14 +84,6 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
       sectionId: 'monthly',
     },
     {
-      title: 'Bulk Publishing',
-      count: 2,
-      detail: 'ID Cards & Certificates',
-      icon: FileText,
-      color: 'from-purple-500/20 to-purple-600/10 text-purple-400 border-purple-500/30',
-      sectionId: 'bulk',
-    },
-    {
       title: 'Partner Institutions',
       count: content.clientInstitutions.list.length,
       detail: `${content.clientInstitutions.list.filter((c) => c.enabled).length} Displayed`,
@@ -106,13 +108,19 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
               Welcome to the ELEVATE Command Center
             </h1>
             <p className="text-slate-400 text-sm max-w-2xl mt-2 leading-relaxed">
-              Manage all editable public website content from one central dashboard. Update pricing,
-              services, feature lists, WhatsApp response templates, client institutions, and general
-              settings in real time.
+              Upload new built website links & screenshots, update pricing tiers, manage partner institutions, and customize WhatsApp templates in real time.
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={() => onNavigate('portfolio')}
+              className="px-4 py-2.5 rounded-xl bg-[#0062EB] hover:bg-blue-600 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-500/25 transition-all cursor-pointer"
+            >
+              <Globe className="w-4 h-4" />
+              <span>+ Upload Built Website Link</span>
+            </button>
             <button
               type="button"
               onClick={onPreview}
@@ -120,14 +128,6 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
             >
               <span>View Public Website</span>
               <ArrowUpRight className="w-4 h-4 text-slate-400" />
-            </button>
-            <button
-              type="button"
-              onClick={() => onNavigate('general')}
-              className="px-4 py-2.5 rounded-xl bg-[#0062EB] hover:bg-blue-600 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-blue-500/25 transition-all cursor-pointer"
-            >
-              <Settings className="w-4 h-4" />
-              <span>General Settings</span>
             </button>
           </div>
         </div>
@@ -327,6 +327,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {[
+            { id: 'portfolio', label: 'Built Websites (Links)', icon: Globe },
             { id: 'hero', label: 'Hero / Homepage', icon: Globe },
             { id: 'services', label: 'Services Grid', icon: TrendingUp },
             { id: 'websites', label: 'Website Plans', icon: Globe },

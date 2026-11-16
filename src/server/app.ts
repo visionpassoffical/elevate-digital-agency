@@ -68,6 +68,14 @@ function loadSiteContent(): SiteContent {
           ...INITIAL_SITE_CONTENT,
           ...parsed,
           hero: { ...INITIAL_SITE_CONTENT.hero, ...(parsed.hero || {}) },
+          portfolio: {
+            ...INITIAL_SITE_CONTENT.portfolio,
+            ...(parsed.portfolio || {}),
+            items:
+              Array.isArray(parsed.portfolio?.items) && parsed.portfolio.items.length > 0
+                ? parsed.portfolio.items
+                : INITIAL_SITE_CONTENT.portfolio.items,
+          },
           services: parsed.services || INITIAL_SITE_CONTENT.services,
           websitePlans: parsed.websitePlans || INITIAL_SITE_CONTENT.websitePlans,
           admissionServices: {

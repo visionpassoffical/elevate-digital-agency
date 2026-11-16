@@ -479,10 +479,41 @@ export interface ContactConfig {
   };
 }
 
+export type PortfolioCategory =
+  | 'Madrasa & Islamic'
+  | 'Schools & Colleges'
+  | 'Business & Corporate'
+  | 'Web Apps';
+
+export interface PortfolioItemConfig {
+  id: string;
+  title: string;
+  url: string;
+  category: PortfolioCategory | string;
+  clientName?: string;
+  location?: string;
+  description: string;
+  tags: string[];
+  screenshot?: string;
+  accentColor?: string;
+  featured?: boolean;
+  enabled: boolean;
+  order: number;
+  completedDate?: string;
+}
+
+export interface PortfolioConfig {
+  sectionBadge: string;
+  sectionTitle: string;
+  sectionSubtitle: string;
+  items: PortfolioItemConfig[];
+}
+
 export interface FooterConfig {
   brandDescription: string;
   copyrightText: string;
   navigationLabels: {
+    portfolio?: string;
     websites: string;
     admission: string;
     exam: string;
@@ -528,6 +559,7 @@ export interface SiteContent {
   general: GeneralConfig;
   contact: ContactConfig;
   hero: HeroConfig;
+  portfolio: PortfolioConfig;
   services: ServiceItemConfig[];
   websitePlans: WebsitePlanConfig[];
   admissionServices: AdmissionServicesConfig;

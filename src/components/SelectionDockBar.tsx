@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MessageCircle, ChevronUp, ChevronDown, ArrowRight, Sparkles } from 'lucide-react';
 import type { SelectedServiceItem, SelectedMonthlyPlan, SelectedBulkQuote, SelectedWebsitePlan } from '../types';
-import { openWhatsApp, formatCombinedOrderMessage } from '../utils/whatsapp';
+import { openWhatsApp, formatCombinedOrderMessage, ensureRupee } from '../utils/whatsapp';
 
 interface SelectionDockBarProps {
   websitePlan?: SelectedWebsitePlan | null;
@@ -179,7 +179,7 @@ export const SelectionDockBar: React.FC<SelectionDockBarProps> = ({
                 </div>
                 <div className="flex items-center justify-between font-medium text-slate-700">
                   <span>{websitePlan.name}</span>
-                  <span className="font-bold text-[#0F172A] shrink-0">{websitePlan.price}</span>
+                  <span className="font-bold text-[#0F172A] shrink-0 tabular-nums">{ensureRupee(websitePlan.price)}</span>
                 </div>
               </div>
             )}
@@ -256,7 +256,7 @@ export const SelectionDockBar: React.FC<SelectionDockBarProps> = ({
                 </div>
                 <div className="flex items-center justify-between font-medium text-slate-700">
                   <span>{monthlyPlan.name} ({monthlyPlan.creativesCountLabel})</span>
-                  <span className="font-bold text-[#0F172A] shrink-0">{monthlyPlan.price}</span>
+                  <span className="font-bold text-[#0F172A] shrink-0 tabular-nums">{ensureRupee(monthlyPlan.price)}</span>
                 </div>
               </div>
             )}

@@ -1,13 +1,16 @@
 import React from 'react';
-import { ArrowUp, MessageCircle, Shield, Globe, Mail, Phone } from 'lucide-react';
+import { ArrowUp, MessageCircle } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
+import type { ServiceTabKey } from './Header';
 
 interface FooterProps {
   onAdminClick: () => void;
+  onOpenQuote?: () => void;
+  onSelectServiceTab?: (tab: ServiceTabKey) => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
-  const { content, openWhatsAppMessage } = useContent();
+export const Footer: React.FC<FooterProps> = ({ onAdminClick, onSelectServiceTab }) => {
+  const { openWhatsAppMessage } = useContent();
   const currentYear = new Date().getFullYear();
 
   const scrollToTop = () => {
@@ -15,9 +18,29 @@ export const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
   };
 
   const scrollToSection = (id: string) => {
+    const serviceTabs: Record<string, ServiceTabKey> = {
+      websites: 'websites',
+      admission: 'admission',
+      exam: 'exam',
+      creative: 'creative',
+      bulk: 'bulk',
+    };
+
+    if (serviceTabs[id] && onSelectServiceTab) {
+      onSelectServiceTab(serviceTabs[id]);
+      const servicesEl = document.getElementById('services');
+      if (servicesEl) {
+        const headerOffset = 72;
+        const elPos = servicesEl.getBoundingClientRect().top;
+        const offsetPos = elPos + window.pageYOffset - headerOffset;
+        window.scrollTo({ top: offsetPos, behavior: 'smooth' });
+        return;
+      }
+    }
+
     const el = document.getElementById(id);
     if (el) {
-      const headerOffset = 80;
+      const headerOffset = 72;
       const elPos = el.getBoundingClientRect().top;
       const offsetPos = elPos + window.pageYOffset - headerOffset;
       window.scrollTo({ top: offsetPos, behavior: 'smooth' });
@@ -25,30 +48,33 @@ export const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
   };
 
   return (
-    <footer className="bg-[#070A11] border-t border-white/10 text-white relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8 pb-12 border-b border-white/10">
-          
-          {/* Brand Info (4 cols) */}
-          <div className="lg:col-span-4 space-y-4">
+    <footer className="bg-[#0F172A] border-t border-slate-800/80 text-white relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-slate-800/80">
+          {/* Brand Info (5 cols) */}
+          <div className="md:col-span-5 space-y-3.5">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center font-['Outfit'] font-black text-white text-base shadow-[0_0_20px_-3px_rgba(37,99,235,0.7)]">
+              <div className="h-8 w-8 rounded-xl bg-[#2563EB] flex items-center justify-center font-['Outfit'] font-black text-white text-sm shadow-sm">
                 E
               </div>
-              <span className="font-['Outfit'] font-extrabold text-xl tracking-tight text-white">
+              <span className="font-['Outfit'] font-extrabold text-lg tracking-tight text-white">
                 ELEVATE
               </span>
             </div>
-            
+
             <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-sm">
-              Digital engineering and creative studio built for schools, colleges, academies, and modern institutions. High performance, zero bloat.
+              Digital engineering and creative studio built for schools, madrasas, colleges, and modern institutions.
             </p>
 
-            <div className="pt-2 flex items-center gap-3">
+            <div className="pt-1 flex items-center gap-3">
               <button
                 type="button"
-                onClick={() => openWhatsAppMessage('Hello ELEVATE, I would like to enquire about your digital services.')}
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-semibold text-slate-200 transition-colors cursor-pointer"
+                onClick={() =>
+                  openWhatsAppMessage(
+                    'Hello ELEVATE, I would like to enquire about your digital services.'
+                  )
+                }
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-xs font-semibold text-slate-200 transition-colors cursor-pointer"
               >
                 <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
                 <span>+91 94971 22397</span>
@@ -56,19 +82,19 @@ export const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
             </div>
           </div>
 
-          {/* Solutions Column (3 cols) */}
-          <div className="lg:col-span-3 space-y-3">
+          {/* Solutions Column (4 cols) */}
+          <div className="md:col-span-4 space-y-2.5">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Solutions & Services
+              Solutions &amp; Packages
             </div>
-            <ul className="space-y-2 text-xs sm:text-sm text-slate-400">
+            <ul className="space-y-1.5 text-xs sm:text-sm text-slate-400">
               <li>
                 <button
                   type="button"
                   onClick={() => scrollToSection('websites')}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
-                  Institutional Websites
+                  Institutional Websites (₹999/yr)
                 </button>
               </li>
               <li>
@@ -77,7 +103,7 @@ export const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
                   onClick={() => scrollToSection('admission')}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
-                  Admission Solutions
+                  Admission Campaign Kit (₹449)
                 </button>
               </li>
               <li>
@@ -86,7 +112,7 @@ export const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
                   onClick={() => scrollToSection('exam')}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
-                  Exam Solutions Desk
+                  Exam Controller Pack (₹499)
                 </button>
               </li>
               <li>
@@ -95,7 +121,7 @@ export const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
                   onClick={() => scrollToSection('creative')}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
-                  Monthly Creative Retainers
+                  Monthly Creative Plans (₹499+)
                 </button>
               </li>
               <li>
@@ -104,25 +130,34 @@ export const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
                   onClick={() => scrollToSection('bulk')}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
-                  Bulk ID Cards & Certificates
+                  Bulk ID Cards &amp; Certificates
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Navigation Column (2 cols) */}
-          <div className="lg:col-span-2 space-y-3">
+          {/* Navigation Column (3 cols) */}
+          <div className="md:col-span-3 space-y-2.5">
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Navigation
             </div>
-            <ul className="space-y-2 text-xs sm:text-sm text-slate-400">
+            <ul className="space-y-1.5 text-xs sm:text-sm text-slate-400">
+              <li>
+                <button
+                  type="button"
+                  onClick={() => scrollToSection('portfolio')}
+                  className="hover:text-white transition-colors cursor-pointer font-medium text-blue-400"
+                >
+                  Built Websites (Our Work)
+                </button>
+              </li>
               <li>
                 <button
                   type="button"
                   onClick={() => scrollToSection('clients')}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
-                  Client Institutions
+                  Partner Institutions
                 </button>
               </li>
               <li>
@@ -140,59 +175,40 @@ export const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
                   onClick={() => scrollToSection('faq')}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
-                  Frequently Asked Questions
+                  Common Questions
                 </button>
               </li>
               <li>
                 <button
                   type="button"
-                  onClick={() => scrollToSection('contact')}
-                  className="hover:text-white transition-colors cursor-pointer"
+                  onClick={scrollToTop}
+                  className="inline-flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors cursor-pointer pt-1"
                 >
-                  Contact & WhatsApp
+                  <ArrowUp className="w-3.5 h-3.5" />
+                  <span>Back to top</span>
                 </button>
               </li>
             </ul>
           </div>
-
-          {/* Platform Management & Back to top (3 cols) */}
-          <div className="lg:col-span-3 space-y-4">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Platform & Governance
-            </div>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Protected administration interface for institutional catalog, pricing tiers, and client logos.
-            </p>
-            <div className="flex flex-col gap-2 pt-1">
-              <button
-                type="button"
-                onClick={onAdminClick}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer text-left"
-              >
-                <Shield className="w-3.5 h-3.5 text-blue-400" />
-                <span>Admin Control Desk</span>
-              </button>
-              
-              <button
-                type="button"
-                onClick={scrollToTop}
-                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-white/[0.03] transition-colors cursor-pointer"
-              >
-                <ArrowUp className="w-3.5 h-3.5" />
-                <span>Back to top</span>
-              </button>
-            </div>
-          </div>
-
         </div>
 
-        {/* Bottom Credits & Copyright */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        {/* Bottom Copyright Row with Discreet Admin Link */}
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
           <div>
             &copy; {currentYear} ELEVATE Institutional Solutions. All rights reserved.
           </div>
           <div className="flex items-center gap-4">
-            <span>Engineering for Schools, Colleges & Academies</span>
+            <span>Schools, Madrasas &amp; Businesses</span>
+            <span aria-hidden="true" className="text-slate-700">
+              ·
+            </span>
+            <button
+              type="button"
+              onClick={onAdminClick}
+              className="text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+            >
+              Admin
+            </button>
           </div>
         </div>
       </div>

@@ -99,20 +99,26 @@ export function openWhatsApp(messageText: string, phoneDigits?: string): boolean
 
 
 /**
+ * Guarantees a Rupee (₹) prefix on price strings or numbers.
+ */
+export function ensureRupee(val: string | number): string {
+  const s = String(val ?? '').trim();
+  if (!s) return '₹0';
+  if (s.includes('₹')) return s;
+  if (/^\d/.test(s)) return `₹${s}`;
+  return s;
+}
+
+/**
  * 1. WEBSITE PACKAGE WHATSAPP MESSAGE
  * Basic: ₹999/year
  * Standard: ₹1,999/year
  */
 export function formatWebsitePlanMessage(planName: string, priceWithCycle: string): string {
-  // Format matches:
-  // “Hello ELEVATE,
-  //
-  // I’m interested in the [Plan Name] — [Price/year].
-  //
-  // Please share the details.”
+  const formattedPrice = ensureRupee(priceWithCycle);
   return `Hello ELEVATE,
 
-I’m interested in the ${planName} — ${priceWithCycle}.
+I’m interested in the ${planName} — ${formattedPrice}.
 
 Please share the details.`;
 }
@@ -124,9 +130,10 @@ export function formatAdmissionPackageMessage(
   packageName = 'Complete Admission Package',
   price = '₹449'
 ): string {
+  const formattedPrice = ensureRupee(price);
   return `Hello ELEVATE,
 
-I’m interested in the ${packageName} — ${price}.
+I’m interested in the ${packageName} — ${formattedPrice}.
 
 Please share the details.`;
 }
@@ -138,9 +145,10 @@ export function formatExamPackageMessage(
   packageName = 'Complete Exam Package',
   price = '₹499'
 ): string {
+  const formattedPrice = ensureRupee(price);
   return `Hello ELEVATE,
 
-I’m interested in the ${packageName} — ${price}.
+I’m interested in the ${packageName} — ${formattedPrice}.
 
 Please share the details.`;
 }
@@ -153,7 +161,7 @@ export function formatIndividualAdmissionMessage(
   total: number
 ): string {
   const serviceLines = services
-    .map((s) => `• ${s.name} — ₹${s.price}`)
+    .map((s) => `• ${s.name} — ₹${s.price.toLocaleString('en-IN')}`)
     .join('\n');
 
   return `Hello ELEVATE,
@@ -175,7 +183,7 @@ export function formatIndividualExamMessage(
   total: number
 ): string {
   const serviceLines = services
-    .map((s) => `• ${s.name} — ₹${s.price}`)
+    .map((s) => `• ${s.name} — ₹${s.price.toLocaleString('en-IN')}`)
     .join('\n');
 
   return `Hello ELEVATE,
@@ -197,7 +205,8 @@ export function formatMonthlyPlanMessage(
   priceFormatted: string,
   creativesCount: number
 ): string {
-  const priceWithCycle = priceFormatted.includes('/month') ? priceFormatted : `${priceFormatted}/month`;
+  const withRupee = ensureRupee(priceFormatted);
+  const priceWithCycle = withRupee.includes('/month') || withRupee.includes('/mo') ? withRupee : `${withRupee}/month`;
   return `Hello ELEVATE,
 
 I’m interested in the ${planName} — ${priceWithCycle}.
@@ -307,7 +316,7 @@ export function formatCombinedOrderMessage(params: {
   const sections: string[] = [];
 
   if (params.website) {
-    sections.push(`Website Plan:\n• ${params.website.name} — ${params.website.price}`);
+    sections.push(`Website Plan:\n• ${params.website.name} — ${ensureRupee(params.website.price)}`);
   }
 
   if (params.admission) {
@@ -330,7 +339,7 @@ export function formatCombinedOrderMessage(params: {
 
   if (params.monthly) {
     sections.push(
-      `Monthly Creative Plan:\n• ${params.monthly.name} — ${params.monthly.price} (${params.monthly.creatives} creatives/month)`
+      `Monthly Creative Plan:\n• ${params.monthly.name} — ${ensureRupee(params.monthly.price)} (${params.monthly.creatives} creatives/month)`
     );
   }
 

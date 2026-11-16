@@ -1,20 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Header } from './components/Header';
+import { Header, type ServiceTabKey } from './components/Header';
 import { Hero } from './components/Hero';
 import { QuickValueStrip } from './components/QuickValueStrip';
-import { ServicesGrid } from './components/ServicesGrid';
+import { PortfolioSection } from './components/PortfolioSection';
+import { TabbedServicesHub } from './components/TabbedServicesHub';
 import { PartnerInstitutionsSection } from './components/PartnerInstitutionsSection';
 import { AdminInstitutionsModal } from './components/AdminInstitutionsModal';
-import { WebsitePlansSection } from './components/WebsitePlansSection';
-import { AdmissionSolutionsSection } from './components/AdmissionSolutionsSection';
-import { ExamSolutionsSection } from './components/ExamSolutionsSection';
-import { MonthlyCreativeSection } from './components/MonthlyCreativeSection';
-import { BulkServicesSection } from './components/BulkServicesSection';
-import { CustomServicesSection } from './components/CustomServicesSection';
 import { HowItWorks } from './components/HowItWorks';
-import { WhyElevate } from './components/WhyElevate';
 import { FaqSection } from './components/FaqSection';
-import { CompleteMadrasaCta } from './components/CompleteMadrasaCta';
 import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { SelectionDockBar } from './components/SelectionDockBar';
@@ -22,6 +15,7 @@ import { QuoteModal } from './components/QuoteModal';
 import { MobileStickyBar } from './components/MobileStickyBar';
 import { WhatsAppToast } from './components/WhatsAppToast';
 import { AdminPage } from './components/admin/AdminPage';
+import type { AdminSectionKey } from './components/admin/AdminDashboard';
 import type { SelectedWebsitePlan, SelectedServiceItem, SelectedMonthlyPlan, SelectedBulkQuote } from './types';
 
 export default function App() {
@@ -35,6 +29,8 @@ export default function App() {
     return false;
   });
 
+  const [adminInitialSection, setAdminInitialSection] = useState<AdminSectionKey>('dashboard');
+  const [activeServiceTab, setActiveServiceTab] = useState<ServiceTabKey>('websites');
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string | undefined>();
@@ -42,7 +38,7 @@ export default function App() {
   const [selectedWebsitePlan, setSelectedWebsitePlan] = useState<SelectedWebsitePlan | null>(null);
   const [selectedMonthlyPlan, setSelectedMonthlyPlan] = useState<SelectedMonthlyPlan | null>(null);
   const [selectedBulkQuote, setSelectedBulkQuote] = useState<SelectedBulkQuote | null>(null);
-  
+
   // Admission & Exam solutions state (stores data structure for WhatsApp dispatch)
   const [admissionSelection, setAdmissionSelection] = useState<{
     mode: 'package' | 'individual' | 'none';
@@ -69,6 +65,31 @@ export default function App() {
   });
 
   const [activeSection, setActiveSection] = useState<string>('services');
+
+  const handleSelectServiceTab = (tab: ServiceTabKey) => {
+    setActiveServiceTab(tab);
+    setActiveSection(tab);
+  };
+
+  const handleOpenAdmin = (section: AdminSectionKey = 'dashboard') => {
+    setAdminInitialSection(section);
+    setIsAdminRoute(true);
+    try {
+      window.history.pushState(null, '', '#admin');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch {
+      // ignore history errors inside restricted iframes
+    }
+  };
+
+  const handleExitAdmin = () => {
+    setIsAdminRoute(false);
+    try {
+      window.history.pushState(null, '', window.location.pathname);
+    } catch {
+      // ignore history errors
+    }
+  };
 
   const handleOpenQuote = (serviceOrSector?: string) => {
     if (serviceOrSector) {
@@ -137,10 +158,14 @@ export default function App() {
         e.preventDefault();
         setIsAdminRoute((prev) => {
           const next = !prev;
-          if (next) {
-            window.history.pushState(null, '', '/admin');
-          } else {
-            window.history.pushState(null, '', '/');
+          try {
+            if (next) {
+              window.history.pushState(null, '', '#admin');
+            } else {
+              window.history.pushState(null, '', window.location.pathname);
+            }
+          } catch {
+            // ignore
           }
           return next;
         });
@@ -158,7 +183,7 @@ export default function App() {
   // Track active section for header indicator
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['services', 'websites', 'admission', 'exam', 'monthly', 'bulk', 'custom-services', 'how-it-works', 'faq', 'contact'];
+      const sections = ['portfolio', 'services', 'clients', 'how-it-works', 'faq', 'contact'];
       const scrollPos = window.scrollY + 200;
 
       for (const sectionId of sections) {
@@ -167,7 +192,7 @@ export default function App() {
           const top = el.offsetTop;
           const height = el.offsetHeight;
           if (scrollPos >= top && scrollPos < top + height) {
-            setActiveSection(sectionId);
+            setActiveSection(sectionId === 'services' ? activeServiceTab : sectionId);
             break;
           }
         }
@@ -176,7 +201,7 @@ export default function App() {
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [activeServiceTab]);
 
   const handleClearAll = () => {
     setSelectedWebsitePlan(null);
@@ -187,89 +212,77 @@ export default function App() {
   };
 
   if (isAdminRoute) {
-    return <AdminPage />;
+    return (
+      <AdminPage
+        initialSection={adminInitialSection}
+        onExitToSite={handleExitAdmin}
+      />
+    );
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0C1017] flex flex-col">
-      {/* 1. HEADER */}
+    <div className="min-h-screen bg-[#FFFFFF] text-[#0F172A] flex flex-col">
+      {/* 1. CLEAN LIGHT HEADER */}
       <Header
         onOpenQuote={() => handleOpenQuote()}
         activeSection={activeSection}
+        onSelectServiceTab={handleSelectServiceTab}
       />
 
-      {/* Main Content Layout in EXACT 16-Section Order */}
+      {/* Main Content Layout (Low-Scroll Clean Light Architecture) */}
       <main className="flex-1">
-        {/* 2. HERO */}
-        <Hero onOpenQuote={() => handleOpenQuote()} />
+        {/* 2. COMPACT SINGLE-SCREEN HERO */}
+        <Hero
+          onOpenQuote={() => handleOpenQuote()}
+          onSelectServiceTab={handleSelectServiceTab}
+        />
 
-        {/* 3. TRUST / VALUE STRIP */}
+        {/* 3. QUICK TRUST / VALUE STRIP */}
         <QuickValueStrip />
 
-        {/* 4. SERVICES */}
-        <ServicesGrid onSelectService={(serviceTitle) => handleOpenQuote(serviceTitle)} />
-
-        {/* 4b. CLIENT INSTITUTIONS */}
-        <PartnerInstitutionsSection />
-
-        {/* 5. WEBSITE PLANS */}
-        <WebsitePlansSection
-          selectedPlan={selectedWebsitePlan}
-          onSelectPlan={(plan) => setSelectedWebsitePlan(plan)}
-          onOpenCustomQuote={() => handleOpenQuote(selectedWebsitePlan ? `${selectedWebsitePlan.name} (${selectedWebsitePlan.price})` : 'Custom Website Solution')}
-        />
-
-        {/* 6. ADMISSION SOLUTIONS */}
-        <AdmissionSolutionsSection
-          currentMode={admissionSelection.mode}
-          onSelectionChange={(data) => setAdmissionSelection(data)}
+        {/* 4. BUILT WEBSITES / LIVE PORTFOLIO SHOWCASE (Horizontal Swipe on Mobile) */}
+        <PortfolioSection
+          onOpenAdminPortfolio={() => handleOpenAdmin('portfolio')}
           onRequestQuote={(context) => handleOpenQuote(context)}
         />
 
-        {/* 7. EXAM SOLUTIONS */}
-        <ExamSolutionsSection
-          currentMode={examSelection.mode}
-          onSelectionChange={(data) => setExamSelection(data)}
-          onRequestQuote={(context) => handleOpenQuote(context)}
-        />
-
-        {/* 8. MONTHLY CREATIVE PLANS */}
-        <MonthlyCreativeSection
-          selectedPlan={selectedMonthlyPlan}
-          onSelectPlan={(plan) => setSelectedMonthlyPlan(plan)}
-        />
-
-        {/* 9. BULK SERVICES */}
-        <BulkServicesSection
+        {/* 5. UNIFIED TABBED SERVICES & PACKAGES HUB (Websites, Admission, Exams, Creatives, Bulk) */}
+        <TabbedServicesHub
+          activeTab={activeServiceTab}
+          onTabChange={handleSelectServiceTab}
+          selectedWebsitePlan={selectedWebsitePlan}
+          onSelectWebsitePlan={(plan) => setSelectedWebsitePlan(plan)}
+          admissionMode={admissionSelection.mode}
+          admissionSelection={admissionSelection}
+          onAdmissionSelectionChange={(data) => setAdmissionSelection(data)}
+          examMode={examSelection.mode}
+          examSelection={examSelection}
+          onExamSelectionChange={(data) => setExamSelection(data)}
+          selectedMonthlyPlan={selectedMonthlyPlan}
+          onSelectMonthlyPlan={(plan) => setSelectedMonthlyPlan(plan)}
+          selectedBulkQuote={selectedBulkQuote}
           onSelectBulkQuote={(quote) => setSelectedBulkQuote(quote)}
-        />
-
-        {/* 10. CUSTOM SERVICES */}
-        <CustomServicesSection
-          onRequestQuote={(context) => handleOpenQuote(context)}
-        />
-
-        {/* 11. HOW IT WORKS */}
-        <HowItWorks />
-
-        {/* 12. WHY ELEVATE */}
-        <WhyElevate />
-
-        {/* 13. FAQ */}
-        <FaqSection />
-
-        {/* 14. COMPLETE MADRASA / CUSTOM WORK CTA */}
-        <CompleteMadrasaCta
           onOpenQuote={(context) => handleOpenQuote(context)}
         />
 
-        {/* 15. FINAL WHATSAPP CTA */}
-        <ContactSection onOpenQuote={() => handleOpenQuote()} />
+        {/* 6. PARTNER INSTITUTIONS MARQUEE */}
+        <PartnerInstitutionsSection />
+
+        {/* 7. MERGED HOW IT WORKS & WHY ELEVATE (4-Card Compact Grid) */}
+        <HowItWorks />
+
+        {/* 8. COMPACT FAQ ACCORDION */}
+        <FaqSection />
+
+        {/* 9. MERGED CUSTOM / MADRASA BUNDLES & DIRECT WHATSAPP CONSULTATION DESK */}
+        <ContactSection onOpenQuote={(context) => handleOpenQuote(context)} />
       </main>
 
-      {/* 16. FOOTER */}
+      {/* 10. DARK NAVY FOOTER */}
       <Footer
+        onAdminClick={() => handleOpenAdmin('dashboard')}
         onOpenQuote={() => handleOpenQuote()}
+        onSelectServiceTab={handleSelectServiceTab}
       />
 
       {/* Persistent Floating Selection Dock Bar (Desktop & Mobile) */}
@@ -288,7 +301,7 @@ export default function App() {
         onClearAll={handleClearAll}
       />
 
-      {/* Mobile Sticky Quick Action Bar (shown when no items are selected in dock) */}
+      {/* Mobile Sticky Quick Action Bar (only visible after scrolling past Hero when no items are selected) */}
       <MobileStickyBar
         hasActiveSelection={
           Boolean(selectedWebsitePlan) ||

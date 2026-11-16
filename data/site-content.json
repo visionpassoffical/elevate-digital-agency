@@ -775,6 +775,7 @@
       "monthly": "Monthly Creatives",
       "bulk": "Bulk Pricing",
       "clients": "Our Clients",
+      "portfolio": "Our Work",
       "faq": "FAQ",
       "contact": "Contact Us"
     }
@@ -793,5 +794,90 @@
       "customEnquiry": "Hello ELEVATE,\n\nI would like to enquire about your digital services.\nPlease share the details and pricing.",
       "generalEnquiry": "Hello ELEVATE,\n\nI would like to enquire about your digital services.\n\nPlease share the details and pricing."
     }
+  },
+  "portfolio": {
+    "sectionBadge": "LIVE WORK & PORTFOLIO",
+    "sectionTitle": "Websites & Digital Portals Built by ELEVATE",
+    "sectionSubtitle": "Explore live institutional websites, admission portals, and digital platforms we have engineered. Click any project to inspect the live deployment.",
+    "items": [
+      {
+        "id": "portfolio-al-huda-portal",
+        "title": "Al-Huda Islamic Academy Portal",
+        "category": "Madrasa & Islamic",
+        "liveUrl": "https://alhuda-academy.edu.in",
+        "clientName": "Al-Huda Educational Trust, Kerala",
+        "description": "Complete bilingual institutional website with online admission registration, Hifz & Kitab department directories, and direct WhatsApp parent enquiry routing.",
+        "thumbnail": "",
+        "tags": ["Online Admission", "Bilingual Ready", "WhatsApp Desk", "99.9% Uptime"],
+        "featured": true,
+        "enabled": true,
+        "order": 1
+      },
+      {
+        "id": "portfolio-markaz-college",
+        "title": "Markaz Arts & Science Digital Campus",
+        "category": "Schools & Colleges",
+        "liveUrl": "https://markazcollege-portal.edu.in",
+        "clientName": "Markaz College, Kozhikode",
+        "description": "High-speed academic portal featuring department microsites, semester exam timetable boards, faculty profiles, and digital prospectus downloads.",
+        "thumbnail": "",
+        "tags": ["Academic Portal", "Exam Timetables", "NAAC Ready", "Mobile First"],
+        "featured": true,
+        "enabled": true,
+        "order": 2
+      },
+      {
+        "id": "portfolio-crescent-school",
+        "title": "Crescent International School Website",
+        "category": "Schools & Colleges",
+        "liveUrl": "https://crescentschool-campus.org",
+        "clientName": "Crescent Education Network",
+        "description": "Modern school showcase with interactive campus gallery, digital admission form pipeline, fee structure transparency, and parent notice board.",
+        "thumbnail": "",
+        "tags": ["Admission Form", "Campus Gallery", "Notice Board", "Fast Load"],
+        "featured": true,
+        "enabled": true,
+        "order": 3
+      },
+      {
+        "id": "portfolio-darul-huda-complex",
+        "title": "Darul Huda Islamic Complex Hub",
+        "category": "Madrasa & Islamic",
+        "liveUrl": "https://darulhudacomplex.org",
+        "clientName": "Darul Huda, Malappuram",
+        "description": "Dedicated institutional portal for madrasa admissions, annual convocation event registration, and verified student certificate verification.",
+        "thumbnail": "",
+        "tags": ["Event Registration", "Madrasa Suite", "ID & Certificates"],
+        "featured": false,
+        "enabled": true,
+        "order": 4
+      },
+      {
+        "id": "portfolio-ihsan-exam-desk",
+        "title": "Ihsan Higher Secondary Exam & Results Desk",
+        "category": "Web Apps",
+        "liveUrl": "https://exams.ihsanschool.edu.in",
+        "clientName": "Ihsan Education Trust",
+        "description": "Streamlined examination portal delivering hall ticket downloads, formatted question paper archives, and instant student result lookup.",
+        "thumbnail": "",
+        "tags": ["Hall Tickets", "Exam Archive", "Student Lookup"],
+        "featured": false,
+        "enabled": true,
+        "order": 5
+      },
+      {
+        "id": "portfolio-malabar-traders",
+        "title": "Malabar Spice & Exports Corporate Web",
+        "category": "Business & Corporate",
+        "liveUrl": "https://malabarexports.co.in",
+        "clientName": "Malabar Commercial Group",
+        "description": "Clean corporate catalog website with product specification sheets, export inquiry forms, and instant WhatsApp quotation triggers.",
+        "thumbnail": "",
+        "tags": ["Corporate Web", "Product Catalog", "Direct WhatsApp Lead"],
+        "featured": false,
+        "enabled": true,
+        "order": 6
+      }
+    ]
   }
 }

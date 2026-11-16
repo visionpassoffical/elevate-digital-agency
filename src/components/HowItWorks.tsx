@@ -1,89 +1,93 @@
 import React from 'react';
 import { useContent } from '../context/ContentContext';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export const HowItWorks: React.FC = () => {
   const { content } = useContent();
   const config = content.howItWorks;
 
-  const steps = (config?.steps && config.steps.length > 0)
-    ? config.steps.filter((s) => s.enabled !== false)
-    : [
-        {
-          step: '01',
-          title: 'Select or Inquire',
-          description: 'Explore our turnkey packages, individual services, or custom deliverables directly on this page.',
-        },
-        {
-          step: '02',
-          title: 'Connect on WhatsApp',
-          description: 'Click "Continue on WhatsApp". Your selected requirements open instantly in chat with our team.',
-        },
-        {
-          step: '03',
-          title: 'Review & Refine',
-          description: 'We draft and share institutional mockups for your approval with prompt, hassle-free revisions.',
-        },
-        {
-          step: '04',
-          title: 'Turnkey Delivery',
-          description: 'Your high-performance live website goes live or print-ready PDF/vector packages are delivered in 48-72h.',
-        },
-      ];
+  const steps =
+    config?.steps && config.steps.length > 0
+      ? config.steps.filter((s) => s.enabled !== false).slice(0, 4)
+      : [
+          {
+            step: '01',
+            title: 'Select or Inquire',
+            description:
+              'Pick a website plan, admission kit, exam package, or creative retainer directly from our interactive tabs.',
+          },
+          {
+            step: '02',
+            title: 'Connect on WhatsApp',
+            description:
+              'Your selected items format automatically into a structured WhatsApp brief with zero login walls.',
+          },
+          {
+            step: '03',
+            title: 'Review & Refine',
+            description:
+              'We share tailored institutional previews and layout proofs for your approval with prompt revisions.',
+          },
+          {
+            step: '04',
+            title: 'Turnkey Delivery',
+            description:
+              'Your live institutional portal or print-ready HD files are delivered within 48–72 hours.',
+          },
+        ];
 
   return (
-    <section id="how-it-works" className="py-20 sm:py-28 bg-[#FFFFFF] text-[#0F172A] border-b border-slate-200/80 scroll-mt-20 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
-        {/* Section Header */}
-        <div className="max-w-3xl mb-14 sm:mb-18">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <span className="w-1.5 h-1.5 bg-[#2563EB] rounded-full" />
-            <span className="text-[11px] font-bold tracking-widest uppercase text-slate-500">
-              STREAMLINED 4-STEP WORKFLOW
-            </span>
+    <section
+      id="how-it-works"
+      className="py-12 sm:py-16 bg-[#FFFFFF] text-[#0F172A] scroll-mt-16 relative overflow-hidden"
+    >
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Compact Editorial Header */}
+        <div className="text-center mb-8 sm:mb-10">
+          <div className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#2563EB] mb-1.5">
+            STREAMLINED WORKFLOW
           </div>
-          <h2 className="font-['Outfit'] font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#0F172A] tracking-tight mb-4 leading-tight">
+          <h2 className="font-['Outfit'] font-extrabold text-2xl sm:text-3xl text-[#0F172A] tracking-tight">
             {config?.sectionTitle || 'How ELEVATE Works'}
           </h2>
-          <p className="text-base sm:text-lg text-slate-600 font-normal leading-relaxed max-w-xl">
-            {config?.sectionSubtitle ||
-              'A transparent, frictionless process from your initial inquiry to final institutional delivery.'}
+          <p className="mt-1.5 text-xs sm:text-sm text-slate-600 max-w-md mx-auto">
+            From your initial selection to turnkey institutional delivery in four clear steps.
           </p>
         </div>
 
-        {/* Minimalist Step-by-Step Progress Timeline */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
-          {steps.map((item, idx) => (
+        {/* Sleek Connected Vertical Stepper Timeline */}
+        <div className="relative max-w-2xl mx-auto bg-[#F4F6FB] rounded-3xl p-6 sm:p-8 shadow-[0_10px_30px_-10px_rgba(15,23,42,0.06)]">
+          <div className="relative">
+            {/* Continuous Vertical Line Connecting Circle Nodes */}
             <div
-              key={item.step || idx}
-              className="group bg-[#F8FAFC] border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs hover:border-slate-300 hover:bg-slate-100/50 transition-all duration-200 flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <span className="font-['Outfit'] font-extrabold text-3xl sm:text-4xl text-[#2563EB] tracking-tighter">
+              aria-hidden="true"
+              className="absolute left-5 top-5 bottom-5 w-px bg-gradient-to-b from-[#2563EB] via-blue-300 to-slate-300"
+            />
+
+            <div className="space-y-6 sm:space-y-7">
+              {steps.map((item, idx) => (
+                <div
+                  key={item.step || idx}
+                  className="relative flex items-start gap-4 sm:gap-5 group"
+                >
+                  {/* Numbered Blue Circle Node */}
+                  <div className="relative z-10 w-10 h-10 rounded-full bg-[#2563EB] text-white font-['Outfit'] font-extrabold text-xs flex items-center justify-center shrink-0 shadow-[0_4px_12px_rgba(37,99,235,0.35)] ring-4 ring-[#F4F6FB]">
                     {item.step}
-                  </span>
-                  <div className="w-7 h-7 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-[#2563EB]">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
+                  </div>
+
+                  {/* Clean Title + 1-Line Description */}
+                  <div className="min-w-0 flex-1 pt-0.5">
+                    <h3 className="font-['Outfit'] font-bold text-base sm:text-lg text-[#0F172A] leading-snug">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mt-0.5">
+                      {item.description}
+                    </p>
                   </div>
                 </div>
-
-                <h3 className="font-['Outfit'] font-bold text-lg sm:text-xl text-[#0F172A] mb-2.5 group-hover:text-[#2563EB] transition-colors">
-                  {item.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
-                  {item.description}
-                </p>
-              </div>
-
-              <div className="pt-6 mt-6 border-t border-slate-200/60 flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                <span>Phase {item.step}</span>
-              </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
-
       </div>
     </section>
   );

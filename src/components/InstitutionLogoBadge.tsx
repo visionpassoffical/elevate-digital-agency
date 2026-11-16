@@ -59,7 +59,7 @@ export const InstitutionLogoBadge: React.FC<InstitutionLogoBadgeProps> = ({
 
   if (hasValidLogo) {
     return (
-      <div className={`${sizeClasses} bg-white/5 border border-white/10 shrink-0 flex items-center justify-center overflow-hidden p-1.5 ${className}`}>
+      <div className={`${sizeClasses} bg-slate-50 border border-slate-200/80 shrink-0 flex items-center justify-center overflow-hidden p-1.5 ${className}`}>
         <img
           src={logo}
           alt={name}

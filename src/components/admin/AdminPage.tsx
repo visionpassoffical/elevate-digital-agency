@@ -1,13 +1,26 @@
 import React, { useEffect } from 'react';
 import { useContent } from '../../context/ContentContext';
 import { AdminLogin } from './AdminLogin';
-import { AdminDashboard } from './AdminDashboard';
+import { AdminDashboard, type AdminSectionKey } from './AdminDashboard';
 
-export const AdminPage: React.FC = () => {
+export interface AdminPageProps {
+  initialSection?: AdminSectionKey;
+  onExitToSite?: () => void;
+}
+
+export const AdminPage: React.FC<AdminPageProps> = ({
+  initialSection = 'dashboard',
+  onExitToSite,
+}) => {
   const { isAuthenticated, isLoading } = useContent();
 
   const handleBackToSite = () => {
+    if (onExitToSite) {
+      onExitToSite();
+      return;
+    }
     if (typeof window !== 'undefined') {
+      window.location.hash = '';
       window.history.pushState(null, '', '/');
       window.dispatchEvent(new PopStateEvent('popstate'));
     }
@@ -50,5 +63,6 @@ export const AdminPage: React.FC = () => {
     return <AdminLogin onBackToSite={handleBackToSite} onSuccess={handleLoginSuccess} />;
   }
 
-  return <AdminDashboard onBackToSite={handleBackToSite} />;
+  return <AdminDashboard onBackToSite={handleBackToSite} initialSection={initialSection} />;
 };
+
