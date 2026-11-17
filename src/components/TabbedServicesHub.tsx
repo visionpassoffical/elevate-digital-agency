@@ -1,5 +1,4 @@
 import React from 'react';
-import { Globe, FileText, Award, Palette, CreditCard } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { WebsitePlansSection } from './WebsitePlansSection';
 import { AdmissionSolutionsSection } from './AdmissionSolutionsSection';
@@ -89,42 +88,36 @@ export const TabbedServicesHub: React.FC<TabbedServicesHubProps> = ({
     id: ServiceTabKey;
     label: string;
     priceTag: string;
-    icon: React.ReactNode;
     hasActiveSelection: boolean;
   }> = [
     {
       id: 'websites',
       label: 'Websites',
       priceTag: `${webStartPrice}+`,
-      icon: <Globe className="w-3.5 h-3.5" />,
       hasActiveSelection: Boolean(selectedWebsitePlan),
     },
     {
+      id: 'creative',
+      label: 'Marketing & Creatives',
+      priceTag: `${creativeStartPrice}+`,
+      hasActiveSelection: Boolean(selectedMonthlyPlan),
+    },
+    {
       id: 'admission',
-      label: 'Admission',
+      label: 'Admission Funnels',
       priceTag: admissionPkgPrice,
-      icon: <FileText className="w-3.5 h-3.5" />,
       hasActiveSelection: currentAdmissionMode !== 'none',
     },
     {
       id: 'exam',
-      label: 'Exams',
+      label: 'Exam Systems',
       priceTag: examPkgPrice,
-      icon: <Award className="w-3.5 h-3.5" />,
       hasActiveSelection: currentExamMode !== 'none',
     },
     {
-      id: 'creative',
-      label: 'Creatives',
-      priceTag: `${creativeStartPrice}+`,
-      icon: <Palette className="w-3.5 h-3.5" />,
-      hasActiveSelection: Boolean(selectedMonthlyPlan),
-    },
-    {
       id: 'bulk',
-      label: 'Bulk',
+      label: 'Bulk Print',
       priceTag: '₹10–₹30',
-      icon: <CreditCard className="w-3.5 h-3.5" />,
       hasActiveSelection: Boolean(selectedBulkQuote),
     },
   ];
@@ -132,60 +125,53 @@ export const TabbedServicesHub: React.FC<TabbedServicesHubProps> = ({
   return (
     <section
       id="services"
-      className="py-14 sm:py-20 bg-[#F4F6FB] text-[#0F172A] border-t border-slate-200/70 scroll-mt-16 relative overflow-hidden"
+      className="py-14 sm:py-22 bg-[#FFFFFF] text-[#09090B] border-b border-slate-200/80 scroll-mt-16 relative overflow-hidden"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Editorial Section Header */}
-        <div className="text-center max-w-2xl mx-auto mb-7 sm:mb-9">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
+        {/* Confident Left-Aligned Editorial Header */}
+        <div className="max-w-3xl mb-8 sm:mb-10">
           <div className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#2563EB] mb-2">
-            SERVICES &amp; TRANSPARENT PRICING
+            02 / STUDIO CAPABILITIES &amp; RATE CARD
           </div>
-          <h2 className="font-['Outfit'] font-extrabold text-2xl sm:text-3xl lg:text-4xl text-[#0F172A] tracking-tight leading-tight">
-            Packages Built for Modern Institutions
+          <h2 className="font-['Outfit'] font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#09090B] tracking-[-0.03em] leading-[1.08]">
+            Transparent Scopes. Built to Perform.
           </h2>
-          <p className="mt-2 text-xs sm:text-sm text-slate-600">
-            Select a category below to compare tiers or build a custom WhatsApp order.
+          <p className="mt-2.5 text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl">
+            Explore our core capabilities below. Select any tier or deliverable to build your structured WhatsApp project brief.
           </p>
         </div>
 
-        {/* High-Craft Segmented Tab Bar */}
-        <div className="flex items-center justify-start sm:justify-center overflow-x-auto pb-2 mb-7 sm:mb-9 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
-          <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl bg-white shadow-[0_8px_24px_-8px_rgba(15,23,42,0.08)]">
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => onTabChange(tab.id)}
-                  className={`relative px-3.5 sm:px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 ${
-                    isActive
-                      ? 'bg-[#0F172A] text-white shadow-sm'
-                      : 'text-slate-600 hover:text-[#0F172A] hover:bg-[#F4F6FB]'
+        {/* Clean Horizontal Category Pills (.no-scrollbar) */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 sm:mb-10 border-b border-slate-200/80 -mx-5 px-5 sm:mx-0 sm:px-0 no-scrollbar">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => onTabChange(tab.id)}
+                className={`px-4 sm:px-5 py-2.5 rounded-full text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 border ${
+                  isActive
+                    ? 'bg-[#09090B] text-white border-[#09090B]'
+                    : 'bg-[#F5F5F7] text-slate-600 border-transparent hover:border-slate-300 hover:text-[#09090B]'
+                }`}
+              >
+                <span>{tab.label}</span>
+                <span
+                  className={`text-[10px] font-mono tabular-nums ${
+                    isActive ? 'text-blue-400' : 'text-slate-400'
                   }`}
                 >
-                  <span className={isActive ? 'text-blue-400' : 'text-[#2563EB]'}>
-                    {tab.icon}
+                  {tab.priceTag}
+                </span>
+                {tab.hasActiveSelection && (
+                  <span className="text-[10px] font-bold text-emerald-400">
+                    ✓
                   </span>
-                  <span>{tab.label}</span>
-                  <span
-                    className={`text-[10px] font-mono px-1.5 py-0.5 rounded-md tabular-nums ${
-                      isActive
-                        ? 'bg-white/15 text-blue-200'
-                        : 'bg-[#F4F6FB] text-slate-600'
-                    }`}
-                  >
-                    {tab.priceTag}
-                  </span>
-                  {tab.hasActiveSelection && (
-                    <span className="text-[10px] font-bold text-emerald-500">
-                      ✓
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* Active Tab Panel */}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, MessageCircle } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, MessageCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useContent } from '../context/ContentContext';
 import { ensureRupee } from '../utils/whatsapp';
@@ -12,24 +12,11 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ onSelectServiceTab }) => {
   const { content, openWhatsAppMessage, formatWhatsAppTemplate } = useContent();
-  const heroData = content.hero;
 
   const rawWebPrice = content.websitePlans?.[0]?.price || '₹999';
   const websiteStartPrice = rawWebPrice.includes('/')
     ? ensureRupee(rawWebPrice)
     : `${ensureRupee(rawWebPrice)}/yr`;
-
-  const admissionPrice = content.admissionServices?.package
-    ? ensureRupee(content.admissionServices.package.price)
-    : '₹449';
-
-  const examPrice = content.examServices?.package
-    ? ensureRupee(content.examServices.package.price)
-    : '₹499';
-
-  const monthlyPrice = content.monthlyCreativePlans?.plans?.[0]
-    ? `${ensureRupee(content.monthlyCreativePlans.plans[0].price)}/mo`
-    : '₹499/mo';
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -41,7 +28,7 @@ export const Hero: React.FC<HeroProps> = ({ onSelectServiceTab }) => {
     }
   };
 
-  const handlePriceJump = (tab: ServiceTabKey) => {
+  const handleJumpToTab = (tab: ServiceTabKey) => {
     if (onSelectServiceTab) {
       onSelectServiceTab(tab);
     }
@@ -53,119 +40,137 @@ export const Hero: React.FC<HeroProps> = ({ onSelectServiceTab }) => {
     openWhatsAppMessage(msg);
   };
 
-  const rateItems: Array<{ label: string; price: string; tab: ServiceTabKey }> = [
-    { label: 'Websites', price: websiteStartPrice, tab: 'websites' },
-    { label: 'Admission', price: admissionPrice, tab: 'admission' },
-    { label: 'Exams', price: examPrice, tab: 'exam' },
-    { label: 'Creatives', price: monthlyPrice, tab: 'creative' },
-  ];
-
   return (
-    <section className="relative pt-24 pb-12 sm:pt-30 sm:pb-16 lg:pt-34 lg:pb-20 bg-[#FFFFFF] text-[#0F172A] overflow-hidden">
-      {/* Architectural Dot-Grid & Soft Radial Blue/Indigo Studio Glow */}
+    <section className="relative pt-26 pb-12 sm:pt-34 sm:pb-16 lg:pt-38 lg:pb-20 bg-[#FFFFFF] text-[#09090B] border-b border-slate-200/80 overflow-hidden">
+      {/* Subtle Architectural Grid & Soft Electric-Blue Radial Ambient Light */}
       <div aria-hidden="true" className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
-          className="absolute inset-0 opacity-[0.55]"
+          className="absolute inset-0 opacity-[0.45]"
           style={{
-            backgroundImage: 'radial-gradient(#CBD5E1 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
-            maskImage: 'radial-gradient(ellipse 80% 70% at 50% 25%, #000 40%, transparent 100%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 80% 70% at 50% 25%, #000 40%, transparent 100%)',
+            backgroundImage:
+              'linear-gradient(to right, rgba(226,232,240,0.6) 1px, transparent 1px), linear-gradient(to bottom, rgba(226,232,240,0.6) 1px, transparent 1px)',
+            backgroundSize: '56px 56px',
+            maskImage: 'radial-gradient(ellipse 90% 75% at 25% 15%, #000 30%, transparent 100%)',
+            WebkitMaskImage:
+              'radial-gradient(ellipse 90% 75% at 25% 15%, #000 30%, transparent 100%)',
           }}
         />
-        <div className="absolute -top-28 left-1/2 -translate-x-1/2 w-[680px] sm:w-[920px] h-[360px] bg-gradient-to-tr from-[#2563EB]/14 via-indigo-500/10 to-sky-400/5 blur-3xl rounded-full" />
+        <div className="absolute -top-36 -left-24 w-[620px] sm:w-[880px] h-[420px] bg-gradient-to-br from-[#2563EB]/12 via-blue-400/6 to-transparent blur-3xl rounded-full" />
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-        {/* Crisp Eyebrow Pill — Clean Wrapping, Zero Truncation */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="inline-flex items-center justify-center px-3.5 py-1.5 rounded-full bg-[#F4F6FB] border border-slate-200/80 mb-5 shadow-[0_2px_10px_-3px_rgba(15,23,42,0.05)]"
-        >
-          <span className="font-['Outfit'] font-bold text-[10px] sm:text-[11px] text-[#2563EB] tracking-[0.12em] uppercase">
-            DIGITAL STUDIO FOR INSTITUTIONS &amp; BUSINESSES
-          </span>
-        </motion.div>
-
-        {/* Bold Tight-Tracked Editorial Display Headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.04 }}
-          className="font-['Outfit'] font-extrabold text-[2.15rem] sm:text-5xl lg:text-[3.65rem] tracking-[-0.03em] leading-[1.08] max-w-3xl mx-auto mb-4 text-[#0F172A] text-balance"
-        >
-          {heroData.heading || 'Digital solutions that move your institution'}{' '}
-          <span className="bg-gradient-to-r from-[#2563EB] to-indigo-600 bg-clip-text text-transparent">
-            {heroData.headingHighlight || 'forward.'}
-          </span>
-        </motion.h1>
-
-        {/* Concise 2-Line Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.08 }}
-          className="text-sm sm:text-base lg:text-[17px] text-slate-600 font-normal leading-relaxed max-w-xl mx-auto mb-7"
-        >
-          Turnkey institutional websites, admission suites, typed exam papers, and monthly design retainers delivered in 48–72 hours.
-        </motion.p>
-
-        {/* 2 Balanced Primary & Secondary Action Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.12 }}
-          className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-sm sm:max-w-none mx-auto mb-8 sm:mb-10"
-        >
-          <button
-            type="button"
-            onClick={handleWhatsAppHero}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 text-xs sm:text-sm font-bold text-white bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-[0.98] rounded-xl shadow-[0_10px_25px_-6px_rgba(37,99,235,0.45)] transition-all cursor-pointer whitespace-nowrap"
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
+        {/* Confident Left-Aligned Editorial Layout */}
+        <div className="max-w-4xl">
+          {/* Top Live Studio Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="inline-flex items-center gap-2.5 mb-5 sm:mb-6"
           >
-            <MessageCircle className="w-4 h-4 shrink-0" />
-            <span>Chat on WhatsApp</span>
-          </button>
+            <span className="relative flex h-2 w-2 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+            </span>
+            <span className="font-['Outfit'] font-bold text-[11px] sm:text-xs text-slate-600 tracking-[0.14em] uppercase">
+              ELEVATE STUDIO • WEB, MARKETING &amp; INSTITUTIONAL SYSTEMS
+            </span>
+          </motion.div>
 
-          <button
-            type="button"
-            onClick={() => scrollToSection('portfolio')}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 text-xs sm:text-sm font-bold text-[#0F172A] bg-white hover:bg-[#F4F6FB] border border-slate-300/90 hover:border-slate-400 active:scale-[0.98] rounded-xl shadow-[0_4px_14px_-4px_rgba(15,23,42,0.06)] transition-all cursor-pointer whitespace-nowrap"
+          {/* Large Authoritative Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.04 }}
+            className="font-['Outfit'] font-extrabold text-[2.35rem] sm:text-6xl lg:text-[4.35rem] tracking-[-0.035em] leading-[1.04] text-[#09090B] mb-5 sm:mb-6"
           >
-            <span>View Built Sites</span>
-            <ArrowRight className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-          </button>
-        </motion.div>
+            We Build High-Converting Websites &amp;{' '}
+            <span className="text-[#2563EB]">Digital Brands.</span>
+          </motion.h1>
 
-        {/* Unified Starting Rates Strip (Replaces 4 Boxy Price Cards) */}
+          {/* Crisp Editorial Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.08 }}
+            className="text-base sm:text-lg lg:text-xl text-slate-600 font-normal leading-relaxed max-w-2xl mb-8 sm:mb-10"
+          >
+            ELEVATE crafts bespoke institutional &amp; business websites, digital marketing creatives, admission funnels, and academic systems with 48–72h turnaround.
+          </motion.p>
+
+          {/* 2 Clean Action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: 0.12 }}
+            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-12 sm:mb-16"
+          >
+            <button
+              type="button"
+              onClick={handleWhatsAppHero}
+              className="inline-flex items-center justify-center gap-2.5 px-7 py-4 text-xs sm:text-sm font-bold text-white bg-[#09090B] hover:bg-[#2563EB] active:scale-[0.99] rounded-full transition-colors cursor-pointer"
+            >
+              <MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>Start a Project on WhatsApp</span>
+              <ArrowUpRight className="w-4 h-4 text-slate-400 shrink-0" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => scrollToSection('portfolio')}
+              className="inline-flex items-center justify-center gap-2 px-7 py-4 text-xs sm:text-sm font-bold text-[#09090B] bg-transparent hover:bg-[#F5F5F7] border border-slate-300 hover:border-[#09090B] active:scale-[0.99] rounded-full transition-all cursor-pointer"
+            >
+              <span>See Selected Work</span>
+              <ArrowDownRight className="w-4 h-4 text-[#2563EB] shrink-0" />
+            </button>
+          </motion.div>
+        </div>
+
+        {/* Clean Editorial KPI / Capabilities Strip Separated by 1px Hairline Dividers */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.16 }}
-          className="inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 px-4 sm:px-5 py-2.5 rounded-2xl bg-[#F4F6FB] border border-slate-200/70 text-xs sm:text-[13px] text-slate-600 mx-auto"
+          className="pt-8 border-t border-slate-200/80 grid grid-cols-3 gap-4 sm:gap-8 divide-x divide-slate-200/80"
         >
-          {rateItems.map((item, idx) => (
-            <React.Fragment key={item.tab}>
-              <button
-                type="button"
-                onClick={() => handlePriceJump(item.tab)}
-                className="inline-flex items-center gap-1.5 py-0.5 px-1.5 rounded-lg hover:bg-white hover:text-[#2563EB] transition-colors cursor-pointer group"
-              >
-                <span className="font-medium text-slate-600 group-hover:text-[#2563EB] transition-colors">
-                  {item.label}
-                </span>
-                <span className="font-['Outfit'] font-bold text-[#0F172A] group-hover:text-[#2563EB] tabular-nums transition-colors">
-                  {item.price}
-                </span>
-              </button>
-              {idx < rateItems.length - 1 && (
-                <span aria-hidden="true" className="text-slate-300 select-none">
-                  •
-                </span>
-              )}
-            </React.Fragment>
-          ))}
+          <button
+            type="button"
+            onClick={() => scrollToSection('how-it-works')}
+            className="text-left pr-2 sm:pr-6 group cursor-pointer"
+          >
+            <div className="font-['Outfit'] font-extrabold text-xl sm:text-3xl text-[#09090B] group-hover:text-[#2563EB] tracking-[-0.03em] tabular-nums transition-colors">
+              48h
+            </div>
+            <div className="text-[11px] sm:text-xs font-medium text-slate-500 mt-0.5 leading-snug">
+              Launch Speed
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleJumpToTab('websites')}
+            className="text-left pl-4 sm:pl-8 pr-2 sm:pr-6 group cursor-pointer"
+          >
+            <div className="font-['Outfit'] font-extrabold text-xl sm:text-3xl text-[#09090B] group-hover:text-[#2563EB] tracking-[-0.03em] tabular-nums transition-colors">
+              {websiteStartPrice}
+            </div>
+            <div className="text-[11px] sm:text-xs font-medium text-slate-500 mt-0.5 leading-snug">
+              Turnkey Websites
+            </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleJumpToTab('creative')}
+            className="text-left pl-4 sm:pl-8 group cursor-pointer"
+          >
+            <div className="font-['Outfit'] font-extrabold text-xl sm:text-3xl text-[#09090B] group-hover:text-[#2563EB] tracking-[-0.03em] tabular-nums transition-colors">
+              100%
+            </div>
+            <div className="text-[11px] sm:text-xs font-medium text-slate-500 mt-0.5 leading-snug">
+              Custom Design
+            </div>
+          </button>
         </motion.div>
       </div>
     </section>

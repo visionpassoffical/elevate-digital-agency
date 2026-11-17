@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ArrowRight, MessageCircle, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import React from 'react';
+import { ArrowUpRight, MessageCircle } from 'lucide-react';
 import type { MonthlyCreativePlanConfig, SelectedMonthlyPlan } from '../types';
 import { useContent } from '../context/ContentContext';
 
@@ -9,6 +9,17 @@ interface MonthlyCreativeSectionProps {
   embedded?: boolean;
 }
 
+const DEFAULT_CREATIVE_TAGS = [
+  'Posters',
+  'Social Media Ads',
+  'Event Invites',
+  'Circulars',
+  'WhatsApp Status',
+  'Branding',
+  'Admission Flyers',
+  'Achievement Banners',
+];
+
 export const MonthlyCreativeSection: React.FC<MonthlyCreativeSectionProps> = ({
   selectedPlan,
   onSelectPlan,
@@ -16,9 +27,8 @@ export const MonthlyCreativeSection: React.FC<MonthlyCreativeSectionProps> = ({
 }) => {
   const { content, openWhatsAppMessage, formatWhatsAppTemplate } = useContent();
   const plans = content.monthlyCreativePlans.plans || [];
-  const creativeTypes = content.monthlyCreativePlans.creativeTypes || [];
-
-  const [isCreativeListExpanded, setIsCreativeListExpanded] = useState(false);
+  const configuredTypes = (content.monthlyCreativePlans.creativeTypes || []).map((t) => t.label);
+  const tagItems = Array.from(new Set([...DEFAULT_CREATIVE_TAGS, ...configuredTypes]));
 
   const handleTogglePlan = (planId: string) => {
     if (selectedPlan?.id === planId) {
@@ -54,164 +64,132 @@ export const MonthlyCreativeSection: React.FC<MonthlyCreativeSectionProps> = ({
   };
 
   const innerContent = (
-    <div id="creative" className="scroll-mt-24 pt-2">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
-        {/* LEFT COLUMN: Included Formats Showcase (5 cols) */}
-        <div className="lg:col-span-5">
-          {!embedded && (
-            <div className="mb-6">
-              <h2 className="font-['Outfit'] font-extrabold text-2xl sm:text-3xl text-[#0F172A] tracking-tight mb-2">
-                Monthly Creative Retainers
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Keep your campus social channels active and dignified with fixed-price monthly design quotas.
-              </p>
-            </div>
-          )}
+    <div id="creative" className="scroll-mt-24">
+      {/* Sleek Horizontal Scrolling Tag Strip (Replaces Bulky Checklist Box) */}
+      <div className="mb-7 sm:mb-8">
+        <div className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-3">
+          INCLUDED CREATIVE DELIVERABLES — MIX &amp; MATCH ANY FORMAT
+        </div>
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-5 px-5 sm:mx-0 sm:px-0 no-scrollbar">
+          {tagItems.map((tag) => (
+            <span
+              key={tag}
+              className="px-3.5 py-1.5 rounded-full bg-[#F5F5F7] border border-slate-200/80 text-xs font-semibold text-[#09090B] whitespace-nowrap shrink-0"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
 
-          <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-[0_10px_30px_-10px_rgba(15,23,42,0.08)]">
-            <div className="flex items-center justify-between gap-2 pb-3.5 border-b border-slate-100 mb-4">
+      {/* 3-Column Editorial Retainer Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 items-stretch">
+        {plans.map((plan) => {
+          const isSelected = selectedPlan?.id === plan.id;
+          const isPopular = plan.isPopular;
+
+          return (
+            <div
+              key={plan.id}
+              id={`monthly-plan-card-${plan.id}`}
+              onClick={() => handleTogglePlan(plan.id)}
+              className={`relative rounded-2xl p-6 sm:p-7 transition-all duration-200 cursor-pointer flex flex-col justify-between ${
+                isPopular
+                  ? 'bg-[#09090B] text-white border border-[#09090B]'
+                  : isSelected
+                  ? 'bg-white text-[#09090B] border-2 border-[#2563EB]'
+                  : 'bg-white text-[#09090B] border border-slate-200/90 hover:border-slate-400'
+              }`}
+            >
               <div>
-                <h3 className="font-['Outfit'] font-bold text-base sm:text-lg text-[#0F172A]">
-                  Included Design Formats
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-[0.14em] ${
+                      isPopular ? 'text-[#2563EB]' : 'text-slate-400'
+                    }`}
+                  >
+                    {isPopular ? 'MOST POPULAR RETAINER' : 'MONTHLY RETAINER'}
+                  </span>
+                  {isSelected && (
+                    <span className="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 rounded-full">
+                      Selected
+                    </span>
+                  )}
+                </div>
+
+                <h3
+                  className={`font-['Outfit'] font-extrabold text-xl sm:text-2xl tracking-[-0.02em] mb-2 ${
+                    isPopular ? 'text-white' : 'text-[#09090B]'
+                  }`}
+                >
+                  {plan.name}
                 </h3>
-                <p className="text-xs text-slate-500">
-                  Mix &amp; match any format within your monthly quota
+
+                <div className="mb-4 flex items-baseline">
+                  <span
+                    className={`font-['Outfit'] font-extrabold text-3xl sm:text-4xl tracking-[-0.03em] tabular-nums ${
+                      isPopular ? 'text-white' : 'text-[#09090B]'
+                    }`}
+                  >
+                    ₹{plan.price}
+                  </span>
+                  <span
+                    className={`ml-1.5 text-xs font-medium ${
+                      isPopular ? 'text-slate-400' : 'text-slate-500'
+                    }`}
+                  >
+                    /month
+                  </span>
+                </div>
+
+                <div
+                  className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-4 ${
+                    isPopular
+                      ? 'bg-white/10 text-blue-300'
+                      : 'bg-[#F5F5F7] text-[#2563EB]'
+                  }`}
+                >
+                  {plan.creativesCountLabel} per month
+                </div>
+
+                <p
+                  className={`text-xs sm:text-sm leading-relaxed mb-6 ${
+                    isPopular ? 'text-slate-300' : 'text-slate-600'
+                  }`}
+                >
+                  {plan.description || 'Bespoke social media posters, circulars, and digital campaign assets delivered in 24–48h.'}
                 </p>
               </div>
+
               <button
                 type="button"
-                onClick={() => setIsCreativeListExpanded(!isCreativeListExpanded)}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#F4F6FB] hover:bg-slate-200/70 text-xs font-semibold text-slate-700 transition-colors cursor-pointer shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleTogglePlan(plan.id);
+                }}
+                className={`w-full py-3.5 px-5 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap ${
+                  isSelected
+                    ? 'bg-emerald-600 text-white hover:bg-emerald-500'
+                    : isPopular
+                    ? 'bg-[#2563EB] text-white hover:bg-blue-500'
+                    : 'bg-[#09090B] text-white hover:bg-[#2563EB]'
+                }`}
               >
-                <span>{isCreativeListExpanded ? 'Show Less' : `View All (${creativeTypes.length})`}</span>
-                {isCreativeListExpanded ? (
-                  <ChevronUp className="w-3.5 h-3.5" />
+                {isSelected ? (
+                  <>
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>Confirm Retainer (₹{plan.price}/mo)</span>
+                  </>
                 ) : (
-                  <ChevronDown className="w-3.5 h-3.5" />
+                  <>
+                    <span>Select {plan.name}</span>
+                    <ArrowUpRight className="w-4 h-4" />
+                  </>
                 )}
               </button>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 gap-x-3">
-              {(isCreativeListExpanded ? creativeTypes : creativeTypes.slice(0, 6)).map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-start gap-2 text-xs font-medium text-slate-700"
-                >
-                  <Check className="w-3.5 h-3.5 text-[#2563EB] shrink-0 mt-0.5" />
-                  <span className="leading-snug">{item.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT COLUMN: Plan Cards (7 cols) */}
-        <div className="lg:col-span-7 space-y-3.5">
-          {plans.map((plan) => {
-            const isSelected = selectedPlan?.id === plan.id;
-            const isPopular = plan.isPopular;
-
-            return (
-              <div
-                key={plan.id}
-                id={`monthly-plan-card-${plan.id}`}
-                onClick={() => handleTogglePlan(plan.id)}
-                className={`relative rounded-2xl p-5 sm:p-6 transition-all duration-200 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                  isPopular
-                    ? 'bg-[#0F172A] text-white shadow-[0_18px_40px_-14px_rgba(15,23,42,0.4)]'
-                    : isSelected
-                    ? 'bg-white text-[#0F172A] ring-2 ring-[#2563EB] shadow-[0_10px_30px_-10px_rgba(15,23,42,0.1)]'
-                    : 'bg-white text-[#0F172A] shadow-[0_10px_30px_-10px_rgba(15,23,42,0.08)] hover:shadow-[0_14px_32px_-10px_rgba(15,23,42,0.12)]'
-                }`}
-              >
-                {isPopular && (
-                  <div className="absolute -top-2.5 left-5 px-3 py-0.5 text-[10px] font-bold tracking-[0.12em] uppercase bg-[#2563EB] text-white rounded-full shadow-xs">
-                    MOST POPULAR RETAINER
-                  </div>
-                )}
-
-                <div className="space-y-1 min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span
-                      className={`font-['Outfit'] font-extrabold text-base sm:text-lg tracking-tight ${
-                        isPopular ? 'text-white' : 'text-[#0F172A]'
-                      }`}
-                    >
-                      {plan.name}
-                    </span>
-                    {isSelected && (
-                      <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 rounded-md">
-                        Selected
-                      </span>
-                    )}
-                  </div>
-                  <div
-                    className={`text-xs font-bold ${
-                      isPopular ? 'text-blue-400' : 'text-[#2563EB]'
-                    }`}
-                  >
-                    {plan.creativesCountLabel} per month
-                  </div>
-                  <p
-                    className={`text-xs leading-relaxed ${
-                      isPopular ? 'text-slate-300' : 'text-slate-500'
-                    }`}
-                  >
-                    {plan.description || 'Fast 24–48h delivery per requested creative design.'}
-                  </p>
-                </div>
-
-                <div
-                  className={`flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3 shrink-0 pt-3 sm:pt-0 border-t sm:border-t-0 ${
-                    isPopular ? 'border-white/10' : 'border-slate-100'
-                  }`}
-                >
-                  <div className="text-left sm:text-right">
-                    <div
-                      className={`font-['Outfit'] font-extrabold text-2xl tracking-tight tabular-nums ${
-                        isPopular ? 'text-white' : 'text-[#0F172A]'
-                      }`}
-                    >
-                      ₹{plan.price}
-                    </div>
-                    <div className="text-[10px] text-slate-400 font-medium">
-                      per month
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleTogglePlan(plan.id);
-                    }}
-                    className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 ${
-                      isSelected
-                        ? 'bg-emerald-600 text-white hover:bg-emerald-500'
-                        : isPopular
-                        ? 'bg-[#2563EB] text-white hover:bg-blue-500 shadow-[0_6px_20px_-4px_rgba(37,99,235,0.55)]'
-                        : 'bg-[#0F172A] text-white hover:bg-[#2563EB]'
-                    }`}
-                  >
-                    {isSelected ? (
-                      <>
-                        <MessageCircle className="w-3.5 h-3.5" />
-                        <span>Confirm (₹{plan.price})</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Select Plan</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -221,8 +199,8 @@ export const MonthlyCreativeSection: React.FC<MonthlyCreativeSectionProps> = ({
   }
 
   return (
-    <section className="py-12 sm:py-16 bg-[#F4F6FB] text-[#0F172A] relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section className="py-14 sm:py-20 bg-[#FFFFFF] text-[#09090B] relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
         {innerContent}
       </div>
     </section>

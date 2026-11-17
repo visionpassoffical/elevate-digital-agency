@@ -1,76 +1,77 @@
 import React, { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { Plus, Minus } from 'lucide-react';
 import { useContent } from '../context/ContentContext';
 
 export const FaqSection: React.FC = () => {
   const { content } = useContent();
-  const config = content.faq;
-  const items = (config?.items || []).filter((faq) => faq.enabled !== false);
-
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
-  const toggleFaq = (index: number) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
+  const visibleFaqs = (content.faq?.items || [])
+    .filter((item) => item.enabled !== false)
+    .slice(0, 4);
 
   return (
     <section
       id="faq"
-      className="py-12 sm:py-16 bg-[#F4F6FB] text-[#0F172A] border-t border-slate-200/70 scroll-mt-16 relative overflow-hidden"
+      className="py-16 sm:py-24 bg-[#F5F5F7] text-[#09090B] border-b border-slate-200/80 relative overflow-hidden"
     >
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Compact Section Header */}
-        <div className="mb-8 sm:mb-10 text-center">
-          <div className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#2563EB] mb-1.5">
-            {config?.sectionBadge || 'COMMON QUESTIONS'}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
+          {/* Left Column: Editorial Heading */}
+          <div className="lg:col-span-5">
+            <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2563EB] mb-3">
+              <span>05 / FAQ</span>
+            </div>
+            <h2 className="font-['Outfit'] font-extrabold text-3xl sm:text-5xl text-[#09090B] tracking-[-0.03em] leading-[1.06] mb-4">
+              Common Questions.
+            </h2>
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-sm">
+              Clear answers on turnaround speed, domain ownership, custom features, and ongoing studio support.
+            </p>
           </div>
-          <h2 className="font-['Outfit'] font-extrabold text-2xl sm:text-3xl text-[#0F172A] tracking-tight mb-1.5">
-            {config?.sectionTitle || 'Frequently Asked Questions'}
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto">
-            {config?.sectionSubtitle ||
-              'Quick answers on pricing, turnaround times, domain setup, and WhatsApp ordering.'}
-          </p>
-        </div>
 
-        {/* Clean Elevated Accordion Container */}
-        <div className="bg-white rounded-3xl shadow-[0_10px_30px_-10px_rgba(15,23,42,0.08)] divide-y divide-slate-100 overflow-hidden">
-          {items.map((faq, index) => {
-            const isOpen = openIndex === index;
-            return (
-              <div key={faq.id || faq.question} className="transition-colors">
-                <button
-                  type="button"
-                  onClick={() => toggleFaq(index)}
-                  className="w-full text-left px-5 sm:px-6 py-4 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50/70 transition-colors"
-                  aria-expanded={isOpen}
-                >
-                  <h3
-                    className={`font-['Outfit'] font-bold text-sm sm:text-base transition-colors leading-snug ${
-                      isOpen ? 'text-[#2563EB]' : 'text-[#0F172A]'
-                    }`}
+          {/* Right Column: Hairline Accordion (No Box Inside a Box) */}
+          <div className="lg:col-span-7 border-t border-b border-slate-200/80 divide-y divide-slate-200/80">
+            {visibleFaqs.map((faq, idx) => {
+              const isOpen = openIndex === idx;
+              return (
+                <div key={faq.id} className="py-5 sm:py-6">
+                  <button
+                    type="button"
+                    onClick={() => setOpenIndex(isOpen ? null : idx)}
+                    className="w-full text-left flex items-start justify-between gap-6 group cursor-pointer"
                   >
-                    {faq.question}
-                  </h3>
-                  <div
-                    className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-transform duration-200 ${
-                      isOpen
-                        ? 'rotate-180 bg-blue-50 text-[#2563EB]'
-                        : 'bg-[#F4F6FB] text-slate-500'
-                    }`}
-                  >
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  </div>
-                </button>
-
-                {isOpen && (
-                  <div className="px-5 sm:px-6 pb-4 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    {faq.answer}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                    <div className="flex items-baseline gap-3.5">
+                      <span className="font-['Outfit'] font-bold text-xs text-[#2563EB] tracking-wider shrink-0">
+                        0{idx + 1}
+                      </span>
+                      <span className="font-['Outfit'] font-bold text-base sm:text-lg text-[#09090B] group-hover:text-[#2563EB] transition-colors leading-snug">
+                        {faq.question}
+                      </span>
+                    </div>
+                    <div
+                      className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-colors mt-0.5 ${
+                        isOpen
+                          ? 'bg-[#09090B] text-white'
+                          : 'bg-white text-[#09090B] border border-slate-300 group-hover:border-[#09090B]'
+                      }`}
+                    >
+                      {isOpen ? (
+                        <Minus className="w-3.5 h-3.5" />
+                      ) : (
+                        <Plus className="w-3.5 h-3.5" />
+                      )}
+                    </div>
+                  </button>
+                  {isOpen && (
+                    <div className="pt-3 pl-7 pr-4 text-slate-600 text-sm sm:text-[15px] leading-relaxed">
+                      {faq.answer}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

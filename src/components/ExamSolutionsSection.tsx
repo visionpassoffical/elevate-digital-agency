@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, ArrowRight, MessageCircle, Plus, Minus } from 'lucide-react';
+import { Check, ArrowUpRight, MessageCircle, Plus, Minus } from 'lucide-react';
 import type { SelectedServiceItem } from '../types';
 import { useContent } from '../context/ContentContext';
 
@@ -187,37 +187,28 @@ export const ExamSolutionsSection: React.FC<ExamSolutionsSectionProps> = ({
   };
 
   const innerContent = (
-    <div id="exam" className="scroll-mt-24 pt-2">
-      {!embedded && (
-        <div className="max-w-3xl mb-10">
-          <h2 className="font-['Outfit'] font-extrabold text-2xl sm:text-3xl text-[#0F172A] tracking-tight">
-            {examPackage.name || 'Exam Solutions'}
-          </h2>
-          <p className="mt-2 text-sm text-slate-600">{examPackage.description}</p>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-start">
-        {/* FLAGSHIP DARK NAVY EXAM BUNDLE CARD */}
-        <div className="lg:col-span-5 bg-[#0F172A] text-white rounded-2xl p-6 sm:p-7 shadow-[0_20px_45px_-15px_rgba(15,23,42,0.45)] relative flex flex-col justify-between">
-          <div className="absolute -top-3 left-6 px-3 py-1 text-[10px] font-bold tracking-[0.12em] uppercase bg-[#2563EB] text-white rounded-full shadow-[0_4px_12px_rgba(37,99,235,0.45)]">
-            COMPLETE EXAM SUITE
-          </div>
-
+    <div id="exam" className="scroll-mt-24">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+        {/* FLAGSHIP DEEP CARBON (#09090B) EXAM BUNDLE CARD */}
+        <div className="lg:col-span-5 bg-[#09090B] text-white rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between gap-2 mb-3 pt-1 flex-wrap">
-              <span className="font-['Outfit'] font-extrabold text-xl text-white tracking-tight">
-                Complete Exam Suite
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <span className="text-[10px] font-bold tracking-[0.14em] uppercase text-[#2563EB]">
+                COMPLETE EXAMINATION PACK
               </span>
               {packageSavings > 0 && (
-                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 tabular-nums">
+                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 tabular-nums">
                   Save ₹{packageSavings}
                 </span>
               )}
             </div>
 
-            <div className="mb-3 flex items-baseline">
-              <span className="font-['Outfit'] font-extrabold text-3xl sm:text-4xl text-white tracking-tight tabular-nums">
+            <h3 className="font-['Outfit'] font-extrabold text-2xl text-white tracking-[-0.02em] mb-3">
+              Complete Exam Suite
+            </h3>
+
+            <div className="mb-4 flex items-baseline">
+              <span className="font-['Outfit'] font-extrabold text-3xl sm:text-4xl text-white tracking-[-0.03em] tabular-nums">
                 ₹{examPackage.price}
               </span>
               <span className="ml-2 text-xs font-medium text-slate-400 line-through tabular-nums">
@@ -225,11 +216,11 @@ export const ExamSolutionsSection: React.FC<ExamSolutionsSectionProps> = ({
               </span>
             </div>
 
-            <p className="text-xs sm:text-[13px] text-slate-300 leading-relaxed mb-5">
-              All-in-one examination documentation ready for campus distribution and student evaluation.
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6 pb-6 border-b border-white/10">
+              All-in-one examination documentation ready for campus printing and student evaluation.
             </p>
 
-            <div className="space-y-3 mb-6 pt-4 border-t border-white/10">
+            <div className="space-y-3 mb-8">
               {(
                 examPackage.includes || [
                   'Handwritten → Typed Question Paper PDF',
@@ -238,8 +229,8 @@ export const ExamSolutionsSection: React.FC<ExamSolutionsSectionProps> = ({
                   'Hall Ticket Design',
                 ]
               ).map((item, idx) => (
-                <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-[13px] text-slate-200">
-                  <Check className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-200">
+                  <Check className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
                   <span className="font-medium leading-snug">{item}</span>
                 </div>
               ))}
@@ -249,10 +240,10 @@ export const ExamSolutionsSection: React.FC<ExamSolutionsSectionProps> = ({
           <button
             type="button"
             onClick={handleSelectPackage}
-            className={`w-full py-3.5 px-4 rounded-xl text-xs font-bold active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            className={`w-full py-3.5 px-5 rounded-full text-xs font-bold active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer ${
               selectionMode === 'package'
-                ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
-                : 'bg-[#2563EB] hover:bg-blue-500 text-white shadow-[0_8px_25px_-4px_rgba(37,99,235,0.6)]'
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                : 'bg-[#2563EB] hover:bg-blue-500 text-white'
             }`}
           >
             {selectionMode === 'package' ? (
@@ -262,38 +253,33 @@ export const ExamSolutionsSection: React.FC<ExamSolutionsSectionProps> = ({
               </>
             ) : (
               <>
-                <span>Select Complete Package (₹{examPackage.price})</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <span>Select Complete Suite (₹{examPackage.price})</span>
+                <ArrowUpRight className="w-4 h-4" />
               </>
             )}
           </button>
         </div>
 
-        {/* INDIVIDUAL SERVICES SELECTION (CLEAN LIGHT SURFACE, ZERO TRUNCATION) */}
-        <div className="lg:col-span-7 bg-white rounded-2xl p-5 sm:p-6 shadow-[0_10px_30px_-10px_rgba(15,23,42,0.08)]">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100 mb-4">
+        {/* INDIVIDUAL EXAM ITEMS (ARCHITECTURAL HAIRLINE LIST) */}
+        <div className="lg:col-span-7">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-200/80 mb-3">
             <div>
-              <h3 className="font-['Outfit'] font-bold text-base sm:text-lg text-[#0F172A]">
-                Or Select Individual Exam Items
+              <h3 className="font-['Outfit'] font-extrabold text-lg sm:text-xl text-[#09090B]">
+                Individual Exam Deliverables
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 mt-0.5">
                 Choose question papers, answer keys, timetables, or hall tickets
               </p>
             </div>
 
             {selectionMode === 'individual' && selectedIndividualServices.length > 0 && (
-              <div className="flex items-center gap-1.5 bg-blue-50 px-3 py-1 rounded-lg self-start sm:self-auto">
-                <span className="text-[11px] font-semibold text-[#2563EB]">
-                  {selectedIndividualServices.length} selected:
-                </span>
-                <span className="font-['Outfit'] font-extrabold text-xs text-[#0F172A] tabular-nums">
-                  ₹{individualTotal}
-                </span>
+              <div className="text-xs font-bold text-[#2563EB] tabular-nums">
+                {selectedIndividualServices.length} selected · ₹{individualTotal}
               </div>
             )}
           </div>
 
-          <div className="space-y-2.5">
+          <div className="divide-y divide-slate-200/80 border-b border-slate-200/80">
             {individualServicesList.map((service) => {
               const isSelected = selectedIndividualIds.includes(service.id);
               const qty = service.allowsQuantity ? quantities[service.id] || 1 : 1;
@@ -303,17 +289,15 @@ export const ExamSolutionsSection: React.FC<ExamSolutionsSectionProps> = ({
                 <div
                   key={service.id}
                   onClick={() => handleToggleService(service.id)}
-                  className={`p-3.5 sm:p-4 rounded-xl transition-all duration-150 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                    isSelected
-                      ? 'bg-blue-50/70 ring-2 ring-[#2563EB]'
-                      : 'bg-[#F4F6FB] hover:bg-slate-100/90'
+                  className={`py-4 px-3 -mx-3 rounded-xl transition-colors cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                    isSelected ? 'bg-blue-50/60' : 'hover:bg-[#F5F5F7]'
                   }`}
                 >
-                  <div className="flex items-start gap-3 min-w-0 flex-1">
+                  <div className="flex items-start gap-3.5 min-w-0 flex-1">
                     <div
                       className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
                         isSelected
-                          ? 'bg-[#2563EB] border-[#2563EB] text-white'
+                          ? 'bg-[#09090B] border-[#09090B] text-white'
                           : 'border-slate-300 bg-white'
                       }`}
                     >
@@ -321,11 +305,11 @@ export const ExamSolutionsSection: React.FC<ExamSolutionsSectionProps> = ({
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <div className="font-['Outfit'] font-bold text-xs sm:text-sm text-[#0F172A] leading-snug">
+                      <div className="font-['Outfit'] font-bold text-sm sm:text-base text-[#09090B] leading-snug">
                         {service.name}
                       </div>
-                      <div className="text-[11px] sm:text-xs text-slate-500 leading-relaxed mt-0.5">
-                        {service.description || 'Institutional academic formatting'}
+                      <div className="text-xs text-slate-500 leading-relaxed mt-0.5">
+                        {service.description || 'Multilingual academic formatting'}
                       </div>
                     </div>
                   </div>
@@ -333,24 +317,24 @@ export const ExamSolutionsSection: React.FC<ExamSolutionsSectionProps> = ({
                   <div className="flex items-center justify-between sm:justify-end gap-3 self-stretch sm:self-auto pl-7 sm:pl-0">
                     {service.allowsQuantity && (
                       <div
-                        className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-0.5"
+                        className="flex items-center gap-1 bg-white border border-slate-200 rounded-full p-0.5"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <button
                           type="button"
                           onClick={(e) => handleQuantityChange(service.id, -1, e)}
-                          className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer text-xs"
+                          className="w-6 h-6 rounded-full bg-[#F5F5F7] hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer text-xs"
                           title="Decrease quantity"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="w-6 text-center text-xs font-bold text-[#0F172A] tabular-nums">
+                        <span className="w-6 text-center text-xs font-bold text-[#09090B] tabular-nums">
                           {qty}
                         </span>
                         <button
                           type="button"
                           onClick={(e) => handleQuantityChange(service.id, 1, e)}
-                          className="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors cursor-pointer text-xs"
+                          className="w-6 h-6 rounded-full bg-[#F5F5F7] hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer text-xs"
                           title="Increase quantity"
                         >
                           <Plus className="w-3 h-3" />
@@ -359,7 +343,7 @@ export const ExamSolutionsSection: React.FC<ExamSolutionsSectionProps> = ({
                     )}
 
                     <div className="text-right shrink-0">
-                      <div className="font-['Outfit'] font-extrabold text-sm sm:text-base text-[#0F172A] tabular-nums">
+                      <div className="font-['Outfit'] font-extrabold text-base text-[#09090B] tabular-nums">
                         ₹{effectivePrice}
                       </div>
                       <div className="text-[10px] text-slate-400 font-medium tabular-nums">
@@ -373,17 +357,17 @@ export const ExamSolutionsSection: React.FC<ExamSolutionsSectionProps> = ({
           </div>
 
           {selectionMode === 'individual' && selectedIndividualServices.length > 0 && (
-            <div className="pt-4 mt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="pt-5 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="text-xs text-slate-600">
-                <span className="font-bold text-[#0F172A]">{selectedIndividualServices.length} items</span> added to order
+                <span className="font-bold text-[#09090B]">{selectedIndividualServices.length} items</span> selected
               </div>
               <button
                 type="button"
                 onClick={handleProceedWhatsApp}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-[#2563EB] hover:bg-[#1D4ED8] active:scale-98 transition-all cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full font-bold text-xs text-white bg-[#09090B] hover:bg-[#2563EB] transition-colors cursor-pointer"
               >
                 <MessageCircle className="w-3.5 h-3.5" />
-                <span>Enquire Selected (₹{individualTotal})</span>
+                <span>Send Scope on WhatsApp (₹{individualTotal})</span>
               </button>
             </div>
           )}
@@ -397,8 +381,8 @@ export const ExamSolutionsSection: React.FC<ExamSolutionsSectionProps> = ({
   }
 
   return (
-    <section className="py-12 sm:py-16 bg-[#FFFFFF] text-[#0F172A] relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section className="py-14 sm:py-20 bg-[#FFFFFF] text-[#09090B] relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
         {innerContent}
       </div>
     </section>

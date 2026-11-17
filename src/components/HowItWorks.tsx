@@ -1,92 +1,89 @@
 import React from 'react';
-import { useContent } from '../context/ContentContext';
+import { motion } from 'motion/react';
 
 export const HowItWorks: React.FC = () => {
-  const { content } = useContent();
-  const config = content.howItWorks;
-
-  const steps =
-    config?.steps && config.steps.length > 0
-      ? config.steps.filter((s) => s.enabled !== false).slice(0, 4)
-      : [
-          {
-            step: '01',
-            title: 'Select or Inquire',
-            description:
-              'Pick a website plan, admission kit, exam package, or creative retainer directly from our interactive tabs.',
-          },
-          {
-            step: '02',
-            title: 'Connect on WhatsApp',
-            description:
-              'Your selected items format automatically into a structured WhatsApp brief with zero login walls.',
-          },
-          {
-            step: '03',
-            title: 'Review & Refine',
-            description:
-              'We share tailored institutional previews and layout proofs for your approval with prompt revisions.',
-          },
-          {
-            step: '04',
-            title: 'Turnkey Delivery',
-            description:
-              'Your live institutional portal or print-ready HD files are delivered within 48–72 hours.',
-          },
-        ];
+  const steps = [
+    {
+      num: '01',
+      label: 'Scope on WhatsApp',
+      title: '01 / Scope on WhatsApp',
+      desc: 'Select a turnkey package or custom deliverable above. Your structured brief and pricing open directly on WhatsApp—zero lengthy agency forms.',
+      meta: 'Instant Brief & Rate Lock',
+    },
+    {
+      num: '02',
+      label: 'Design & Engineer',
+      title: '02 / Design & Engineer',
+      desc: 'Our studio designs your custom UI, configures your domain or print-ready creatives, and shares a live staging link for rapid feedback.',
+      meta: 'Live Staging Preview',
+    },
+    {
+      num: '03',
+      label: 'Launch in 48h',
+      title: '03 / Launch in 48h',
+      desc: 'Your high-converting institutional or business website goes live with SSL & hosting—or your HD creative campaign is delivered ready to publish.',
+      meta: 'Full Handover & Support',
+    },
+  ];
 
   return (
     <section
-      id="how-it-works"
-      className="py-12 sm:py-16 bg-[#FFFFFF] text-[#0F172A] scroll-mt-16 relative overflow-hidden"
+      id="process"
+      className="py-16 sm:py-24 bg-[#FFFFFF] text-[#09090B] border-b border-slate-200/80 relative overflow-hidden"
     >
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Compact Editorial Header */}
-        <div className="text-center mb-8 sm:mb-10">
-          <div className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#2563EB] mb-1.5">
-            STREAMLINED WORKFLOW
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Editorial Left-Aligned Header */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12 sm:mb-16">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#2563EB] mb-3">
+              <span>04 / EXECUTION MODEL</span>
+            </div>
+            <h2 className="font-['Outfit'] font-extrabold text-3xl sm:text-5xl text-[#09090B] tracking-[-0.03em] leading-[1.06]">
+              From Brief to Live in 48 Hours.
+            </h2>
           </div>
-          <h2 className="font-['Outfit'] font-extrabold text-2xl sm:text-3xl text-[#0F172A] tracking-tight">
-            {config?.sectionTitle || 'How ELEVATE Works'}
-          </h2>
-          <p className="mt-1.5 text-xs sm:text-sm text-slate-600 max-w-md mx-auto">
-            From your initial selection to turnkey institutional delivery in four clear steps.
+          <p className="text-slate-600 text-sm sm:text-base max-w-md leading-relaxed">
+            No bloated retainers or weeks of waiting. A streamlined 3-step studio workflow engineered for fast-moving schools, madrasas, and ambitious brands.
           </p>
         </div>
 
-        {/* Sleek Connected Vertical Stepper Timeline */}
-        <div className="relative max-w-2xl mx-auto bg-[#F4F6FB] rounded-3xl p-6 sm:p-8 shadow-[0_10px_30px_-10px_rgba(15,23,42,0.06)]">
-          <div className="relative">
-            {/* Continuous Vertical Line Connecting Circle Nodes */}
-            <div
-              aria-hidden="true"
-              className="absolute left-5 top-5 bottom-5 w-px bg-gradient-to-b from-[#2563EB] via-blue-300 to-slate-300"
-            />
-
-            <div className="space-y-6 sm:space-y-7">
-              {steps.map((item, idx) => (
-                <div
-                  key={item.step || idx}
-                  className="relative flex items-start gap-4 sm:gap-5 group"
-                >
-                  {/* Numbered Blue Circle Node */}
-                  <div className="relative z-10 w-10 h-10 rounded-full bg-[#2563EB] text-white font-['Outfit'] font-extrabold text-xs flex items-center justify-center shrink-0 shadow-[0_4px_12px_rgba(37,99,235,0.35)] ring-4 ring-[#F4F6FB]">
-                    {item.step}
-                  </div>
-
-                  {/* Clean Title + 1-Line Description */}
-                  <div className="min-w-0 flex-1 pt-0.5">
-                    <h3 className="font-['Outfit'] font-bold text-base sm:text-lg text-[#0F172A] leading-snug">
-                      {item.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mt-0.5">
-                      {item.description}
-                    </p>
-                  </div>
+        {/* 3-Column / Stacked Architectural Process with Hairline Dividers */}
+        <div className="grid grid-cols-1 md:grid-cols-3 border-t border-b border-slate-200/80 divide-y md:divide-y-0 md:divide-x divide-slate-200/80">
+          {steps.map((step, idx) => (
+            <motion.div
+              key={step.num}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ duration: 0.35, delay: idx * 0.06 }}
+              className={`py-8 sm:py-10 flex flex-col justify-between ${
+                idx === 0
+                  ? 'md:pr-8 lg:pr-10'
+                  : idx === 1
+                  ? 'md:px-8 lg:px-10'
+                  : 'md:pl-8 lg:pl-10'
+              }`}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-3 mb-5">
+                  <span className="font-['Outfit'] font-extrabold text-3xl sm:text-4xl text-[#2563EB] tracking-[-0.04em]">
+                    {step.num}
+                  </span>
+                  <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400">
+                    {step.meta}
+                  </span>
                 </div>
-              ))}
-            </div>
-          </div>
+
+                <h3 className="font-['Outfit'] font-extrabold text-xl sm:text-2xl text-[#09090B] tracking-[-0.02em] mb-3">
+                  {step.title}
+                </h3>
+
+                <p className="text-sm sm:text-[15px] text-slate-600 leading-relaxed">
+                  {step.desc}
+                </p>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

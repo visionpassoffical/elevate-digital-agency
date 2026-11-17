@@ -1,214 +1,267 @@
-import React from 'react';
-import { ArrowUp, MessageCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { MessageCircle, ArrowUpRight, Lock, Sparkles } from 'lucide-react';
+import { ElevateLogo } from './ElevateLogo';
 import { useContent } from '../context/ContentContext';
 import type { ServiceTabKey } from './Header';
 
 interface FooterProps {
-  onAdminClick: () => void;
-  onOpenQuote?: () => void;
+  onAdminClick?: () => void;
+  onOpenQuote?: (context?: string) => void;
   onSelectServiceTab?: (tab: ServiceTabKey) => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onAdminClick, onSelectServiceTab }) => {
-  const { openWhatsAppMessage } = useContent();
-  const currentYear = new Date().getFullYear();
+const QUICK_TOPICS = [
+  'Website Development',
+  'Digital Marketing & Creatives',
+  'Madrasa / School Setup',
+  'Custom Project',
+];
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+export const Footer: React.FC<FooterProps> = ({
+  onAdminClick,
+  onOpenQuote,
+  onSelectServiceTab,
+}) => {
+  const { content, openWhatsAppMessage } = useContent();
+  const [selectedTopic, setSelectedTopic] = useState<string>('Website Development');
 
-  const scrollToSection = (id: string) => {
-    const serviceTabs: Record<string, ServiceTabKey> = {
-      websites: 'websites',
-      admission: 'admission',
-      exam: 'exam',
-      creative: 'creative',
-      bulk: 'bulk',
-    };
-
-    if (serviceTabs[id] && onSelectServiceTab) {
-      onSelectServiceTab(serviceTabs[id]);
-      const servicesEl = document.getElementById('services');
-      if (servicesEl) {
-        const headerOffset = 72;
-        const elPos = servicesEl.getBoundingClientRect().top;
-        const offsetPos = elPos + window.pageYOffset - headerOffset;
-        window.scrollTo({ top: offsetPos, behavior: 'smooth' });
-        return;
-      }
-    }
-
-    const el = document.getElementById(id);
+  const scrollToServicesWithTab = (tab: ServiceTabKey) => {
+    onSelectServiceTab?.(tab);
+    const el = document.getElementById('services');
     if (el) {
-      const headerOffset = 72;
-      const elPos = el.getBoundingClientRect().top;
-      const offsetPos = elPos + window.pageYOffset - headerOffset;
-      window.scrollTo({ top: offsetPos, behavior: 'smooth' });
+      el.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  const handleQuickTopicClick = (topic: string) => {
+    setSelectedTopic(topic);
+    openWhatsAppMessage(
+      `Hello ELEVATE Studio! I would like to discuss *${topic}*. Please share package details, timeline, and next steps.`
+    );
+  };
+
+  const handleDirectWhatsApp = () => {
+    openWhatsAppMessage(
+      `Hello ELEVATE Studio! I'm interested in *${selectedTopic}*. Let's discuss how we can get started.`
+    );
+  };
+
+  const displayPhone = content.contact?.whatsappNumber || '+91 94971 22397';
+  const displayEmail = content.contact?.email || 'hello@elevatedigital.in';
+  const brandName = content.general?.brandName || 'ELEVATE';
 
   return (
-    <footer className="bg-[#0F172A] border-t border-slate-800/80 text-white relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b border-slate-800/80">
-          {/* Brand Info (5 cols) */}
-          <div className="md:col-span-5 space-y-3.5">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-xl bg-[#2563EB] flex items-center justify-center font-['Outfit'] font-black text-white text-sm shadow-sm">
-                E
-              </div>
-              <span className="font-['Outfit'] font-extrabold text-lg tracking-tight text-white">
-                ELEVATE
-              </span>
+    <footer
+      id="contact"
+      className="bg-[#09090B] text-white relative overflow-hidden"
+    >
+      {/* Subtle electric-blue studio ambient glow */}
+      <div className="pointer-events-none absolute top-0 left-1/4 w-[620px] h-[340px] bg-[#2563EB]/15 blur-[130px] rounded-full" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* TOP STUDIO FINALE CTA BLOCK */}
+        <div className="py-16 sm:py-24 border-b border-white/10">
+          <div className="max-w-4xl">
+            <div className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-blue-400 mb-4">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>06 / START A PROJECT</span>
             </div>
 
-            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-sm">
-              Digital engineering and creative studio built for schools, madrasas, colleges, and modern institutions.
+            <h2 className="font-['Outfit'] font-extrabold text-3xl sm:text-5xl lg:text-6xl text-white tracking-[-0.03em] leading-[1.05] mb-6">
+              Ready to elevate your digital presence?
+            </h2>
+
+            <p className="text-slate-400 text-base sm:text-lg max-w-2xl leading-relaxed mb-8">
+              Select a topic below to pre-fill your WhatsApp inquiry, or build a custom multi-service package with instant transparent pricing.
             </p>
 
-            <div className="pt-1 flex items-center gap-3">
+            {/* Interactive Quick-Topic Pills (Pre-fills WhatsApp on click) */}
+            <div className="mb-8">
+              <span className="block text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400 mb-3">
+                Quick-Launch Topic (Tap to Open WhatsApp):
+              </span>
+              <div className="flex flex-wrap gap-2.5">
+                {QUICK_TOPICS.map((topic) => {
+                  const isActive = selectedTopic === topic;
+                  return (
+                    <button
+                      key={topic}
+                      type="button"
+                      onClick={() => handleQuickTopicClick(topic)}
+                      className={`px-4 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer inline-flex items-center gap-2 ${
+                        isActive
+                          ? 'bg-white text-[#09090B] shadow-sm'
+                          : 'bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 border border-white/15'
+                      }`}
+                    >
+                      <span>{topic}</span>
+                      <ArrowUpRight className="w-3.5 h-3.5 opacity-75" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Primary & Secondary Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
               <button
                 type="button"
-                onClick={() =>
-                  openWhatsAppMessage(
-                    'Hello ELEVATE, I would like to enquire about your digital services.'
-                  )
-                }
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-xs font-semibold text-slate-200 transition-colors cursor-pointer"
+                onClick={handleDirectWhatsApp}
+                className="inline-flex items-center justify-center gap-2.5 bg-[#2563EB] hover:bg-blue-500 text-white font-bold px-7 py-4 rounded-full text-sm sm:text-base transition-all shadow-[0_14px_34px_-10px_rgba(37,99,235,0.65)] cursor-pointer"
               >
-                <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
-                <span>+91 94971 22397</span>
+                <MessageCircle className="w-4 h-4" />
+                <span>Chat on WhatsApp ({displayPhone})</span>
               </button>
+
+              {onOpenQuote && (
+                <button
+                  type="button"
+                  onClick={() => onOpenQuote(selectedTopic)}
+                  className="inline-flex items-center justify-center gap-2 bg-transparent hover:bg-white/[0.07] text-white font-bold px-7 py-4 rounded-full text-sm sm:text-base border border-white/20 transition-all cursor-pointer"
+                >
+                  <span>Build Custom Quote</span>
+                  <ArrowUpRight className="w-4 h-4 text-slate-300" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* BOTTOM MULTI-COLUMN FOOTER NAVIGATION */}
+        <div className="py-12 sm:py-16 grid grid-cols-1 md:grid-cols-12 gap-10 border-b border-white/10">
+          {/* Brand Column */}
+          <div className="md:col-span-5">
+            <div className="mb-4">
+              <ElevateLogo size="md" theme="dark" />
+            </div>
+            <p className="text-slate-400 text-sm max-w-sm leading-relaxed mb-6">
+              {content.footer?.brandDescription ||
+                'Boutique digital agency & institutional technology studio crafting high-converting websites, admission funnels, and brand identities.'}
+            </p>
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-400 font-medium">
+              <a
+                href={`tel:${displayPhone.replace(/\s+/g, '')}`}
+                className="hover:text-white transition-colors"
+              >
+                {displayPhone}
+              </a>
+              <span className="text-white/20">•</span>
+              <a
+                href={`mailto:${displayEmail}`}
+                className="hover:text-white transition-colors"
+              >
+                {displayEmail}
+              </a>
             </div>
           </div>
 
-          {/* Solutions Column (4 cols) */}
-          <div className="md:col-span-4 space-y-2.5">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Solutions &amp; Packages
-            </div>
-            <ul className="space-y-1.5 text-xs sm:text-sm text-slate-400">
+          {/* Capabilities Links */}
+          <div className="md:col-span-4">
+            <h4 className="font-['Outfit'] font-bold text-white mb-4 text-xs uppercase tracking-[0.16em]">
+              Studio Capabilities
+            </h4>
+            <ul className="space-y-2.5 text-sm text-slate-400">
               <li>
                 <button
                   type="button"
-                  onClick={() => scrollToSection('websites')}
+                  onClick={() => scrollToServicesWithTab('websites')}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
-                  Institutional Websites (₹999/yr)
+                  Turnkey Websites (from ₹999/yr)
                 </button>
               </li>
               <li>
                 <button
                   type="button"
-                  onClick={() => scrollToSection('admission')}
+                  onClick={() => scrollToServicesWithTab('creative')}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
-                  Admission Campaign Kit (₹449)
+                  Digital Marketing & Monthly Creatives
                 </button>
               </li>
               <li>
                 <button
                   type="button"
-                  onClick={() => scrollToSection('exam')}
+                  onClick={() => scrollToServicesWithTab('admission')}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
-                  Exam Controller Pack (₹499)
+                  Admission Campaign Funnels
                 </button>
               </li>
               <li>
                 <button
                   type="button"
-                  onClick={() => scrollToSection('creative')}
+                  onClick={() => scrollToServicesWithTab('exam')}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
-                  Monthly Creative Plans (₹499+)
+                  Exam & Result Automation Portals
                 </button>
               </li>
               <li>
                 <button
                   type="button"
-                  onClick={() => scrollToSection('bulk')}
+                  onClick={() => scrollToServicesWithTab('bulk')}
                   className="hover:text-white transition-colors cursor-pointer"
                 >
-                  Bulk ID Cards &amp; Certificates
+                  Bulk Institutional Print & Kits
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Navigation Column (3 cols) */}
-          <div className="md:col-span-3 space-y-2.5">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Navigation
-            </div>
-            <ul className="space-y-1.5 text-xs sm:text-sm text-slate-400">
+          {/* Navigation Links */}
+          <div className="md:col-span-3">
+            <h4 className="font-['Outfit'] font-bold text-white mb-4 text-xs uppercase tracking-[0.16em]">
+              Index
+            </h4>
+            <ul className="space-y-2.5 text-sm text-slate-400">
               <li>
-                <button
-                  type="button"
-                  onClick={() => scrollToSection('portfolio')}
-                  className="hover:text-white transition-colors cursor-pointer font-medium text-blue-400"
-                >
-                  Built Websites (Our Work)
-                </button>
+                <a href="#portfolio" className="hover:text-white transition-colors">
+                  01 / Selected Work
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => scrollToSection('clients')}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  Partner Institutions
-                </button>
+                <a href="#services" className="hover:text-white transition-colors">
+                  02 / Capabilities & Rate Card
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => scrollToSection('how-it-works')}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  How ELEVATE Works
-                </button>
+                <a href="#clients" className="hover:text-white transition-colors">
+                  03 / Client Network
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={() => scrollToSection('faq')}
-                  className="hover:text-white transition-colors cursor-pointer"
-                >
-                  Common Questions
-                </button>
+                <a href="#process" className="hover:text-white transition-colors">
+                  04 / 48h Execution Model
+                </a>
               </li>
               <li>
-                <button
-                  type="button"
-                  onClick={scrollToTop}
-                  className="inline-flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors cursor-pointer pt-1"
-                >
-                  <ArrowUp className="w-3.5 h-3.5" />
-                  <span>Back to top</span>
-                </button>
+                <a href="#faq" className="hover:text-white transition-colors">
+                  05 / Common Questions
+                </a>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* Bottom Copyright Row with Discreet Admin Link */}
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
-          <div>
-            &copy; {currentYear} ELEVATE Institutional Solutions. All rights reserved.
-          </div>
-          <div className="flex items-center gap-4">
-            <span>Schools, Madrasas &amp; Businesses</span>
-            <span aria-hidden="true" className="text-slate-700">
-              ·
-            </span>
-            <button
-              type="button"
-              onClick={onAdminClick}
-              className="text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
-            >
-              Admin
-            </button>
+        {/* COPYRIGHT & DISCREET ADMIN LINK */}
+        <div className="py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <p>
+            © {new Date().getFullYear()} {brandName}. Crafted for modern institutions & ambitious brands.
+          </p>
+          <div className="flex items-center gap-5">
+            <span>100% Transparent Rate Card</span>
+            {onAdminClick && (
+              <button
+                type="button"
+                onClick={onAdminClick}
+                className="inline-flex items-center gap-1.5 text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                title="Studio Admin Portal"
+              >
+                <Lock className="w-3 h-3" />
+                <span>Admin</span>
+              </button>
+            )}
           </div>
         </div>
       </div>

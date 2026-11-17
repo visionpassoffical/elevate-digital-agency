@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Header, type ServiceTabKey } from './components/Header';
 import { Hero } from './components/Hero';
-import { QuickValueStrip } from './components/QuickValueStrip';
 import { PortfolioSection } from './components/PortfolioSection';
 import { TabbedServicesHub } from './components/TabbedServicesHub';
 import { PartnerInstitutionsSection } from './components/PartnerInstitutionsSection';
 import { AdminInstitutionsModal } from './components/AdminInstitutionsModal';
 import { HowItWorks } from './components/HowItWorks';
 import { FaqSection } from './components/FaqSection';
-import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { SelectionDockBar } from './components/SelectionDockBar';
 import { QuoteModal } from './components/QuoteModal';
@@ -183,7 +181,7 @@ export default function App() {
   // Track active section for header indicator
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['portfolio', 'services', 'clients', 'how-it-works', 'faq', 'contact'];
+      const sections = ['portfolio', 'services', 'clients', 'process', 'faq', 'contact'];
       const scrollPos = window.scrollY + 200;
 
       for (const sectionId of sections) {
@@ -221,32 +219,29 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFFFFF] text-[#0F172A] flex flex-col">
-      {/* 1. CLEAN LIGHT HEADER */}
+    <div className="min-h-screen bg-[#FFFFFF] text-[#09090B] flex flex-col">
+      {/* 1. STUDIO HEADER */}
       <Header
         onOpenQuote={() => handleOpenQuote()}
         activeSection={activeSection}
         onSelectServiceTab={handleSelectServiceTab}
       />
 
-      {/* Main Content Layout (Low-Scroll Clean Light Architecture) */}
+      {/* Full-Bleed Alternating Architectural Surfaces (#FFFFFF / #F5F5F7 / #09090B) */}
       <main className="flex-1">
-        {/* 2. COMPACT SINGLE-SCREEN HERO */}
+        {/* 2. EDITORIAL AGENCY HERO + HAIRLINE KPI STRIP (#FFFFFF) */}
         <Hero
           onOpenQuote={() => handleOpenQuote()}
           onSelectServiceTab={handleSelectServiceTab}
         />
 
-        {/* 3. QUICK TRUST / VALUE STRIP */}
-        <QuickValueStrip />
-
-        {/* 4. BUILT WEBSITES / LIVE PORTFOLIO SHOWCASE (Horizontal Swipe on Mobile) */}
+        {/* 3. GALLERY-GRADE SELECTED WORK / PORTFOLIO CASE STUDIES (#F5F5F7) */}
         <PortfolioSection
           onOpenAdminPortfolio={() => handleOpenAdmin('portfolio')}
           onRequestQuote={(context) => handleOpenQuote(context)}
         />
 
-        {/* 5. UNIFIED TABBED SERVICES & PACKAGES HUB (Websites, Admission, Exams, Creatives, Bulk) */}
+        {/* 4. STUDIO CAPABILITIES & RATE CARD HUB (#FFFFFF) */}
         <TabbedServicesHub
           activeTab={activeServiceTab}
           onTabChange={handleSelectServiceTab}
@@ -265,27 +260,24 @@ export default function App() {
           onOpenQuote={(context) => handleOpenQuote(context)}
         />
 
-        {/* 6. PARTNER INSTITUTIONS MARQUEE */}
+        {/* 5. CLIENT NETWORK MARQUEE (#F5F5F7) */}
         <PartnerInstitutionsSection />
 
-        {/* 7. MERGED HOW IT WORKS & WHY ELEVATE (4-Card Compact Grid) */}
+        {/* 6. 3-STEP ARCHITECTURAL PROCESS (#FFFFFF) */}
         <HowItWorks />
 
-        {/* 8. COMPACT FAQ ACCORDION */}
+        {/* 7. MINIMAL HAIRLINE FAQ ACCORDION (#F5F5F7) */}
         <FaqSection />
-
-        {/* 9. MERGED CUSTOM / MADRASA BUNDLES & DIRECT WHATSAPP CONSULTATION DESK */}
-        <ContactSection onOpenQuote={(context) => handleOpenQuote(context)} />
       </main>
 
-      {/* 10. DARK NAVY FOOTER */}
+      {/* 8. UNIFIED FULL-BLEED STUDIO FINALE (CTA + FOOTER IN #09090B) */}
       <Footer
         onAdminClick={() => handleOpenAdmin('dashboard')}
-        onOpenQuote={() => handleOpenQuote()}
+        onOpenQuote={(context) => handleOpenQuote(context)}
         onSelectServiceTab={handleSelectServiceTab}
       />
 
-      {/* Persistent Floating Selection Dock Bar (Desktop & Mobile) */}
+      {/* Persistent Floating Selection Dock Bar (Only visible when items are selected) */}
       <SelectionDockBar
         websitePlan={selectedWebsitePlan}
         admissionData={admissionSelection}
@@ -301,7 +293,7 @@ export default function App() {
         onClearAll={handleClearAll}
       />
 
-      {/* Mobile Sticky Quick Action Bar (only visible after scrolling past Hero when no items are selected) */}
+      {/* Sleek Floating WhatsApp Pill Button (When cart is empty) */}
       <MobileStickyBar
         hasActiveSelection={
           Boolean(selectedWebsitePlan) ||

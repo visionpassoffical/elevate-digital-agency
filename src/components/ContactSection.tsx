@@ -26,12 +26,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ onOpenQuote }) =
   return (
     <section
       id="contact"
-      className="py-12 sm:py-16 bg-[#FFFFFF] text-[#0F172A] scroll-mt-16 relative overflow-hidden"
+      className="py-12 sm:py-16 bg-[#FFFFFF] text-[#0B0F19] scroll-mt-16 relative overflow-hidden"
     >
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* ONE Flagship Dark-Navy (#0F172A) Rounded Banner */}
-        <div className="relative rounded-3xl bg-[#0F172A] text-white p-6 sm:p-10 lg:p-12 overflow-hidden shadow-[0_24px_50px_-15px_rgba(15,23,42,0.5)]">
-          {/* Subtle Radial Blue Studio Glow */}
+        {/* ONE Flagship Dark-Obsidian (#0B0F19) Consultation Banner */}
+        <div className="relative rounded-3xl bg-[#0B0F19] text-white p-6 sm:p-10 lg:p-12 overflow-hidden shadow-[0_24px_50px_-15px_rgba(11,15,25,0.5)] ring-1 ring-white/10">
           <div
             aria-hidden="true"
             className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-gradient-to-br from-[#2563EB]/35 via-indigo-500/15 to-transparent blur-3xl pointer-events-none"
@@ -43,7 +42,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ onOpenQuote }) =
             </div>
 
             <h2 className="font-['Outfit'] font-extrabold text-2xl sm:text-3xl lg:text-4xl text-white tracking-tight leading-tight mb-3 text-balance">
-              Ready to Launch Your Institutional Digital Presence?
+              Ready to Upgrade Your Institution’s Digital Presence?
             </h2>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mb-6">

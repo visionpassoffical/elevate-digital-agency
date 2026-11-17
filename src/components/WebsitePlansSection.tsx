@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Check, ArrowRight, Lock, MessageCircle } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Check, ArrowUpRight, Lock, MessageCircle } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { WebsitePlanConfig, SelectedWebsitePlan } from '../types';
 import { useContent } from '../context/ContentContext';
@@ -19,7 +19,16 @@ export const WebsitePlansSection: React.FC<WebsitePlansSectionProps> = ({
   embedded = false,
 }) => {
   const { content, openWhatsAppMessage, formatWhatsAppTemplate } = useContent();
-  const plans = content.websitePlans || [];
+
+  // Order plans so Standard / Popular Plan is featured first
+  const orderedPlans = useMemo(() => {
+    const raw = [...(content.websitePlans || [])];
+    return raw.sort((a, b) => {
+      if (a.isPopular && !b.isPopular) return -1;
+      if (!a.isPopular && b.isPopular) return 1;
+      return 0;
+    });
+  }, [content.websitePlans]);
 
   const [internalSelectedPlan, setInternalSelectedPlan] = useState<SelectedWebsitePlan | null>(null);
   const selectedPlan = selectedPlanProp !== undefined ? selectedPlanProp : internalSelectedPlan;
@@ -59,30 +68,17 @@ export const WebsitePlansSection: React.FC<WebsitePlansSectionProps> = ({
       {!embedded && (
         <div className="max-w-3xl mb-10">
           <div className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#2563EB] mb-2">
-            TRANSPARENT INSTITUTIONAL PRICING
+            WEB ARCHITECTURE
           </div>
-          <h2 className="font-['Outfit'] font-extrabold text-2xl sm:text-3xl md:text-4xl text-[#0F172A] tracking-tight leading-tight">
-            Institutional Website Plans
+          <h2 className="font-['Outfit'] font-extrabold text-3xl sm:text-4xl text-[#09090B] tracking-[-0.03em] leading-tight">
+            Website Development Tiers
           </h2>
-          <p className="mt-2 text-sm sm:text-base text-slate-600 leading-relaxed">
-            Turnkey website architectures engineered for schools, academies, madrasas, and organizations.
-          </p>
         </div>
       )}
 
-      {/* Mobile Swipe Hint */}
-      <div className="flex items-center justify-between md:hidden mb-3 px-1">
-        <span className="text-[11px] font-semibold text-slate-500">
-          Swipe to compare plans
-        </span>
-        <span className="text-[11px] font-bold text-[#2563EB]">
-          3 Tiers →
-        </span>
-      </div>
-
-      {/* Pricing Comparison Tiers: Horizontal Snap Carousel on Mobile, 3-Col Grid on Desktop */}
-      <div className="flex md:grid md:grid-cols-3 gap-5 sm:gap-6 items-stretch overflow-x-auto md:overflow-visible snap-x snap-mandatory pt-3 pb-4 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 no-scrollbar">
-        {plans.map((plan, idx) => {
+      {/* Editorial Pricing Tiers */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 items-stretch">
+        {orderedPlans.map((plan, idx) => {
           const isSelected = selectedPlan?.id === plan.id;
           const isUnavailable = !plan.isAvailable;
           const isPopular = plan.isPopular;
@@ -95,43 +91,46 @@ export const WebsitePlansSection: React.FC<WebsitePlansSectionProps> = ({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2, delay: idx * 0.04 }}
-              className={`w-[85vw] max-w-[330px] sm:w-[340px] md:w-auto md:max-w-none shrink-0 snap-center relative flex flex-col justify-between rounded-2xl p-6 sm:p-7 transition-all duration-200 ${
+              className={`relative flex flex-col justify-between rounded-2xl p-6 sm:p-8 transition-all duration-200 ${
                 isPopular
-                  ? 'bg-[#0F172A] text-white shadow-[0_20px_45px_-15px_rgba(15,23,42,0.45)] ring-1 ring-white/10'
+                  ? 'bg-[#09090B] text-white border border-[#09090B]'
                   : isSelected
-                  ? 'bg-white text-[#0F172A] ring-2 ring-emerald-500 shadow-[0_10px_30px_-10px_rgba(15,23,42,0.1)]'
+                  ? 'bg-white text-[#09090B] border-2 border-[#2563EB]'
                   : isUnavailable
-                  ? 'bg-white/75 text-[#0F172A] shadow-[0_6px_20px_-10px_rgba(15,23,42,0.05)] opacity-85'
-                  : 'bg-white text-[#0F172A] shadow-[0_10px_30px_-10px_rgba(15,23,42,0.08)] hover:shadow-[0_16px_36px_-10px_rgba(15,23,42,0.12)]'
+                  ? 'bg-[#F5F5F7] text-[#09090B] border border-slate-200/80 opacity-80'
+                  : 'bg-white text-[#09090B] border border-slate-200/90 hover:border-slate-400'
               }`}
             >
-              {isPopular && (
-                <div className="absolute -top-3 left-6 px-3 py-1 text-[10px] font-bold tracking-[0.12em] uppercase bg-[#2563EB] text-white rounded-full shadow-[0_4px_12px_rgba(37,99,235,0.45)] whitespace-nowrap">
-                  MOST POPULAR
-                </div>
-              )}
-
               <div>
-                <div className="flex items-center justify-between gap-2 mb-2">
+                {/* Top Kicker Row */}
+                <div className="flex items-center justify-between gap-2 mb-3">
                   <span
-                    className={`font-['Outfit'] font-extrabold text-lg sm:text-xl tracking-tight ${
-                      isPopular ? 'text-white' : 'text-[#0F172A]'
+                    className={`text-[10px] font-bold uppercase tracking-[0.14em] ${
+                      isPopular ? 'text-[#2563EB]' : 'text-slate-400'
                     }`}
                   >
-                    {plan.name}
+                    {isPopular ? 'MOST POPULAR' : isUnavailable ? 'ENTERPRISE' : 'ESSENTIAL TIER'}
                   </span>
                   {isSelected && (
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
                       Selected
                     </span>
                   )}
                 </div>
 
+                <h3
+                  className={`font-['Outfit'] font-extrabold text-xl sm:text-2xl tracking-[-0.02em] mb-3 ${
+                    isPopular ? 'text-white' : 'text-[#09090B]'
+                  }`}
+                >
+                  {plan.name}
+                </h3>
+
                 {/* Price Block */}
-                <div className="mb-3 flex items-baseline">
+                <div className="mb-4 flex items-baseline">
                   <span
-                    className={`font-['Outfit'] font-extrabold text-3xl sm:text-4xl tracking-tight tabular-nums ${
-                      isPopular ? 'text-white' : 'text-[#0F172A]'
+                    className={`font-['Outfit'] font-extrabold text-3xl sm:text-4xl tracking-[-0.03em] tabular-nums ${
+                      isPopular ? 'text-white' : 'text-[#09090B]'
                     }`}
                   >
                     {formattedPlanPrice}
@@ -146,24 +145,16 @@ export const WebsitePlansSection: React.FC<WebsitePlansSectionProps> = ({
                 </div>
 
                 <p
-                  className={`text-xs sm:text-[13px] leading-relaxed mb-5 ${
-                    isPopular ? 'text-slate-300' : 'text-slate-600'
+                  className={`text-xs sm:text-sm leading-relaxed mb-6 pb-6 border-b ${
+                    isPopular
+                      ? 'text-slate-300 border-white/10'
+                      : 'text-slate-600 border-slate-200/80'
                   }`}
                 >
                   {plan.shortDescription}
                 </p>
 
-                <div
-                  className={`mb-3 text-[10px] font-bold uppercase tracking-[0.12em] pt-4 border-t ${
-                    isPopular
-                      ? 'border-white/10 text-slate-400'
-                      : 'border-slate-100 text-slate-400'
-                  }`}
-                >
-                  {isUnavailable ? 'Upcoming capabilities' : 'Included features'}
-                </div>
-
-                <ul className="grid grid-cols-1 gap-2.5 mb-6">
+                <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, fIdx) => {
                     const isEverythingInBasic = feature.startsWith('Everything in');
                     return (
@@ -175,13 +166,13 @@ export const WebsitePlansSection: React.FC<WebsitePlansSectionProps> = ({
                               ? 'font-bold text-white'
                               : 'text-slate-300'
                             : isEverythingInBasic
-                            ? 'font-bold text-[#0F172A]'
+                            ? 'font-bold text-[#09090B]'
                             : 'text-slate-600'
                         }`}
                       >
                         <Check
                           className={`w-4 h-4 shrink-0 mt-0.5 ${
-                            isPopular ? 'text-blue-400' : 'text-[#2563EB]'
+                            isPopular ? 'text-[#2563EB]' : 'text-[#09090B]'
                           }`}
                         />
                         <span className="leading-snug">{feature}</span>
@@ -192,27 +183,27 @@ export const WebsitePlansSection: React.FC<WebsitePlansSectionProps> = ({
               </div>
 
               {/* Plan Action CTA */}
-              <div className="pt-2">
+              <div>
                 {isUnavailable ? (
                   <button
                     type="button"
                     disabled
-                    className="w-full py-3 px-4 rounded-xl text-xs font-semibold text-slate-400 bg-[#F4F6FB] cursor-not-allowed flex items-center justify-center gap-1.5"
+                    className="w-full py-3.5 px-5 rounded-full text-xs font-semibold text-slate-400 bg-white border border-slate-200/80 cursor-not-allowed flex items-center justify-center gap-1.5"
                   >
                     <Lock className="w-3.5 h-3.5" />
                     <span>{plan.ctaLabel || 'Coming Soon'}</span>
                   </button>
                 ) : (
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <button
                       type="button"
                       onClick={() => handlePlanClick(plan)}
-                      className={`w-full py-3.5 px-4 rounded-xl text-xs font-bold active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      className={`w-full py-3.5 px-5 rounded-full text-xs font-bold active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer ${
                         isSelected
-                          ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
+                          ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
                           : isPopular
-                          ? 'bg-[#2563EB] hover:bg-blue-500 text-white shadow-[0_8px_25px_-4px_rgba(37,99,235,0.6)]'
-                          : 'bg-[#0F172A] hover:bg-[#2563EB] text-white'
+                          ? 'bg-[#2563EB] hover:bg-blue-500 text-white'
+                          : 'bg-[#09090B] hover:bg-[#2563EB] text-white'
                       }`}
                     >
                       {isSelected ? (
@@ -223,7 +214,7 @@ export const WebsitePlansSection: React.FC<WebsitePlansSectionProps> = ({
                       ) : (
                         <>
                           <span>{plan.ctaLabel || `Select ${plan.name}`}</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
+                          <ArrowUpRight className="w-4 h-4" />
                         </>
                       )}
                     </button>
@@ -234,7 +225,7 @@ export const WebsitePlansSection: React.FC<WebsitePlansSectionProps> = ({
                           isPopular ? 'text-slate-400' : 'text-slate-500'
                         }`}
                       >
-                        Added to order bar. Tap again to open WhatsApp.
+                        Added to project brief. Tap again to launch WhatsApp.
                       </p>
                     )}
                   </div>
@@ -245,23 +236,23 @@ export const WebsitePlansSection: React.FC<WebsitePlansSectionProps> = ({
         })}
       </div>
 
-      {/* Compact Custom Website Scope Strip */}
-      <div className="mt-6 bg-white rounded-2xl p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-[0_10px_30px_-10px_rgba(15,23,42,0.06)]">
+      {/* Architectural Custom Web Application Strip */}
+      <div className="mt-8 pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="font-['Outfit'] font-bold text-sm sm:text-base text-[#0F172A]">
-            Need a Custom Multi-Campus Portal or Results Desk?
-          </h3>
-          <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-            We build custom student portals, exam results lookup engines, and bespoke institutional web applications.
+          <h4 className="font-['Outfit'] font-bold text-base text-[#09090B]">
+            Need a Custom Web Application, E-Commerce Store, or Campus ERP?
+          </h4>
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            We architect custom portals, exam results lookup engines, and bespoke brand platforms.
           </p>
         </div>
         <button
           type="button"
           onClick={onOpenCustomQuote}
-          className="w-full sm:w-auto px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-[#2563EB] hover:bg-[#1D4ED8] transition-all flex items-center justify-center gap-1.5 shrink-0 cursor-pointer active:scale-98 whitespace-nowrap"
+          className="self-start sm:self-auto inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#2563EB] hover:text-[#09090B] transition-colors cursor-pointer whitespace-nowrap"
         >
-          <span>Request Custom Scope</span>
-          <ArrowRight className="w-3.5 h-3.5" />
+          <span>Discuss Custom Architecture</span>
+          <ArrowUpRight className="w-4 h-4" />
         </button>
       </div>
     </div>
@@ -272,8 +263,8 @@ export const WebsitePlansSection: React.FC<WebsitePlansSectionProps> = ({
   }
 
   return (
-    <section className="py-14 sm:py-20 bg-[#F4F6FB] text-[#0F172A] relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section className="py-14 sm:py-20 bg-[#FFFFFF] text-[#09090B] relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 relative z-10">
         {innerContent}
       </div>
     </section>

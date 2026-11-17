@@ -13,32 +13,35 @@ export const InstitutionLogoBadge: React.FC<InstitutionLogoBadgeProps> = ({
   logo,
   size = 'md',
   className = '',
-  grayscaleOnRest = false,
 }) => {
   const [imageError, setImageError] = useState(false);
 
-  // Reset image error state whenever logo changes
   useEffect(() => {
     setImageError(false);
   }, [logo]);
 
-  // Generate clean initials for typographical monogram badge (e.g., "AM", "SA")
+  // Generate clean 2-letter monogram for institutional badge
   const initials = React.useMemo(() => {
     if (!name || !name.trim()) return 'IN';
-    const words = name.trim().split(/\s+/).filter(Boolean);
+    const words = name
+      .trim()
+      .replace(/[^a-zA-Z0-9\s]/g, '')
+      .split(/\s+/)
+      .filter(Boolean);
+    if (words.length === 0) return 'IN';
     if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-    return (words[0][0] + (words[1] ? words[1][0] : '')).toUpperCase();
+    return (words[0][0] + words[1][0]).toUpperCase();
   }, [name]);
 
-  // Stable pleasant gradient based on institution name string
+  // Rich, vibrant gradient palette so every client badge looks like a crafted emblem
   const gradientClass = React.useMemo(() => {
     const gradients = [
-      'from-blue-600 to-indigo-800 text-white',
-      'from-emerald-600 to-teal-800 text-white',
-      'from-cyan-600 to-blue-800 text-white',
-      'from-violet-600 to-purple-800 text-white',
-      'from-amber-600 to-orange-800 text-white',
-      'from-sky-500 to-blue-700 text-white',
+      'from-[#2563EB] to-[#1E3A8A] text-white',
+      'from-[#059669] to-[#064E3B] text-white',
+      'from-[#4F46E5] to-[#312E81] text-white',
+      'from-[#0284C7] to-[#0C4A6E] text-white',
+      'from-[#D97706] to-[#78350F] text-white',
+      'from-[#7C3AED] to-[#4C1D95] text-white',
     ];
     let hash = 0;
     for (let i = 0; i < (name || '').length; i++) {
@@ -55,19 +58,20 @@ export const InstitutionLogoBadge: React.FC<InstitutionLogoBadgeProps> = ({
     xl: 'w-16 h-16 text-base rounded-2xl',
   }[size];
 
-  const hasValidLogo = Boolean(logo && logo.trim() && !imageError);
+  // Treat default placeholder paths (/logos/client-*) as monogram candidates unless a real custom logo (data:image or external/uploaded url) is provided
+  const isPlaceholderPath = Boolean(logo && /^\/logos\/client-\d+\.svg$/i.test(logo.trim()));
+  const hasValidCustomLogo = Boolean(logo && logo.trim() && !isPlaceholderPath && !imageError);
 
-  if (hasValidLogo) {
+  if (hasValidCustomLogo) {
     return (
-      <div className={`${sizeClasses} bg-slate-50 border border-slate-200/80 shrink-0 flex items-center justify-center overflow-hidden p-1.5 ${className}`}>
+      <div
+        className={`${sizeClasses} bg-white ring-1 ring-slate-200/80 shrink-0 flex items-center justify-center overflow-hidden p-1.5 shadow-2xs ${className}`}
+      >
         <img
           src={logo}
           alt={name}
-          className={`max-h-full max-w-full object-contain pointer-events-none transition-all duration-200 ${
-            grayscaleOnRest
-              ? 'filter grayscale group-hover/tile:grayscale-0 opacity-75 group-hover/tile:opacity-100'
-              : 'opacity-90 hover:opacity-100'
-          }`}
+          referrerPolicy="no-referrer"
+          className="max-h-full max-w-full object-contain pointer-events-none transition-transform duration-200"
           loading="lazy"
           onError={() => setImageError(true)}
         />
@@ -75,10 +79,9 @@ export const InstitutionLogoBadge: React.FC<InstitutionLogoBadgeProps> = ({
     );
   }
 
-  // Graceful Render: Clean typographical badge when no logo or image fails to load
   return (
     <div
-      className={`${sizeClasses} bg-gradient-to-br ${gradientClass} font-bold font-['Outfit'] tracking-wider shrink-0 flex items-center justify-center shadow-sm border border-white/20 select-none ${className}`}
+      className={`${sizeClasses} bg-gradient-to-br ${gradientClass} font-extrabold font-['Outfit'] tracking-wider shrink-0 flex items-center justify-center shadow-xs select-none ${className}`}
       title={name}
     >
       <span>{initials}</span>
